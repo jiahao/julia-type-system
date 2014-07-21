@@ -2,12 +2,27 @@
 %% http://bibdesk.sourceforge.net/
 
 
-%% Created for Jiahao Chen at 2014-07-21 18:57:13 -0400 
+%% Created for Jiahao Chen at 2014-07-21 19:23:48 -0400 
 
 
 %% Saved with string encoding Unicode (UTF-8) 
 
 
+
+@article{lua,
+	Author = {Roberto Ierusalimschy and de Figueiredo, Luiz Henrique and Celes Filho, Waldemar},
+	Date-Added = {2014-07-21 23:12:51 +0000},
+	Date-Modified = {2014-07-21 23:14:17 +0000},
+	Doi = {10.1002/(SICI)1097-024X(199606)26:6<635::AID-SPE26>3.0.CO;2-P},
+	Journal = {Software---Practice & Experience},
+	Number = {6},
+	Pages = {635-652},
+	Title = {Lua---an extensible extension language},
+	Url = {http://www.lua.org/spe.html},
+	Volume = {26},
+	Year = {1996},
+	Bdsk-Url-1 = {http://www.lua.org/spe.html},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1002/(SICI)1097-024X(199606)26:6%3C635::AID-SPE26%3E3.0.CO;2-P}}
 
 @techreport{mimerfc,
 	Annote = {Defines MIME types. There are six IETF RFCs but this one describes the actual media typing system.},
@@ -19,7 +34,8 @@
 	Number = {RFC 2046},
 	Title = {Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types},
 	Url = {http://tools.ietf.org/html/rfc2046},
-	Year = {1996}}
+	Year = {1996},
+	Bdsk-Url-1 = {http://tools.ietf.org/html/rfc2046}}
 
 @book{designpatterns,
 	Abstract = {Four software designers present a catalog of simple and succinct solutions to commonly occurring design problems, using Smalltalk and C++ in example code. These 23 patterns allow designers to create more flexible, elegant, and ultimately reusable designs without having to rediscover the design solutions themselves. The authors begin by describing what patterns are and how they can help you design object-oriented software. They go on to systematically name, explain, evaluate, and catalog recurring designs in object-oriented systems.--From publisher description.},
@@ -30,3 +46,70 @@
 	Publisher = {Addison-Wesley},
 	Title = {Design patterns: elements of reusable object-oriented software},
 	Year = {1995}}
+
+@inproceedings{exotypes,
+	Address = {New York, New York, USA},
+	Annote = {Exotypes are essentially macros that generate staged functions in Julia.
+        
+Main differences:
+        
+- Multiple dispatch paradigm obviates the need for some uses (maybe) and could make this more powerful
+- Terra is a separate layer on top of the Lua host language.
+- Specialization must be explicitly called in Terra
+- No need to distinguish between special syntax for built-in methods vs user-defined methods in Julia (Julia doesn't really have built-in methods)
+- Julia doesn't use automatic broadcasting to implement the Proxy design patten. In Terra, automatic broadcasting happens automatically when there is a \_\_methodmissing property defined.
+- Currently Julia uses an eager approach to resolving circularity. They did so initially in a prior paper also but they switched to lazy evaluation
+- In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting to being abole to create types with an unbounded number of behaviors becomes irrelvant. There is a separation of functions and objects in Julia that obviates the need for lazily queried properties (although it may still be a more efficient implementation choice).
+        
+      },
+	Author = {DeVito, Zachary and Ritchie, Daniel and Fisher, Matt and Aiken, Alex and Hanrahan, Pat},
+	Booktitle = {Proceedings of the 35th ACM SIGPLAN Conference on Programming Language Design and Implementation - PLDI '14},
+	Date-Modified = {2014-07-21 22:49:18 +0000},
+	Doi = {10.1145/2594291.2594307},
+	Pages = {77--88},
+	Publisher = {ACM Press},
+	Title = {First-class runtime generation of high-performance types using exotypes},
+	Year = {2014},
+	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2594291.2594307},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2594291.2594307}}
+
+@inproceedings{typeclass,
+	Address = {New York, New York, USA},
+	Author = {Wadler, Philip and Blott, Stephen},
+	Booktitle = {Proceedings of the 16th ACM SIGPLAN-SIGACT symposium on Principles of programming languages - POPL '89},
+	Date-Modified = {2014-07-21 22:57:11 +0000},
+	Doi = {10.1145/75277.75283},
+	Pages = {60--76},
+	Publisher = {ACM},
+	Title = {How to make \textem{ad-hoc} polymorphism less \textem{ad hoc}},
+	Year = {1989},
+	Bdsk-Url-1 = {http://dx.doi.org/10.1145/75277.75283}}
+
+@inproceedings{terra,
+	Address = {New York, New York, USA},
+	Author = {DeVito, Zachary and Hegarty, James and Aiken, Alex and Hanrahan, Pat and Vitek, Jan},
+	Booktitle = {Proceedings of the 34th ACM SIGPLAN conference on Programming language design and implementation - PLDI '13},
+	Doi = {10.1145/2491956.2462166},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/DeVito et al/Proceedings of the 34th ACM SIGPLAN conference on Programming language design and implementation - PLDI '13/DeVito et al. - 2013 - Terra.pdf:pdf},
+	Isbn = {9781450320146},
+	Keywords = {a multi-stage language for,high-performance computing,ra},
+	Pages = {105--116},
+	Publisher = {ACM},
+	Title = {{Terra}},
+	Year = {2013},
+	Bdsk-Url-1 = {http://dx.doi.org/10.1145/2491956.2462166}}
+
+@inproceedings{stagedfunc,
+	Address = {New York, New York, USA},
+	Author = {J\orring, Ulrik and Scherlis, William L.},
+	Booktitle = {Proceedings of the 13th ACM SIGACT-SIGPLAN symposium on Principles of programming languages - POPL '86},
+	Date-Modified = {2014-07-21 23:23:43 +0000},
+	Doi = {10.1145/512644.512652},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/J\o rring, Scherlis/Proceedings of the 13th ACM SIGACT-SIGPLAN symposium on Principles of programming languages - POPL '86/J\o rring, Scherlis - 1986 - Compilers and staging transformations.pdf:pdf},
+	Pages = {86--96},
+	Publisher = {ACM Press},
+	Title = {Compilers and staging transformations},
+	Url = {http://portal.acm.org/citation.cfm?doid=512644.512652},
+	Year = {1986},
+	Bdsk-Url-1 = {http://portal.acm.org/citation.cfm?doid=512644.512652},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1145/512644.512652}}
