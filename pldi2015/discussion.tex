@@ -1,2 +1,34 @@
 \section{Discussion}
+
+\subsection{Why is dynamic multiple dispatch useful for numerical computing?}
+
+If the matrix is composed of floating point types that BLAS and
+LAPACK routines can handle, the function call is dispatched onto an
+appropriate BLAS/LAPACK routine. Yet if the matrix contains other
+numeric types, such as rational numbers or quaternions, Julia provides
+generic methods which handle the computations using standard textbook
+algorithms. In this way, multiple dispatch allows the widest possible
+set of inputs while not giving up the ability to use handcrafted
+performant kernels when they are available.
+
+The ability to perform multiple dispatch dynamically is valuable
+when you can specialize on certain algorithms but you can only
+determine which algorithm to dispatch on at runtime. This is useful
+for linear algebraic applications where certain properties of an input
+matrix are difficult to determine \textit{a priori}, such as matrix
+symmetries like Hermitianess, or spectral properties like positive
+definiteness. The matrix square root function (\code{sqrtm}) uses
+runtime multiple dispatch to check if the input matrix is symmetric
+(for real element types) or Hermitian (for complex element types). If
+the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a
+specialized method to compute the principal matrix square root using
+the eigenvalues and eigenvectors, otherwise a different method is
+dispatched upon which computes and uses the Schur factorization
+instead. The \code{factorize} function in Julia is another, more
+extreme example of how dynamic multiple dispatch can be used to detect
+matrix symmetries and structure (e.g. if a matrix is diagonal,
+symmetric tridiagonal, upper triangular, etc.) and compute appropriate
+matrix factorizations that best take advantage of the detected matrix
+structure.
+
 \TODO{Talk about the psychological implications of types.}
