@@ -39,8 +39,8 @@ specifying all the possible methods upfront. This is used to good effect
 in Julia packages to extend functionality of the base library. For example,
 the package \package{Color.jl} for manipulating color spaces extends the
 \code{writemime} base function, which writes an object as a specified
-MIME type to an I/O stream. \code{Color.jl} extends \code{writemime} with
-new methods that draw color swatches.
+MIME type\cite{mimerfc} to an I/O stream. \code{Color.jl} extends
+\code{writemime} with new methods that draw color swatches.
 
 \TODO{Here, we could put a figure showing writemime being called on a base
 Julia object, writemime(::Color), and writemime(::VectorColor) objects.
