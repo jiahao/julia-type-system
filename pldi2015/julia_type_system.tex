@@ -3,6 +3,13 @@
 \subsection{Basics}
 \TODO{This is where we write one of those trees.}
 
+\paragraph{What is a type?}
+Types are values in Julia.
+
+\paragraph{Dataflow analysis}
+
+\paragraph{Subtyping relations and the type lattice}
+
 \paragraph{\code{typeof}}
 
 You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
@@ -15,11 +22,17 @@ typeof(bits, tag) = (tag, DataType) #Returns a value
 
 \TODO{There is a subtletly about typeof's behavior. typeof is a projection; typeof(not-a-type) produces a DataType, which projects non-type values onto types. It also has the effect of lifting non-type values onto a type lattice; the latter is defined only for values that are DataTypes.}
 
+\paragraph{Widening}
+
+\TODO{Formal proof of correctness?}
+
 \subsection{Dispatch}
 
-\subsection{Type Inference}
+\paragraph{method sorting for specificity}
 
-\TODO{The main novelty and challenge is explaining type parameters and typevars}
+\TODO{The main novelty and challenge is explaining type parameters and typevars. Currently typevars are not first-class objects in Julia; you can't pass them to a function. Expressions of the form \code{T<:SomeType} don't have an independent existence outside a function signature that also contains the \code{\{T...\}} construction.}
+
+\subsection{Type Inference}
 
 \subsection{Type promotion}
 
