@@ -12,3 +12,21 @@ Julia uses an eager approach to resolving circularity in method definitions. Exo
 \TODO{Multiple dispatch paradigm may obviate the need for exotypes in some uses and make exotypes more powerful in others}
 
 In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting to being abole to create types with an unbounded number of behaviors becomes irrelvant. There is a separation of functions and objects in Julia that obviates the need for lazily queried properties (although it may still be a more efficient implementation choice).
+
+\paragraph{Dylan}
+
+Like Julia, dispatch is dynamic, except where the compiler has determined (possibly with sealing optimizations) that it can be optimized into a static dispatch.
+
+Dylan is object-oriented in the style of Common Lisp, but unlike Comoon Lisp, also integrated the object system into the language. 
+
+Dylan supports a limited form of parametric types, which are called limited types.\cite{dylanman} This allows for some modicum of generic programming.
+
+Dylan allows structural inheritance from concrete types by structural inheritance, i.e. by adding fields on top of those in the parent type. In Julia all concrete types are final: inheritance is only allowed from abstract types which are essentially what OO researchers call traits. Dylan lacks traits, which are a useful mechanism for expressing generic programs.
+
+Julia's focus is not on objects, but rather on generic and functional programming. 
+
+Dylan supports multiple inheritance, while Julia does not and instead resorts to duck typing.
+
+An extension for Dylan allows for gradual typing, allowing for type information to be determined at compile time~\cite{Mehnert2010}.
+
+%Staged functions, dynamic λ-calculus, gradual typing... all seem to be closely related aspects of the same thing: it is often advantageous to split the determination of type information between compile time and runtime.
