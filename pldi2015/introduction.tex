@@ -1,5 +1,29 @@
 \section{Introduction}
 
+Dynamically typed languages are becoming increasingly popular for scientific programming. [Talk about some examples. MATLAB, Dylan...?]
+
+Dynamically typed languages are popular when computing on data of uncertain formats or with uncertain outcomes. Suppose you have a ten-terabyte dataset. You want to find the parts of it that are useful. The first step is to summarize the data set. There are various tools to summarize the data set [talk about what these are], but it is usually not clear which of the tools will produce useful summaries. This process is one of rapid iteration: the programmer must keep trying summary toolchains until there is one that works. [What does it mean to work?]
+
+Dynamically typed languages are often better suited for this rapid iteration process. In this class of programs, the programming process is one of running experiments rather than one of building robust systems. This is the nature of many scientific programs: programs operating over data sets created by scientific experiments. Scientific programs frequently involve operating over reified data values whose types are difficult to predict. Because it is not always clear what the properties of the data are going to be, it is not clear what the types of the values and which functions to call. [Be more specific about this?] Writing this code in statically typed languages involves extensive case statements on types and typed enumeration of the possible different cases. The programmer can avoid this in dynamic languages.
+
+Consider an example involving linear algebra operations on matrices.
+
+Unfortunately, dynamic types often make it difficult to execute code efficiently. [Talk about this in the context of the example.]
+
+As a solution, we present a solution based around efficient multiple dispatch. Much of the overhead in dynamic languages comes from dynamic lookups of function dispatch. [TODO: Is this actually true?] We present a programming language Julia where the key insight is designing a dispatch mechanism that allows for as much static resolution as possible. Julia programs are organized around multiple dispatch: programs overload functions for different combinations of argument types. The key ingredients in Julia are multi-methods and a static data flow algorithm for type inference. Julia’s multi-methods are designed around static analysis to resolve programmer-specific type tags as much as possible. Julia is dynamically typed in that the compiler does not statically reject ill-typed programs, but Julia is designed to optimize static type and dispatch inference.
+ [TODO: Figure out how new this idea of type tags is.] [TODO: Contextualize this in existing work.]
+
+In this paper, we describe the Julia language and type system and our implementation of type inference and multiple dispatch mechanisms for Julia. Julia is a high-performance dynamic language with a compiler, distributed parallel execution, numerical accuracy, and an extensive mathematical function library. Julia has a dynamic semantics based on efficient multiple dispatch. Julia combines programmer-specified type tags with a type inference engine to statically optimize method dispatch. We demonstrate [X]x performance improvements over [MATLAB? un-optimized Julia code?]. To demonstrate the relevance and potential impact of designing a language based around multiple dispatch, we also describe the the manifestations of multiple dispatch in Julia's standard library.
+
+The main contributions of this paper are as follows:
+We describe the multiple dispatch semantics of the Julia language.
+We describe our algorithms for statically resolving method dispatches when information is available.
+We describe the uses of multiple dispatch in Julia’s standard library.
+We describe the performance of Julia benchmarks. [Compare to other numbers.]
+
+\subsection{Introductory example}
+[What is the main thing we are trying to show with the introductory example?]
+
 \paragraph{Limitations of class-based dispatch for numerics} %TODO These paragraph markings are structural only; take them out later.
 
 Arguably, class-based dispatch is not natural for numeric computations. It's difficult to know upfront all the possible things you want to do to a floating point number.

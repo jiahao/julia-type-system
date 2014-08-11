@@ -5,13 +5,78 @@
   (With apologies to H. Magritte)
 \end{quote}
 
+We now define the types in Julia. We have designed the type system to be as permissive as possible to programmers while still providing enough information to statically resolve a significant portion of dispatches. The main contribution of the type system design is that types are values that the programmer can write programs to compute. The challenge in designing such a type system are in specifying how tags can be computed and how the subtyping relationships work. [Question: is this type system based on/similar to any other type system?]
+Motivating reason: having types as values allows you to have fewer components to the language design. Lets you write array parametric on a type without explicitly declaring the type parameter.
+Main challenges:
+- Types/tags exist to describe things in a standard way. Challenge to think about what needs to be described. Canonical example for long time was arrays with different element types.
+[What were the main difficulties in designing the type system?]
+[What about promoters? Do type promotions show up in other languages?]
+Type promotions are written as user-level code to compute new types.
+
+In Figure [FIGURE REF] we show Julia’s types. A type can be an abstract [what the heck is an abstract], a data constructor [is this a record?], a tuple, a quantification over a set of types, a union, or a singleton type. In the code, singletons are used for computations on types themselves, such as type promotions. For example, given two types, can ask what the promoted type is. So far haven’t had singleton types for general values. (Sorting algorithms example: used more for dispatch as shorthand for type with no parameters.) Will use this more because generating specialized code is big for scientific computing, but need to figure out what to specialize on and how to tell system what to specialize on. State of the art is to have ad hoc systems.
+
+An abstract type declares a type without a representation. It takes the name of a type, parameters [what do the parameters do?], and the name of the super type. Data type declarations additionally provide a representation. [TODO: Talk about the representation.]
+Abstract type and data type declarations are invariant and nominative.
+
+Tuples are covariant.
+
+ForAll types quantify over all types between a lower bound and upper bound. Have lower bound and upper bound because of containers that can be read and written. People mostly only use the upper bounds. No function types, so no contravariance, so lower bounds don’t get used much. In theory, can still use them for functions that mutate things.
+
+[How does type promotion fit into all this?]
+
+\begin{minted}[frame=lines,framesep=2mm]{julia}
+Type ::= Abstract | Data | Tuple | ForAll | Union | Singleton
+Abstract ::= Name (P) Super }
+Data ::= Name (P) Super Repr } invariant, nominative
+TODO: What is repr?
+Tuple ::= (T1, T2, …) | (T1, T2, …, Tn, …) } covariant
+ForAll ::= $\forall$ (lb <: T <: ub) . Type
+Union ::= U (T1, T2, …)
+Singleton ::= Lift Value
+TypeVar ::= lb <: Name <: ub
+top ::= Any
+--
+Tag ::= Data | Tuple
+\end{minted}
+
 \subsection{Basics}
 \TODO{This is where we write one of those trees.}
+
+Can write procedures to subtype.
+
+Jeff is pretty sure subtyping is decidable and well-defined
+Join is union of any two types; meet is less well-defined in this lattice
+
+What are types in Julia?
+Dynamically typed.
+What is inheritance like?
+How does Julia avoid problems that OO languages tend to have with dispatch? (I’m not actually sure what they are.)
+Is there multiple inheritance?
+No, but it’s been discussed (https://github.com/JuliaLang/julia/issues/5)
+Is there multiple subtyping?
+No, each type has only one supertype
+We should also describe the dispatch mechanism.
+Method tables are a sorted list of these types.
+Implemented as \code{jl\_methtable\_t}
 
 \paragraph{What is a type?}
 Types are values in Julia.
 
 \paragraph{Dataflow analysis}
+
+What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
+Problem is finding the tightest possible set of allowable types.
+There are tweaks to the standard algorithm. One big thing is that dataflow analysis only goes in forward direction.
+Kaplan-Ullman also doesn’t treat parametric types
+Julia also has a widening step.
+Relies on types having only one supertype.
+Diagonal dispatch: can constrain arguments to same type.
+
+\TODO{What are the challenges?}
+
+\TODO{What is the complexity?}
+
+\TODO{What is the best way to express this?}
 
 \paragraph{Subtyping relations and the type lattice}
 

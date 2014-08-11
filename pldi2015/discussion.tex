@@ -2,6 +2,24 @@
 
 \subsection{Why is dynamic multiple dispatch useful for numerical computing?}
 
+Dynamic multiple dispatch is valuable for writing generic numeric code which
+handles the broadest possible set of inputs while at the same time making use
+of handcrafted performant kernels when they are available. An illustration of
+this principle can be seen in Julia's linear algebra routines. Many systems
+provide optimized implementations of standard libraries such as BLAS (Basic
+Linear Algebra Subprograms) and LAPACK (Linear Algebra PACKage) which provide
+standard functionality such as matrix-matrix multiplication and spectral
+decompositions for computing eigenvalues and eigenvectors: Implementations such
+as ATLAS, GotoBLAS and OpenBLAS provide performant kernels customized for
+individual microarchitectures that can reach a significant fraction of
+theoretical peak FLOPS. 
+
+There are a few limitations, however. First, these routines are defined only for
+hardware-representable floating point numbers. Second, because these libraries are written in Fortran, with no notion of polymorphic dispatch, we have to deal with an awkward nomenclature 
+%XXX ^^^ Also, ^^^ These libraries are written
+in Fortran 77 and have an awkward nomenclature inherited from old-style
+Fortran. The procedures have short names (six letters long in the earliest
+versions) and the first letter of each proc (Basic Linear Algebra Subprograms)
 If the matrix is composed of floating point types that BLAS and
 LAPACK routines can handle, the function call is dispatched onto an
 appropriate BLAS/LAPACK routine. Yet if the matrix contains other
@@ -10,6 +28,14 @@ generic methods which handle the computations using standard textbook
 algorithms. In this way, multiple dispatch allows the widest possible
 set of inputs while not giving up the ability to use handcrafted
 performant kernels when they are available.
+
+\TODO{What is the motivating problem for this? Is it that we get matrices where the different types are unknown?
+Can we show specific code for this?
+How would this look in a different language?
+need more context - what is blas, lapack, why need to support custom user element types?
+widest possible set of inputs -> explain why there is need to support custom numeric types? not necessarily mappable to hw floating point types
+reuse same code, using just dispatch to handle computation with generic fallback or hand-optimized numeric kernels in LAPACK/BLAS
+as opposed to having differently named functions, e.g. s/d/z/c/gelsy (xgelsy) - make clear how dispatch allows for overloading}
 
 The ability to perform multiple dispatch dynamically is valuable
 when you can specialize on certain algorithms but you can only
@@ -30,6 +56,8 @@ matrix symmetries and structure (e.g. if a matrix is diagonal,
 symmetric tridiagonal, upper triangular, etc.) and compute appropriate
 matrix factorizations that best take advantage of the detected matrix
 structure.
+
+\TODO{show code examples}
 
 \TODO{Other possible examples from Distributions.jl: QQ plots, posterior function}
 
