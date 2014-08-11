@@ -3,7 +3,7 @@ Exotypes\cite{exotypes} provide to the Lua language\cite{lua} the analogue of ma
 
 There are some notable differences, though:
 
-Exotypes are programmed in Terra,\cite{terra} a separate layer on top of the Lua host language, and method specialization must be explicitly invoked from within Terra. The syntax incurred by having two language layers creates an artificial distinction between builtin methods and user-defined methods that doesn't exist in Julia.
+Exotypes are programmed in Terra,\cite{terra} a separate layer on top of the Lua host language, and method specialization must be explicitly invoked from within Terra. The syntax incurred by having two language layers creates an artificial distinction between built-in methods and user-defined methods that doesn't exist in Julia.
 
 Exotypes implement automatic broadcasting when there is a \code{\_\_methodmissing} property defined. Julia does not use automatic broadcasting to implement the Proxy design pattern.
 
@@ -11,13 +11,13 @@ Julia uses an eager approach to resolving circularity in method definitions. Exo
 
 \TODO{Multiple dispatch paradigm may obviate the need for exotypes in some uses and make exotypes more powerful in others}
 
-In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting to being abole to create types with an unbounded number of behaviors becomes irrelvant. There is a separation of functions and objects in Julia that obviates the need for lazily queried properties (although it may still be a more efficient implementation choice).
+In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting to being able to create types with an unbounded number of behaviors becomes irrelevant. There is a separation of functions and objects in Julia that obviates the need for lazily queried properties (although it may still be a more efficient implementation choice).
 
 \paragraph{Dylan}
 
 Like Julia, dispatch is dynamic, except where the compiler has determined (possibly with sealing optimizations) that it can be optimized into a static dispatch.
 
-Dylan is object-oriented in the style of Common Lisp, but unlike Comoon Lisp, also integrated the object system into the language. 
+Dylan is object-oriented in the style of Common Lisp, but unlike Common Lisp, also integrated the object system into the language. 
 
 Dylan supports a limited form of parametric types, which are called limited types.\cite{dylanman} This allows for some modicum of generic programming.
 
@@ -28,5 +28,29 @@ Julia's focus is not on objects, but rather on generic and functional programmin
 Dylan supports multiple inheritance, while Julia does not and instead resorts to duck typing.
 
 An extension for Dylan allows for gradual typing, allowing for type information to be determined at compile time~\cite{Mehnert2010}.
+
+\paragraph{Dynamically-typed $\lambda$-calculus}
+
+Several extensions of typed $\lambda$-calculus have been developed to handle dynamic types.
+
+One flavor is described in (Henglein, 1994), where a special type tag \code{Dyn}
+was introduced as a placeholder type that is dynamically coerced into other
+types. %But this is not the kind of polymorphism that Julia has
+
+Other examples of coercive polymorphic $\lambda$-calculi: the $F^\uparrow_C$ language of \cite{Vytiniotis2012,Yorgey2012} used to describe the type inference algorithm in GHC \cite{Vytiniotis2011} contains type coercion information that allows type errors to deferred to runtime \cite{Vytiniotis2012} while preserving type-correctness. (This requires so-called kind polymorphism, which allows for programs to reason about kinds. \cite{Yorgey2012})
+
+%Attempt to explain Julia's polymorphism features
+
+However, this describes coercive polymorphism \cite{Cardelli1985}, which
+is arguably not true polymorphism in the sense that it is not
+universal~\cite{Strachey1967}. In contrast, Julia supports two distinct
+mechanisms for universal polymorphism, namely subtyping (a special case of
+inclusion polymorphism), and parametric polymorphism.
+
+Julia is not a true polymorphic system in the sense of \cite{Cardelli1985},
+where code is generated only once for every generic procedure. Julia generates
+a variety of specialized methods and so are more in the send of Ada-style
+generic procedures which are abbreviations for sets of monomorphic procedures.
+
 
 %Staged functions, dynamic λ-calculus, gradual typing... all seem to be closely related aspects of the same thing: it is often advantageous to split the determination of type information between compile time and runtime.
