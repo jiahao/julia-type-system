@@ -22,4 +22,28 @@ As a result of the more liberal attitude taken toward program validation, dynami
 
 %TODO This is very garbled and mostly reflects my lack of understanding of dispatch systems - cjh
 
-The needs of technical computing can exceed the abilities of most dispatch systems. In particular, it is usually not possible to have new behaviors that intermix new types and new functions. One group of languages allows you to have new types but their dispatch upon existing functions cannot be defined. Subtyping is the usual paradigm here, but it is closed because it assumes you've covered all the cases explicitly. Object oriented progrmming can be seen as a solution around this problem, but in pure OO, objects have only identity and have no interface protocol. Classes are a mechanism for implementing message sends, defining actions \exist{upon} an object. The other group of languages allows you to have new functions but not for existing types. Haskell typeclasses~\cite{typeclass} are a fixed collection of interfaces; while additional functions can be defined, only the functions that form part of the existing interface can interact with an existing type.
+The needs of technical computing can exceed the abilities of most dispatch systems. In particular, it is usually not possible to have new behaviors that intermix new types and new functions. One group of languages allows you to have new types but their dispatch upon existing functions cannot be defined. Subtyping is the usual paradigm here, but it is closed because it assumes you've covered all the cases explicitly. Object oriented progrmming can be seen as a solution around this problem, but in pure OO, objects have only identity and have no interface protocol. Classes are a mechanism for implementing message sends, defining actions \textit{upon} an object. The other group of languages allows you to have new functions but not for existing types. Haskell typeclasses~\cite{typeclass} are a fixed collection of interfaces; while additional functions can be defined, only the functions that form part of the existing interface can interact with an existing type.
+
+\paragraph{Fewer language constructs for user simplicity}
+
+The original motivation in Julia for having types as values was to simplify the
+language for technical computing users. The current design came about from
+considering the desire for users to simplify code dealing with parametrically
+polymorphic types, i.e. be able to write things like \code{Array} as a synonym
+for \code{Array\{T\}}. Such synonyms are valuable for composability when writing 
+methods that are agnostic about the type parameter \code{T}. Methods that cared
+about \code{T} can be defined with a type signature that explicitly mentions
+\code{T} and methods that did not care about \code{T} can have a type signature
+that left it out.
+
+%XXX like R? I forgot which language Jeff mentioned
+The ability to leave out type parameters in function signatures contrasts with
+other languages which require explicit specification of all type parameters,
+resulting in users having to write redundant code blocks whose sole purpose is
+handle the nuisance parameter. In contrast, the value proposition in Julia is
+that having types as values, a collapsed kind hierarchy (i.e. making no
+distinction between types and kinds (meta-types) and meta-kinds etc.), plus
+being able to reason about types dynamically, affords users a way to harmonize
+the use of types and pattern matching language constructions that are common in
+other languages.
+
