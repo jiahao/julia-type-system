@@ -16,7 +16,7 @@ when you can specialize on certain algorithms but you can only
 determine which algorithm to dispatch on at runtime. This is useful
 for linear algebraic applications where certain properties of an input
 matrix are difficult to determine \textit{a priori}, such as matrix
-symmetries like Hermitianess, or spectral properties like positive
+symmetries like Hermiticity, or spectral properties like positive
 definiteness. The matrix square root function (\code{sqrtm}) uses
 runtime multiple dispatch to check if the input matrix is symmetric
 (for real element types) or Hermitian (for complex element types). If
