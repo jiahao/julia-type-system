@@ -9,53 +9,106 @@ this principle can be seen in Julia's linear algebra routines. Many systems
 provide optimized implementations of standard libraries such as BLAS (Basic
 Linear Algebra Subprograms) and LAPACK (Linear Algebra PACKage) which provide
 standard functionality such as matrix-matrix multiplication and spectral
-decompositions for computing eigenvalues and eigenvectors: Implementations such
+decompositions for computing eigenvalues and eigenvectors. Implementations such
 as ATLAS, GotoBLAS and OpenBLAS provide performant kernels customized for
 individual microarchitectures that can reach a significant fraction of
-theoretical peak FLOPS. 
+theoretical peak FLOPS.
 
-There are a few limitations, however. First, these routines are defined only for
-hardware-representable floating point numbers. Second, because these libraries are written in Fortran, with no notion of polymorphic dispatch, we have to deal with an awkward nomenclature 
-%XXX ^^^ Also, ^^^ These libraries are written
-in Fortran 77 and have an awkward nomenclature inherited from old-style
-Fortran. The procedures have short names (six letters long in the earliest
-versions) and the first letter of each proc (Basic Linear Algebra Subprograms)
-If the matrix is composed of floating point types that BLAS and
-LAPACK routines can handle, the function call is dispatched onto an
-appropriate BLAS/LAPACK routine. Yet if the matrix contains other
-numeric types, such as rational numbers or quaternions, Julia provides
-generic methods which handle the computations using standard textbook
-algorithms. In this way, multiple dispatch allows the widest possible
-set of inputs while not giving up the ability to use handcrafted
-performant kernels when they are available.
+There are a few limitations, however. Chief among these is the cognitive burden
+for users to learn how these routines are named and figuring out which routine
+performs the desired computations. These libraries, like many scientific codes,
+are written in Fortran, with no notion of polymorphic dispatch. Most of these
+routines have six letter names in line with traditional Fortran 77 subroutine
+nomenclature.
 
-\TODO{What is the motivating problem for this? Is it that we get matrices where the different types are unknown?
-Can we show specific code for this?
-How would this look in a different language?
-need more context - what is blas, lapack, why need to support custom user element types?
-widest possible set of inputs -> explain why there is need to support custom numeric types? not necessarily mappable to hw floating point types
-reuse same code, using just dispatch to handle computation with generic fallback or hand-optimized numeric kernels in LAPACK/BLAS
-as opposed to having differently named functions, e.g. s/d/z/c/gelsy (xgelsy) - make clear how dispatch allows for overloading}
+\begin{enumerate}
 
-The ability to perform multiple dispatch dynamically is valuable
-when you can specialize on certain algorithms but you can only
-determine which algorithm to dispatch on at runtime. This is useful
-for linear algebraic applications where certain properties of an input
-matrix are difficult to determine \textit{a priori}, such as matrix
-symmetries like Hermiticity, or spectral properties like positive
-definiteness. The matrix square root function (\code{sqrtm}) uses
-runtime multiple dispatch to check if the input matrix is symmetric
-(for real element types) or Hermitian (for complex element types). If
-the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a
-specialized method to compute the principal matrix square root using
-the eigenvalues and eigenvectors, otherwise a different method is
-dispatched upon which computes and uses the Schur factorization
-instead. The \code{factorize} function in Julia is another, more
-extreme example of how dynamic multiple dispatch can be used to detect
-matrix symmetries and structure (e.g. if a matrix is diagonal,
-symmetric tridiagonal, upper triangular, etc.) and compute appropriate
-matrix factorizations that best take advantage of the detected matrix
-structure.
+\item The first letter of each routine name describes the floating point type
+(e.g.\ single precision real, double precision real, single precision complex
+and double precision complex).
+
+\item The next two letters is a code for the type of matrix (e.g.\ \code{GE} for
+general, \code{ST} for symmetric tridiagonal).
+
+\item The last few letters describe the type of computation to carry out (e.g.\
+\code{SV} for linear solver, \code{EIN} for eigenvalues and eigenvalues). This
+produces a proliferation of routines with a large amount of redundant code.
+Furthermore, it is very difficult to extend these libraries with new
+functionality, as many redundant routines have to be written even something as
+fundamental as adding a new level of floating-point precision.
+
+\end{enumerate}
+
+In contrast, Julia's system of generic functions with polymorphic dispatch
+system allows a compact factorization of the namespace of linear algebra
+routines. Instead of a routine name like \code{DSTEIN} (double precision
+symmetric tridiagonal eigenproblem solver), the \code{LinAlg} module in base
+Julia introduces the function \code{eig} which solves eigensystems, and allows
+parametric method signatures like
+\code{eig\{T<:BlasFloat\}(M::SymTridiagonal\{T\})} which allow specialized
+methods to be defined for both the matrix type (\code{SymTridiagonal},
+symmetric tridiagonal) and its element type (\code{BlasFloat} is a union type
+\code{Union(Float32, Float64, Complex\{Float32\}, Complex\{Float64\})}, and so
+\code{T<:BlasFloat} specifies a template that defines four separate,
+specialized methods. The \code{LinAlg.LAPACK} module also uses Julia's
+metaprogramming capabilities to map Julia function calls onto their LAPACK
+equivalents. In this way, multiple dispatch allows a handful of overloaded
+functions to accept the widest possible set of inputs while not giving up the
+ability to use handcrafted performant kernels when they are available.
+
+The ability to add new specialized methods to existing generic functions allows
+new functionality to be added seamlessly. For example, Julia provides generic
+fallback routines to do matrix computations over arbitrary fields of element
+types \code{T}, providing the ability to compute on numeric types which are not
+mappable to hardware floating point types. This can be useful to perform matrix
+computations in exact rational arithmetic or software--emulated higher
+precision floating point arithmetic to verify the implementations of algorithms
+or to detect the possibility of numerical instability associated with roundoff
+errors. Oftentimes it is possible to write a single kernel that will work
+independently of the underlying field \code{T}, avoiding the need to write
+redundant code.
+
+The ability to perform multiple dispatch dynamically is valuable when you can
+specialize on certain algorithms but you can only determine which algorithm to
+dispatch on at runtime. This is useful for linear algebraic applications where
+certain properties of an input matrix are difficult to determine \textit{a
+priori}, such as matrix symmetries like Hermiticity, or spectral properties
+like positive definiteness. For example the matrix square root function
+(\code{sqrtm}) includes a runtime check to detect if the input matrix is
+symmetric (for real element types) or Hermitian (for complex element types). If
+the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a faster,
+specialized method to compute the principal matrix square root using the
+eigenvalues and eigenvectors, otherwise a different method is dispatched upon
+which computes and uses the Schur factorization instead.
+
+The generality afforded by dynamic dispatch allows for runtime dispatch onto
+optimized kernels depending on the input matrix. For example, the
+\code{sqrtm\{M::Matrix\}} function for computing matrix square roots contains a
+runtime check to detect if the input matrix is symmetric. If it is, then the
+computation is dispatched onto a \code{sqrtm\{S::Symmetric\}} method which
+computes more efficiently than the general case. Of course if the user knows at
+the time of writing the code he or she could call the specialized method
+directly, but the ability to do dynamic dispatch allows the same performant
+kernel to be called even in situations where the user does not know about the
+special symmetry of a particular input matrix, or perhaps may not even be aware
+of specialized algorithms that can be enabled by such information that can be
+deduced at runtime.
+
+The \code{factorize} function in Julia is another, more extreme example of how
+dynamic multiple dispatch can be used to detect matrix symmetries and structure
+(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
+and compute appropriate matrix factorizations that best take advantage of the
+detected matrix properties. The output is a matrix factorization object whose
+specific type is only defined at runtime depending on the specific matrix
+properties that are detected at runtime. For example, calling \code{factorize}
+on a symmetric positive definite matrix returns a \code{Cholesky} type
+representing a Cholesky factorization, whereas a symmetric indefinite matrix
+would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
+instead. Positive definiteness is a good example of a matrix property that can
+be difficult to determine \textit{a priori} and the fastest way to detect it
+would be to attempt to compute a matrix factorization that succeeds only on
+postiive definite matrices (such as the Cholesky decomposition), and fallback
+to returning a different type if the computation failed.
 
 \TODO{show code examples}
 
