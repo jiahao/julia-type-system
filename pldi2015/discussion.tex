@@ -110,43 +110,59 @@ would be to attempt to compute a matrix factorization that succeeds only on
 postiive definite matrices (such as the Cholesky decomposition), and fallback
 to returning a different type if the computation failed.
 
-Generic functions express a common action or common computation, which may in
+Generic functions express a common action or computation, which may in
 practice be performed in many different ways depending on the inputs. For
 example, one may wish to compute the mean of a given statistical distribution.
 In Julia, the computation can be expressed simply as dispatch onto the method
-\code{mean(D::Distribution)}. In contrast, much scientific code is written in
-languages that lack generic functions, resulting in users having to keep track
-of a large family of very closely related functions which together can be
-thought of as specialized mthods for a polymorphic function.
+\code{mean(D::Distribution)}, with a different method for \code{mean} being
+defined for different \code{Distribution}s. In contrast, much scientific code
+is written in languages that lack generic functions, resulting in users having
+to keep track of a large family of very closely related functions which
+together can be thought of as specialized mthods for a polymorphic function.
+Table~\ref{statsfunctions} shows a family of closely related functions in the R
+programming language and their Julia counterparts in the
+\code{Distributions.jl} package. Julia provides a common functional interface
+for each type of statistical distribution, with generic functions like
+\code{pdf} to compute the probability density function, \code{cdf} for the
+cumulative density function, \code{quantile} to compute quantiles, and
+\code{rand} for sampling random variates. In contrast, each distribution in R
+must have its own associated family of functions prefixed by \code{d},
+\code{p}, \code{q} and \code{r} respectively, and the number of functions grows
+by both the number of distributions and the number of desired computations on
+them.
 
+\code{pdf}
+\begin{table}
 {\tiny
 \begin{tabular}{l || l | l | l | l}
-  \code{D}                & \code{pdf(D)}    & \code{cdf(D)}    & \code{quantile(D)} & \code{rand(D)} \\
-  \hline
-	\code{Beta}             & \code{dbeta}     & \code{pbeta}     & \code{qbeta}       & \code{rbeta}    \\
-	\code{Binomial}         & \code{dbinom}    & \code{pbinom}    & \code{qbinom}      & \code{rbinom}   \\
-	\code{Cauchy}           & \code{dcauchy}   & \code{pcauchy}   & \code{qcauchy}     & \code{rcauchy}  \\
-	\code{Chisq}            & \code{dchisq}    & \code{pchisq}    & \code{qchisq}      & \code{rchisq}   \\
-	\code{Exponential}      & \code{dexp}      & \code{pexp}      & \code{qexp}        & \code{rexp}     \\
-	\code{Fdist}            & \code{df}        & \code{pf}        & \code{qf}          & \code{rf}       \\
-	\code{Gamma}            & \code{dgamma}    & \code{pgamma}    & \code{qgamma}      & \code{rgamma}   \\
-	\code{Geometric}        & \code{dgeom}     & \code{pgeom}     & \code{qgeom}       & \code{rgeom}    \\
-	\code{Hypergeometric}   & \code{dhyper}    & \code{phyper}    & \code{qhyper}      & \code{rhyper}   \\
-	\code{LogNormal}        & \code{dlnorm}    & \code{plnorm}    & \code{qlnorm}      & \code{rlnorm}   \\
-	\code{Multinomial}      & \code{dmultinom} & \code{pmultinom} & \code{qmultinom}   & \code{rmultinom}\\
-	\code{NegativeBinomial} & \code{dnbinom}   & \code{pnbinom}   & \code{qnbinom}     & \code{rnbinom}  \\
-	\code{Normal}           & \code{dnorm}     & \code{pnorm}     & \code{qnorm}       & \code{rnorm}    \\
-	\code{Poisson}          & \code{dpois}     & \code{ppois}     & \code{qpois}       & \code{rpois}    \\
-	\code{TDist}            & \code{dt}        & \code{pt}        & \code{qt}          & \code{rt}       \\
-	\code{Uniform}          & \code{dunif}     & \code{punif}     & \code{qunif}       & \code{runif}    \\
-	\code{Weibull}          & \code{dweibull}  & \code{pweibull}  & \code{qweibull}    & \code{rweibull} \\
+  \textbf{\code{D}}                & \textbf{\code{pdf(D)}}    & \textbf{\code{cdf(D)}}    &
+        \textbf{\code{quantile(D)}} & \textbf{\code{rand(D)}}  \\ \hline\hline
+  \textbf{\code{Beta}}             & \code{dbeta}     & \code{pbeta}     & \code{qbeta}       & \code{rbeta}    \\
+  \textbf{\code{Binomial}}         & \code{dbinom}    & \code{pbinom}    & \code{qbinom}      & \code{rbinom}   \\
+  \textbf{\code{Cauchy}}           & \code{dcauchy}   & \code{pcauchy}   & \code{qcauchy}     & \code{rcauchy}  \\
+  \textbf{\code{Chisq}}            & \code{dchisq}    & \code{pchisq}    & \code{qchisq}      & \code{rchisq}   \\
+  \textbf{\code{Exponential}}      & \code{dexp}      & \code{pexp}      & \code{qexp}        & \code{rexp}     \\
+  \textbf{\code{Fdist}}            & \code{df}        & \code{pf}        & \code{qf}          & \code{rf}       \\
+  \textbf{\code{Gamma}}            & \code{dgamma}    & \code{pgamma}    & \code{qgamma}      & \code{rgamma}   \\
+  \textbf{\code{Geometric}}        & \code{dgeom}     & \code{pgeom}     & \code{qgeom}       & \code{rgeom}    \\
+  \textbf{\code{Hypergeometric}}   & \code{dhyper}    & \code{phyper}    & \code{qhyper}      & \code{rhyper}   \\
+  \textbf{\code{LogNormal}}        & \code{dlnorm}    & \code{plnorm}    & \code{qlnorm}      & \code{rlnorm}   \\
+  \textbf{\code{Multinomial}}      & \code{dmultinom} & \code{pmultinom} & \code{qmultinom}   & \code{rmultinom}\\
+  \textbf{\code{NegativeBinomial}} & \code{dnbinom}   & \code{pnbinom}   & \code{qnbinom}     & \code{rnbinom}  \\
+  \textbf{\code{Normal}}           & \code{dnorm}     & \code{pnorm}     & \code{qnorm}       & \code{rnorm}    \\
+  \textbf{\code{Poisson}}          & \code{dpois}     & \code{ppois}     & \code{qpois}       & \code{rpois}    \\
+  \textbf{\code{TDist}}            & \code{dt}        & \code{pt}        & \code{qt}          & \code{rt}       \\
+  \textbf{\code{Uniform}}          & \code{dunif}     & \code{punif}     & \code{qunif}       & \code{runif}    \\
+  \textbf{\code{Weibull}}          & \code{dweibull}  & \code{pweibull}  & \code{qweibull}    & \code{rweibull} \\
 \end{tabular}
 }
-
-List of common distributions in R v3.1.0 and their associated factorization into a common interface
-of generic functions and \code{Distribution} types in the \code{Distributions.jl} Julia package.
-
-Languages lackaing gecommonality of computation type that is The simpler API afforded by generic functions can lead to
+\label{statsfunctions}
+\caption{List of common distributions in R v3.1.0 and their associated
+functions.  Shown in bold are the equivalent Julia generic functions and
+\code{Distribution} types provided by the \code{Distributions.jl} Julia
+package, showing how the namespace is simplified by generic functions and
+multiple dispatch.}
+\end{table}
 
 \TODO{show code examples}
 
