@@ -21,7 +21,7 @@ Dylan is object-oriented in the style of Common Lisp, but unlike Common Lisp, al
 
 Dylan supports a limited form of parametric types, which are called limited types.\cite{dylanman} This allows for some modicum of generic programming.
 
-Dylan allows structural inheritance from concrete types by structural inheritance, i.e. by adding fields on top of those in the parent type. In Julia all concrete types are final: inheritance is only allowed from abstract types which are essentially what OO researchers call traits. Dylan lacks traits, which are a useful mechanism for expressing generic programs.
+Dylan allows structural inheritance from concrete types by structural inheritance, i.e.\ by adding fields on top of those in the parent type. In Julia all concrete types are final: inheritance is only allowed from abstract types which are essentially what OO researchers call traits. Dylan lacks traits, which are a useful mechanism for expressing generic programs.
 
 Julia's focus is not on objects, but rather on generic and functional programming. 
 
@@ -33,17 +33,17 @@ An extension for Dylan allows for gradual typing, allowing for type information 
 
 Several extensions of typed $\lambda$-calculus have been developed to handle dynamic types.
 
-One flavor is described in (Henglein, 1994), where a special type tag \code{Dyn}
+One flavor is described in \cite{Henglein, 1994}, where a special type tag \code{Dyn}
 was introduced as a placeholder type that is dynamically coerced into other
 types. %But this is not the kind of polymorphism that Julia has
 
-Other examples of coercive polymorphic $\lambda$-calculi: the $F^\uparrow_C$ language of \cite{Vytiniotis2012,Yorgey2012} used to describe the type inference algorithm in GHC \cite{Vytiniotis2011} contains type coercion information that allows type errors to deferred to runtime \cite{Vytiniotis2012} while preserving type-correctness. (This requires so-called kind polymorphism, which allows for programs to reason about kinds. \cite{Yorgey2012})
+Other examples of coercive polymorphic $\lambda$-calculi: the $F^\uparrow_C$ language of \cite{Vytiniotis2012,Yorgey2012} used to describe the type inference algorithm in GHC \cite{Weirich2011} contains type coercion information that allows type errors to deferred to runtime \cite{Vytiniotis2012} while preserving type-correctness. (This requires so-called kind polymorphism, which allows for programs to reason about kinds. \cite{Yorgey2012})
 
 %Attempt to explain Julia's polymorphism features
 
 However, this describes coercive polymorphism \cite{Cardelli1985}, which
 is arguably not true polymorphism in the sense that it is not
-universal~\cite{Strachey1967}. In contrast, Julia supports two distinct
+universal~\cite{Strachey1967,Strachey2000}. In contrast, Julia supports two distinct
 mechanisms for universal polymorphism, namely subtyping (a special case of
 inclusion polymorphism), and parametric polymorphism.
 
@@ -51,7 +51,6 @@ Julia is not a true polymorphic system in the sense of \cite{Cardelli1985},
 where code is generated only once for every generic procedure. Julia generates
 a variety of specialized methods and so are more in the send of Ada-style
 generic procedures which are abbreviations for sets of monomorphic procedures.
-
 
 %Staged functions, dynamic λ-calculus, gradual typing... all seem to be closely related aspects of the same thing: it is often advantageous to split the determination of type information between compile time and runtime.
 

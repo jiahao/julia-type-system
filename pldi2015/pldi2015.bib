@@ -1,13 +1,24 @@
-%% This BibTeX bibliography file was created using BibDesk.
-%% http://bibdesk.sourceforge.net/
 
 
-%% Created for Jiahao Chen at 2014-07-21 21:59:14 -0400 
+@unpublished{Strachey1967,
+	Author = {Strachey, Christopher},
+	Date-Added = {2014-09-04 17:38:34 +0000},
+	Date-Modified = {2014-09-04 17:38:40 +0000},
+	Month = {August},
+	Note = {Lecture Notes at the International Summer School in Computer Programming, Copenhagen, Denmark},
+	Title = {Fundamental concepts of programming languages},
+	Year = {1967}}
 
-
-%% Saved with string encoding Unicode (UTF-8) 
-
-
+@manual{rlang,
+	Address = {Vienna, Austria},
+	Author = {{R Development Core Team}},
+	Date-Added = {2014-09-04 17:24:11 +0000},
+	Date-Modified = {2014-09-04 17:24:19 +0000},
+	Organization = {R Foundation for Statistical Computing},
+	Title = {R: A Language and Environment for Statistical Computing},
+	Url = {http://www.R-project.org},
+	Year = {2008},
+	Bdsk-Url-1 = {http://www.R-project.org}}
 
 @book{dylanman,
 	Address = {Cupertino, CA},
@@ -17,7 +28,8 @@
 	Publisher = {Apple},
 	Title = {The Dylan Reference Manual: The Definitive Guide to the New Object-Oriented Dynamic Language},
 	Url = {http://opendylan.org/books/drm/},
-	Year = {1996}}
+	Year = {1996},
+	Bdsk-Url-1 = {http://opendylan.org/books/drm/}}
 
 @article{lua,
 	Author = {Roberto Ierusalimschy and de Figueiredo, Luiz Henrique and Celes Filho, Waldemar},
@@ -169,3 +181,93 @@ Main differences:
 	Year = {2010},
 	Bdsk-Url-1 = {http://portal.acm.org/citation.cfm?doid=1869643.1869645},
 	Bdsk-Url-2 = {http://dx.doi.org/10.1145/1869643.1869645}}
+
+@article{Cardelli1985,
+	Abstract = {Our objective is to understand the notion of type in programming languages, present a model of typed, polymorphic programming languages that reflects recent research in type theory, and examine the relevance of recent research to the design of practical programming languages. Object-oriented languages provide both a framework and a motivation for exploring the interaction among the concepts of type, data abstraction, and polymorphism, since they extend the notion of type to data abstraction and since type inheritance is an important form of polymorphism. We develop a \&lgr;-calculus-based model for type systems that allows us to explore these interactions in a simple setting, unencumbered by complexities of production programming languages. The evolution of languages from untyped universes to monomorphic and then polymorphic type systems is reviewed. Mechanisms for polymorphism such as overloading, coercion, subtyping, and parameterization are examined. A unifying framework for polymorphic type systems is developed in terms of the typed \&lgr;-calculus augmented to include binding of types by quantification as well as binding of values by abstraction. The typed \&lgr;-calculus is augmented by universal quantification to model generic functions with type parameters, existential quantification and packaging (information hiding) to model abstract data types, and bounded quantification to model subtypes and type inheritance. In this way we obtain a simple and precise characterization of a powerful type system that includes abstract data types, parametric polymorphism, and multiple inheritance in a single consistent framework. The mechanisms for type checking for the augmented \&lgr;-calculus are discussed. The augmented typed \&lgr;-calculus is used as a programming language for a variety of illustrative examples. We christen this language Fun because fun instead of \&lgr; is the functional abstraction keyword and because it is pleasant to deal with. Fun is mathematically simple and can serve as a basis for the design and implementation of real programming languages with type facilities that are more powerful and expressive than those of existing programming languages. In particular, it provides a basis for the design of strongly typed object-oriented languages.},
+	Author = {Cardelli, Luca and Wegner, Peter},
+	Doi = {10.1145/6041.6042},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/Cardelli, Wegner/ACM Computing Surveys/Cardelli, Wegner - 1985 - On understanding types, data abstraction, and polymorphism.pdf:pdf},
+	Issn = {03600300},
+	Journal = {ACM Computing Surveys},
+	Month = dec,
+	Number = {4},
+	Pages = {471--523},
+	Title = {{On understanding types, data abstraction, and polymorphism}},
+	Volume = {17},
+	Year = {1985},
+	Bdsk-Url-1 = {http://dx.doi.org/10.1145/6041.6042}}
+
+@article{Yorgey2012,
+	Address = {New York, New York, USA},
+	Author = {Yorgey, Brent A and Weirich, Stephanie and Cretin, Julien and {Peyton Jones}, Simon and Vytiniotis, Dimitrios and Magalh\~{a}es, Jos\'{e} Pedro},
+	Doi = {10.1145/2103786.2103795},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/Yorgey et al/Proceedings of the 8th ACM SIGPLAN workshop on Types in language design and implementation - TLDI '12/Yorgey et al. - 2012 - Giving Haskell a promotion.pdf:pdf},
+	Isbn = {9781450311205},
+	Journal = {Proceedings of the 8th ACM SIGPLAN workshop on Types in language design and implementation - TLDI '12},
+	Pages = {53--66},
+	Publisher = {ACM Press},
+	Title = {{Giving Haskell a promotion}},
+	Url = {http://dl.acm.org/citation.cfm?doid=2103786.2103795},
+	Year = {2012},
+	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2103786.2103795},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2103786.2103795}}
+
+@article{Vytiniotis2012,
+	Abstract = {The Glasgow Haskell Compiler is an optimizing compiler that expresses and manipulates first-class equality proofs in its intermediate language. We describe a simple, elegant technique that exploits these equality proofs to support deferred type errors. The technique requires us to treat equality proofs as possibly-divergent terms; we show how to do so without losing either soundness or the zero-overhead cost model that the programmer expects.},
+	Author = {Vytiniotis, Dimitrios and {Peyton Jones}, Simon and Magalh\~{a}es, Jos\'{e} Pedro},
+	Doi = {10.1145/2398856.2364554},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/Vytiniotis, Peyton Jones, Magalh\~{a}es/ACM SIGPLAN Notices/Vytiniotis, Peyton Jones, Magalh\~{a}es - 2012 - Equality proofs and deferred type errors.pdf:pdf},
+	Issn = {03621340},
+	Journal = {ACM SIGPLAN Notices},
+	Month = oct,
+	Number = {9},
+	Pages = {341--352},
+	Title = {{Equality proofs and deferred type errors}},
+	Url = {http://dl.acm.org/citation.cfm?doid=2398856.2364554},
+	Volume = {47},
+	Year = {2012},
+	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2398856.2364554},
+	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2398856.2364554}}
+
+@inproceedings{Weirich2011,
+	Abstract = {Modular languages support generative type abstraction, ensuring that an abstract type is distinct from its representation, except inside the implementation where the two are synonymous. We show that this well-established feature is in tension with the non-parametric features of newer type systems, such as indexed type families and GADTs. In this paper we solve the problem by using kinds to distinguish between parametric and non-parametric contexts. The result is directly applicable to Haskell, which is rapidly developing support for type-level computation, but the same issues should arise whenever generativity and non-parametric features are combined.},
+	Author = {Weirich, Stephanie and Vytiniotis, Dimitrios and {Peyton Jones}, Simon and Zdancewic, Steve},
+	Booktitle = {POPL '11 Proceedings of the 38th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
+	Date-Modified = {2014-09-04 17:38:30 +0000},
+	File = {:Users/jiahao/Documents/Mendeley Desktop/Weirich et al/POPL '11 Proceedings of the 38th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages/Weirich et al. - 2011 - Generative type abstraction and type-level computation.pdf:pdf},
+	Isbn = {9781450304900},
+	Issn = {03621340},
+	Month = jan,
+	Number = {1},
+	Pages = {227--240},
+	Title = {{Generative type abstraction and type-level computation}},
+	Volume = {46},
+	Year = {2011},
+	Bdsk-Url-1 = {http://dx.doi.org/10.1145/1925844.1926411}}
+@article{Strachey2000,
+abstract = {This paper forms the substance of a course of lectures given at the International Summer School in Computer Programming at Copenhagen in August, 1967. The lectures were originally given from notes and the paper was written after the course was finished. In spite of this, and only partly because of the shortage of time, the paper still retains many of the shortcomings of a lecture course. The chief of these are an uncertainty of aim—it is never quite clear what sort of audience there will be for such lectures—and an associated switching from formal to informal modes of presentation which may well be less acceptable in print than it is natural in the lecture room. For these (and other) faults, I apologise to the reader. There are numerous references throughout the course to CPL [1–3]. This is a programming language which has been under development since 1962 at Cambridge and London and Oxford. It has served as a vehicle for research into both programming languages and the design of compilers. Partial implementations exist at Cambridge and London. The language is still evolving so that there is no definitive manual available yet. We hope to reach another resting point in its evolution quite soon and to produce a compiler and reference manuals for this version. The compiler will probably be written in such a way that it is relatively easyto transfer it to another machine, and in the first instance we hope to establish it on three or four machines more or less at the same time. The lack of a precise formulation for CPL should not cause much difficulty in this course, as we are primarily concerned with the ideas and concepts involved rather than with their precise representation in a programming language.},
+author = {Strachey, Christopher},
+doi = {10.1023/A:1010000313106},
+file = {:Users/jiahao/Documents/Mendeley Desktop/Strachey/Higher-Order and Symbolic Computation/Strachey - 2000 - Fundamental Concepts in Programming Languages.pdf:pdf},
+journal = {Higher-Order and Symbolic Computation},
+keywords = {CPL,L-values,R-values,ad hoc polymorphism,binding mechanisms,foundations of computing,functions as data,parameter passing,parametric polymorphism,programming languages,semantics,type completeness,variable binding},
+number = {1-2},
+pages = {11--49},
+title = {{Fundamental Concepts in Programming Languages}},
+volume = {13},
+year = {2000}
+}
+@article{Henglein1994,
+author = {Henglein, Fritz},
+doi = {10.1016/0167-6423(94)00004-2},
+file = {:Users/jiahao/Documents/Mendeley Desktop/Henglein/Science of Computer Programming/Henglein - 1994 - Dynamic typing syntax and proof theory.pdf:pdf},
+issn = {01676423},
+journal = {Science of Computer Programming},
+month = jun,
+number = {3},
+pages = {197--230},
+title = {{Dynamic typing: syntax and proof theory}},
+url = {http://linkinghub.elsevier.com/retrieve/pii/0167642394000042},
+volume = {22},
+year = {1994}
+}
