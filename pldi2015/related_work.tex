@@ -1,7 +1,7 @@
 \section{Related Work}
 
 Dynamic dispatch is more general than static dispatch since it covers cases which cannot be determined at compile time.
-Common examples involve data retrieval with a persistent storage, generating string representations for text output or data serialization.~cite{Shields1998}
+Common examples involve data retrieval with a persistent storage, generating string representations for text output or data serialization.\cite{Shields1998}
 
 \paragraph{Exotypes in Lua}
 Exotypes\cite{exotypes} provide to the Lua language\cite{lua} the analogue of macros that generate staged functions\cite{stagedfunc} in Julia.
@@ -38,7 +38,7 @@ An extension for Dylan allows for gradual typing, allowing for type information 
 
 Several extensions of typed $\lambda$-calculus have been developed to handle dynamic types.
 
-One flavor is described in \cite{Henglein, 1994}, where a special type tag \code{Dyn}
+One flavor is described in \cite{Henglein1994}, where a special type tag \code{Dyn}
 was introduced as a placeholder type that is dynamically coerced into other
 types. %But this is not the kind of polymorphism that Julia has
 
@@ -59,9 +59,10 @@ generic procedures which are abbreviations for sets of monomorphic procedures.
 
 %Staged functions, dynamic λ-calculus, gradual typing... all seem to be closely related aspects of the same thing: it is often advantageous to split the determination of type information between compile time and runtime.
 
-\TODO{
-Simon Peyton Jones and friends, “Dynamic Typing as Staged Type Inference”~\cite{Shields1998}
-}
+\paragraph{Haskell}
+
+The main strategy in Haskell to deal with types that are not statically decidable is to use staged type
+inference.~\cite{Shields1998}
 
 \TODO{
 Dynamic typing in polymorphic languages
