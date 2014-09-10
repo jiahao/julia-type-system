@@ -5,14 +5,14 @@
   (With apologies to H. Magritte)
 \end{quote}
 
-In Figure [FIGURE REF] we show Julia’s types. A type can be an abstract [what the heck is an abstract], a data constructor [is this a record?], a tuple, a quantification over a set of types, a union, or a singleton type. In the code, singletons are used for computations on types themselves, such as type promotions. For example, given two types, can ask what the promoted type is. So far haven’t had singleton types for general values. (Sorting algorithms example: used more for dispatch as shorthand for type with no parameters.) Will use this more because generating specialized code is big for scientific computing, but need to figure out what to specialize on and how to tell system what to specialize on. State of the art is to have ad hoc systems.
+In Figure [FIGURE REF] we show Julia's types. A type can be an abstract [what the heck is an abstract], a data constructor [is this a record?], a tuple, a quantification over a set of types, a union, or a singleton type. In the code, singletons are used for computations on types themselves, such as type promotions. For example, given two types, can ask what the promoted type is. So far haven't had singleton types for general values. (Sorting algorithms example: used more for dispatch as shorthand for type with no parameters.) Will use this more because generating specialized code is big for scientific computing, but need to figure out what to specialize on and how to tell system what to specialize on. State of the art is to have ad hoc systems.
 
-An abstract type declares a type without a representation. It takes the name of a type, parameters [what do the parameters do?], and the name of the super type. Data type declarations additionally provide a representation. [TODO: Talk about the representation.]
+An abstract type declares a type without a representation. It takes the name of a type, parameters [what do the parameters do?], and the name of the super type. Data type declarations additionally provide a representation. \TODO{Talk about the representation.}
 Abstract type and data type declarations are invariant and nominative.
 
 Tuples are covariant.
 
-ForAll types quantify over all types between a lower bound and upper bound. Have lower bound and upper bound because of containers that can be read and written. People mostly only use the upper bounds. No function types, so no contravariance, so lower bounds don’t get used much. In theory, can still use them for functions that mutate things.
+ForAll types quantify over all types between a lower bound and upper bound. Have lower bound and upper bound because of containers that can be read and written. People mostly only use the upper bounds. No function types, so no contravariance, so lower bounds don't get used much. In theory, can still use them for functions that mutate things.
 
 [How does type promotion fit into all this?]
 
@@ -42,9 +42,9 @@ Join is union of any two types; meet is less well-defined in this lattice
 What are types in Julia?
 Dynamically typed.
 What is inheritance like?
-How does Julia avoid problems that OO languages tend to have with dispatch? (I’m not actually sure what they are.)
+How does Julia avoid problems that OO languages tend to have with dispatch? (I'm not actually sure what they are.)
 Is there multiple inheritance?
-No, but it’s been discussed (https://github.com/JuliaLang/julia/issues/5)
+No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
 Is there multiple subtyping?
 No, each type has only one supertype
 We should also describe the dispatch mechanism.
@@ -56,7 +56,7 @@ Implemented as \code{jl\_methtable\_t}
 What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
 Problem is finding the tightest possible set of allowable types.
 There are tweaks to the standard algorithm. One big thing is that dataflow analysis only goes in forward direction.
-Kaplan-Ullman also doesn’t treat parametric types
+Kaplan-Ullman also doesn't treat parametric types
 Julia also has a widening step.
 Relies on types having only one supertype.
 Diagonal dispatch: can constrain arguments to same type.
