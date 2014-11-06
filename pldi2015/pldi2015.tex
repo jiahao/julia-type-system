@@ -108,6 +108,32 @@ typed enumeration of the possible different cases.  The programmer can avoid
 this in dynamic languages.
 \TODO{Point: static languages introduce straitjackets that constrain the pliability and reusability of code.}
 
+\paragraph{Classes are awkward to express technical computation}
+Binary operations are awkward to handle with class-based object-orientedness.
+The correct implementation of *(a, b) ought to depend on the type of both a and
+b; however, most conventional OO languages only allow dispatch on the type of
+a. Thus to implement Matrix.*(b) the method has to distinguish between b being
+a matrix, vector or scalar, and implement the appropriate matrix-matrix,
+matrix-vector or matrix-scalar product appropriately.. In contrast, a language
+supporting multiple dispatch and multimethods allows for multiple methods
+*(a::Matrix, b::Matrix), *(a::Matrix, b::Vector) and *(a::Matrix, b::Number) to
+be defined and for method dispatch to depend on the types of both arguments.
+
+\paragraph{Technical computing can use multiple dispatch for > 2 arguments}
+Multiple dispatch becomes even more powerful when dispatch on multiple
+arguments is supported. In principle we can even take this a step further and
+allow support of *(a::Matrix, b::Matrix, c::Matrix, ...) where a single
+multiplication method will handle an arbitrary chain of matrix-matrix products.
+Neglecting concerns over exact associativity in floating-point operations, we
+can take advantage of associativity to evaluate the matrix product in
+computationally efficient ways. For example, (100 x 5) x (5 x 30) x (30 x 1)
+results in a (100 x 1) matrix. If you do it left to right you construct a 100 x
+30 matrix intermediate, but if you do it right to left you construct a 5 x 1
+intermediate. Associativity lets you play games where you can construct an
+optimal chain of multiplications which minimize memory accesses and scalar
+computations.
+ 
+
 \paragraph{Multiple dispatch is good}
 We present a solution based around efficient multiple dispatch.  Much of the
 overhead in dynamic languages comes from dynamic lookups of function dispatch.
@@ -227,6 +253,8 @@ pattern matching language constructions that are common in other languages.
 
 
 \section{Motivating Example}
+
+\TODO{A good motivating example for types is $2^{64}$}
 
 \subsection{Why is dynamic multiple dispatch useful for numerical computing?}
 Dynamic multiple dispatch is valuable for writing generic numeric code which
@@ -649,6 +677,11 @@ Tuples are covariant.
 \paragraph{Type parameters}
 
 Parametric types are invariant.
+The conventional wisdom is that type safety requires covariance if components
+are read but not written, and contravariance if they are written but not
+read~\cite{Castagna1995}. As type parameters can represent the types of mutable
+fields in a \verb|type| which can be read or written, then the only safe choice
+is invariance.
 
 \paragraph{Example of user-definable type}
 
@@ -753,8 +786,26 @@ We should also describe the dispatch mechanism.
 Method tables are a sorted list of these types.
 Implemented as \code{jl\_methtable\_t}
 
-\paragraph{Dataflow analysis}
 
+\paragraph{Code transformations in the Julia compiler}
+The Julia code is parsed, then macro expanded, then lowered into SSA form, then
+type inference runs on the lowered code where the code paths are essentially
+linearized with jumps. This form is relatively straightforward to map onto LLVM
+IR and is also simpler to run dataflow analysis on. After type inference comes
+tuple elimination, inlining and then conversion to LLVM IR where further
+optimizations passes occur.
+
+\TODO{Is there a sense in which Julia "maximally leverages" LLVM?}
+
+Type inference avoids explicit annotations and yet recovers almost enough information for performant dispatch. The goal is to dispatch onto machine types where possible and yet be flexible enough to support general code. Multiple dispatch was one part of the puzzle. The other part is type inference.
+
+Type inference must be flow sensitive for a dynamic language since the type of a variable can change over the course of a program. Therefore we can't do Hindley Milner because it is flow insensitive. Instead, have to use dataflow-style static analysis for type inference.
+
+Standard dataflow analysis makes use of the lattice structure of types to perform minimal fixed point analysis.
+
+In general, type inference is NOT decidable! The set of pure terms which are typable in the λII-calculus in a given context is not recursive. So there is no general type inference algorithm for the programming language Elf and, in some cases, some type information has to be mentioned by the programmer. 
+
+\paragraph{Dataflow analysis}
 What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
 Problem is finding the tightest possible set of allowable types.
 There are tweaks to the standard algorithm. One big thing is that dataflow analysis only goes in forward direction.
@@ -762,6 +813,7 @@ Kaplan-Ullman also doesn't treat parametric types
 Julia also has a widening step.
 Relies on types having only one supertype.
 Diagonal dispatch: can constrain arguments to same type.
+
 
 \TODO{What are the challenges?}
 
@@ -771,7 +823,75 @@ Diagonal dispatch: can constrain arguments to same type.
 
 \TODO{bit of background}
 
+\paragraph{Abstract interpretation and flow functions}
+The basic idea is abstract interpretation with flow functions (in Julia, called
+t-functions) to represent the types of variables going in and out of each basic
+block.  Abstract interpretation is essentially about systematic reasoning about
+approximations. For type inference the approximation we make is to figure out
+what types come in and out of program fragments. Further approximation is
+widening which provides looser bounds on the inferred types. 
+
+In general it suffices to consider lattices which have only finite chains. The
+point of view of DFA based on abstract interpretation [CC77, AH87]is to replace
+the standard semantics of programs by an abstract semantics describing how the
+instructions operate on the abstract values A. Formally,we assume a
+monotone semantic functional $![.!] : Instr \rightarrow (A \rightarrow A)$
+which assigns a function on A to each instruction.
+
+\paragraph{Mohnen's algorithm}
+We use Mohnen's algorithm which avoids explicit initialization of graphical
+representations of code structures, but instead work on the static single
+assignment (SSA) form of the lowered code and has program counters. SSA is easy
+to use because def-use chains tend to be very sparse (very few flow edges) and
+there is exactly one definition reaching use of each variable, which reduces
+the time needed to analyze. Mohnen's algorithm uses less memory and has better
+data locality than standard graphical constructions like Tenenbaum? Muchnick?
+etc, and furthermore avoids explicit transformations between lowered code, SA
+graphs and BB graphs. Whereas Mohnen demonstrates its use on constant
+propagation, we nevertheless use it for forward type inference, where the
+computation at a node is influenced by information from previous nodes in the
+control flow.
+
+\paragraph{Existence and termination}
+Monotonic flow functions (a.k.a.\ t-functions) are essential.
+Monotonicity implies flow functions preserve the ordering of approximations.
+parametric invariance makes it easy to construct monotonic flow functions since invariance means disjoint lattice structure
+complete lattice with top implies that we have descending chains, so meets exists so a lub exists done.
+It is also crucial for dataflow algorithms to converge to a fixed point
+The finite height assumption of a lattice is essential to prove termination.
+
+Parametric invariance makes it easy to construct monotone flow functions
+because the underlying type lattice lends naturally to disentangled finite
+chains and there is a lot more disjointedness to the lattice.
+
 \paragraph{Subtyping relations and the type lattice}
+
+\paragraph{Subtyping is not set embedding!}
+Another aspect of the type system that can be confusing to new users is that
+subtyping can express some, but not all, mathematical embeddings between sets
+of allowed values.
+
+Examples:
+
+- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
+\dots, 255}. Each of these in turn has an exact representation as a
+double-precision floating point number (Float64). Nevertheless, Uint8 is not a
+subtype of Float64.
+
+- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
+
+- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
+where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
+correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
+Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
+\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
+of Complex.
+
+- Real is not a subtype of Complex because for each type T that is a subtype of
+Real, there is a corresponding instantiable type Complex{T}. None of these
+correspond to Real since there is no T such that Complex{T} is a one-component
+number, and each concrete type only has $\bot$ as its subtype.  
+
 
 \paragraph{\code{typeof}}
 
@@ -781,19 +901,35 @@ You can define \code{typeof} axiomatically as having the following behavior on a
 typeof(bits, tag) = (tag, DataType) #Returns a value
 \end{minted}
 
-\code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is also true in other dynamic languages, e.g. Python (CPython). In other languages like Haskell, \code{typeof(DataType) = Kind}, etc. Static languages can just truncate the tower of metatypes and also refuse to type-check code that reasons about types and kinds too far up the hierarchy. In fact, early versions of Haskell did not allow for programs to reason about kinds at the data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
+\code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is
+also true in other dynamic languages, e.g.\ Python (CPython). In other
+languages like Haskell, \code{typeof(DataType) = Kind}, etc. Static languages
+can just truncate the tower of metatypes and also refuse to type-check code
+that reasons about types and kinds too far up the hierarchy. In fact, early
+versions of Haskell did not allow for programs to reason about kinds at the
+data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
 
-\TODO{There is a subtlety about typeof's behavior. typeof is a projection; typeof(not-a-type) produces a DataType, which projects non-type values onto types. It also has the effect of lifting non-type values onto a type lattice; the latter is defined only for values that are DataTypes.}
+\TODO{There is a subtlety about typeof's behavior. typeof is a projection;
+typeof(not-a-type) produces a DataType, which projects non-type values onto
+types. It also has the effect of lifting non-type values onto a type lattice;
+the latter is defined only for values that are DataTypes.}
 
-\paragraph{Widening}
-
-\TODO{Formal proof of correctness?}
+\paragraph{Widening for convergence acceleration}
+We also use widening as a convergence acceleration technique. Although widening
+does not guarantee converging to a minimal fixed point, the analysis
+nonetheless converges and that is good enough.  Widening also deals with
+infinite types because there are heuristic cutoffs for the traversal into the
+substructure of data types.
 
 \subsection{Dispatch}
 
 \paragraph{method sorting for specificity}
 
-\TODO{The main novelty and challenge is explaining type parameters and typevars. Currently typevars are not first-class objects in Julia; you can't pass them to a function. Expressions of the form \code{T<:SomeType} don't have an independent existence outside a function signature that also contains the \code{\{T...\}} construction.}
+\TODO{The main novelty and challenge is explaining type parameters and
+typevars. Currently typevars are not first-class objects in Julia; you can't
+pass them to a function. Expressions of the form \code{T<:SomeType} don't have
+an independent existence outside a function signature that also contains the
+\code{\{T...\}} construction.}
 
 \subsection{Type inference}
 
@@ -958,6 +1094,52 @@ M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming 
 }
 
 \section{Conclusions}
+
+\paragraph{Logical challenges of parametric invariance}
+Invariance is useful for things like arrays but they can make mathematical
+reasoning tricky when the parametric type is something like complex.  Subtyping
+is not embedding.
+
+\paragraph{Parametric invariance interacts with dataflow in nonobvious ways}
+Parametric invariance makes it easy to construct monotone flow functions
+because the underlying type lattice lends naturally to disentangled finite
+chains and there is a lot more disjoint functions.
+
+The 1,2,Nat example and the induced structures on \verb|S{#} <: T{#}| make for
+interesting flow functions.
+
+Consider the flow function \verb|# -> S{#}|.
+
+It is not distributive.
+flow functions need not be distributive. Distribution is desirable because it
+guarantees that merging information before function application does not result
+in loss of precision. However the presence of types with invariant parameters
+leads naturally to consider flow functions that are NOT distributive.
+
+\paragraph{Recursive functions are problematic to infer}
+
+\paragraph{Widening heuristics are challenging to design}
+It is not obvious how to choose widening heuristics. Widening is NOT
+commutative with arbitrary flow function. This example is a direct
+counterexample to the intuition that widening (pessimizing) after analysis
+produces the same result as analyzing after pessimizing. In fact, in this case
+we cannot say that one has a subtype relation to the other, so that in general
+switching the order of flow function application and widening can produce
+different results which are neither tighter nor narrower approximations, but
+merely different in general.
+
+\paragraph{Type inference on infinite lattice}
+Hard to do type inference on infinite lattice. We have infinities because of
+typevars and infinite tuples.  In practice there are heuristics built into type
+inference which trigger widening (pessimizing), such as maximum lengths of
+unions and tuples, and the maximal depths of types and tuples analyzed.
+ 
+
+\paragraph{Many unexplored implementation challenges}
+Possibly peephole optimizations. Constant propagation. Backward type inference.
+More convoluted thingies with a general abstract interpretation framework.
+
+
 
 \acks{We thank the many Julia users and developers for their contributions to
 the Julia language.}
