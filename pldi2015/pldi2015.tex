@@ -99,22 +99,27 @@ features several different mechanisms for expressing polymorphism, namely:
 %
 which together naturally express the polymorphism inherent in technical
 computing. Julia's implementation also features a just-in-time compiler which
-performs extensive static optimizations such as automatic type inference, tuple
-elimination and inlining, on top of the compiler optimizations accessible
-through LLVM. When combined with an extensive base library for parallel
-execution and numerical analysis, Julia provides a convenient environment for
-rapid prototyping of new analytics which can also be deployed performantly,
-often within a factor of two of the speed of native, hand-written C code. This
-paper aims to explain how Julia's language constructs and compiler
+performs extensive static optimizations such as:
+
+\begin{itemize}
+	\item Automatic type inference, which minimizes the overhead of dynamic
+		multiple dispatch and largely eliminates the need for explicit
+		type annotations in function bodies,
+
+	\item Tuple elimination,
+	\item Function inlining, and
+	\item Other compiler optimizations such as dead code elimination that
+		are provided by the LLVM library~\cite{Lattner2004}.
+\end{itemize}
+
+This paper aims to explain how Julia's language constructs and compiler
 optimizations conspire to provide expressiveness without compromising
 performance, by carefully designing a language that is purposely amenable to
-static analysis.
+static analysis. When combined with an extensive base library for parallel
+execution and numerical analysis, Julia provides a convenient environment for
+rapid prototyping of new analytics which can also be deployed performantly,
+often within a factor of two of the speed of native, hand-written C code.
 
-\TODO{Orphan}
-We will describe how Julia's type system facilitates the
-expression of numerical algorithms and automatic type inference allows many
-explicit type annotations to be eliminated, thus resulting in shorter and more
-reusable code.
 
 
 
@@ -147,15 +152,15 @@ supporting only classes cannot capture the full extent of polymorphism in
 \verb|*| in method dispatch: as classes inherently support only single dispatch
 on the first argument, each method \verb|*| defined for each class \verb|a|
 must contain different code blocks for each possible type of \verb|b|, thus in
-practice requiring multiple dispatch to be emulated using visitor patterns.
-Furthermore, implementing binary methods can require knowing the internal
-representation of both objects \verb|a| and \verb|b|, especially for
-performance reasons~\cite{Bruce1995}. Such knowledge fundamentally corrupts the
-abstraction of class-based encapsulation, as the methods associated with
-\verb|a| must know implementation details of all possible objects \verb|b| that
-\verb|a| may interact with. In contrast, there is no conceptual problem with
-allowing a generic function \verb|*| knowledge about the internal
-representations of the types it works on.
+practice requiring multiple dispatch to be emulated using virtual methods and
+visitor patterns~\cite{Gamma1994}. Furthermore, implementing binary methods can
+require knowing the internal representation of both objects \verb|a| and
+\verb|b|, especially for performance reasons~\cite{Bruce1995}. Such knowledge
+fundamentally corrupts the abstraction of class-based encapsulation, as the
+methods associated with \verb|a| must know implementation details of all
+possible objects \verb|b| that \verb|a| may interact with. In contrast, there
+is no abstraction leak associated with allowing a generic function \verb|*|
+knowledge about the internal representations of the types it works on.
 
 Julia's generic function system can be extended with user-defined methods, thus
 allowing for users to define new generic functions and extend existing
@@ -179,6 +184,15 @@ the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
 at speeds comparable to analogous code written in fully compiled static
 languages. The key static analysis technique is type inference, which we will
 describe in the next section.
+
+
+
+\section{Type inference}
+
+\TODO{Orphan}
+automatic type inference allows many
+explicit type annotations to be eliminated, thus resulting in shorter and more
+reusable code.
 
 \paragraph{Limitations of class-based dispatch for numerics}
 Arguably, class-based dispatch is not natural for numeric computations.  It's
