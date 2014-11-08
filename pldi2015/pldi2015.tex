@@ -127,25 +127,21 @@ programs, but Julia is designed to optimize static type and dispatch inference.
 \TODO{Explain type tags as dynamic tags with runtime coercion, cross-reference literature on dynamically typed lambda calculi.}
 \TODO{Contextualize use of multiple dispatch}
 
-\paragraph{Explain point of paper}
-In this paper, we describe the Julia language and type system and our
-implementation of type inference and multiple dispatch mechanisms for Julia.
-Julia is a high-performance dynamic language with a compiler, distributed
-parallel execution, numerical accuracy, and an extensive mathematical function
-library. Julia has a dynamic semantics based on efficient multiple dispatch.
-Julia combines programmer-specified type tags with a type inference engine to
-statically optimize method dispatch. To demonstrate the relevance and potential
-impact of designing a language based around multiple dispatch, we also describe
-the manifestations of multiple dispatch in Julia's standard library.
-
-The main contributions of this paper are to describe:
-
-\begin{itemize}
-	\item the multiple dispatch semantics of the Julia language.
-	\item our algorithms for statically resolving method dispatches when information is available.
-	\item the uses of multiple dispatch in Julia's standard library.
-	\item the performance of Julia benchmarks. \TODO{Compare to other numbers.}
-\end{itemize}
+In this paper, we argue that languages with dynamic multiple dispatch can
+express naturally the rich polymorphism that is inherent in technical computing
+applications, and furthermore that the dynamic type system necessary to
+describe multimethods, when exposed and extensible by users, enrich the
+language by providing new mechanisms for expressing code. The Julia language
+is designed specifically with these features in mind, and is implemented with a
+just-in-time compiler which performs static optimizations such as automatic
+type inference, tuple elimination and inlining. When combined with an extensive
+base library for parallel execution and numerical analysis, Julia provides a
+convenient environment for rapid prototyping of new analytics which can also be
+deployed performantly, often within a factor of two of the speed of native,
+hand-written C code. We will describe how Julia's type system facilitates the
+expression of numerical algorithms and automatic type inference allows many
+explicit type annotations to be eliminated, thus resulting in shorter and more
+reusable code.
 
 \paragraph{Limitations of class-based dispatch for numerics}
 Arguably, class-based dispatch is not natural for numeric computations.  It's
