@@ -86,6 +86,29 @@ computing users thus face a dilemma known as the two-language problem: it is
 easier to prototype code in a dynamic language, but faster to run code written in
 a static language. 
 
+Julia is a dynamic language designed with the ambitious goal of eliminating the
+false dichotomy between dynamism and speed. The language features several
+different mechanisms for expressing polymorphism---a user extensible type
+system featuring subtyping and parametric types, and generic functions with
+dynamic multiple dispatch---which together naturally express the polymorphism
+inherent in technical computing. Julia's implementation also features a
+just-in-time compiler which performs extensive static optimizations such as
+automatic type inference, tuple elimination and inlining, on top of the
+compiler optimizations accessible through LLVM. When combined with an
+extensive base library for parallel execution and numerical analysis, Julia
+provides a convenient environment for rapid prototyping of new analytics which
+can also be deployed performantly, often within a factor of two of the speed of
+native, hand-written C code. This paper aims to explain how Julia's language
+constructs and compiler optimizations conspire to provide expressiveness
+without compromising performance, by carefully designing a language that is
+purposely amenable to static analysis.
+
+\TODO{Orphan}
+We will describe how Julia's type system facilitates the
+expression of numerical algorithms and automatic type inference allows many
+explicit type annotations to be eliminated, thus resulting in shorter and more
+reusable code.
+
 \paragraph{Classes are awkward to express technical computation}
 Binary operations are awkward to handle with class-based object-orientedness.
 The correct implementation of *(a, b) ought to depend on the type of both a and
@@ -111,7 +134,6 @@ intermediate. Associativity lets you play games where you can construct an
 optimal chain of multiplications which minimize memory accesses and scalar
 computations.
  
-
 \paragraph{Multiple dispatch is good}
 We present a solution based around efficient multiple dispatch.  Much of the
 overhead in dynamic languages comes from dynamic lookups of function dispatch.
