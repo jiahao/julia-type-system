@@ -774,6 +774,35 @@ amount of redundant code. Furthermore, it is very difficult to extend these
 libraries with new functionality, as many redundant routines have to be written
 even something as fundamental as adding a new level of floating-point
 precision. \TODO{e.g. QUADPACK is its own thing. Things get even worse with mixed-precision.}
+Dynamic, i.e.\ late binding, dispatch allows for high performance
+polyalgorithms with specialized code paths depending on matrix properties which
+can only be inferred at runtime based on the specific values of the inputs. For
+example, the matrix square root (\verb|sqrtm|) has two methods defined:
+
+\begin{itemize}
+	\item For symmetric (or Hermitian) matrices, where the answer can be
+		computed by diagonalization,
+	\item For general dense matrices, where the answer uses the more
+		expensive (but also more general) Schur
+		factorization~\cite{Higham2008}.
+\end{itemize}
+%
+The latter method contains a run time check for symmetry and dispatches upon
+the former if present. Thus as summarized in Figure~\ref{fig:sqrtm}, dynamic
+dispatch allows the same performant kernel to be called even in situations
+where the user does not know if a particular input matrix is symmetric, or even
+that specialized algorithms for symmetric matrices exist.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{fig-sqrtm}
+	\caption{Dynamic dispatch and multimethods for the matrix square root
+	function sqrtm, showing that the specialized algorithm can be
+	run either from a static decision from the method dispatcher based on
+	the input type, or a dynamic decision from a run time check based on
+	the value.}
+	\label{fig:sqrtm}
+\end{figure}
 
 
 \subsubsection{Polyalgorithms and Polymorphism with generic functions}
