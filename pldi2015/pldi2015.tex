@@ -116,61 +116,69 @@ expression of numerical algorithms and automatic type inference allows many
 explicit type annotations to be eliminated, thus resulting in shorter and more
 reusable code.
 
-\paragraph{Classes are awkward to express technical computation}
-Binary operations are awkward to handle with class-based object-orientedness.
-The correct implementation of *(a, b) ought to depend on the type of both a and
-b; however, most conventional OO languages only allow dispatch on the type of
-a. Thus to implement Matrix.*(b) the method has to distinguish between b being
-a matrix, vector or scalar, and implement the appropriate matrix-matrix,
-matrix-vector or matrix-scalar product appropriately.. In contrast, a language
-supporting multiple dispatch and multimethods allows for multiple methods
-*(a::Matrix, b::Matrix), *(a::Matrix, b::Vector) and *(a::Matrix, b::Number) to
-be defined and for method dispatch to depend on the types of both arguments.
 
-\paragraph{Technical computing can use multiple dispatch for > 2 arguments}
-Multiple dispatch becomes even more powerful when dispatch on multiple
-arguments is supported. In principle we can even take this a step further and
-allow support of *(a::Matrix, b::Matrix, c::Matrix, ...) where a single
-multiplication method will handle an arbitrary chain of matrix-matrix products.
-Neglecting concerns over exact associativity in floating-point operations, we
-can take advantage of associativity to evaluate the matrix product in
-computationally efficient ways. For example, (100 x 5) x (5 x 30) x (30 x 1)
-results in a (100 x 1) matrix. If you do it left to right you construct a 100 x
-30 matrix intermediate, but if you do it right to left you construct a 5 x 1
-intermediate. Associativity lets you play games where you can construct an
-optimal chain of multiplications which minimize memory accesses and scalar
-computations.
- 
-\paragraph{Multiple dispatch is good}
-We present a solution based around efficient multiple dispatch.  Much of the
-overhead in dynamic languages comes from dynamic lookups of function dispatch.
-\TODO{Is this actually true?} We present a programming language Julia where the
-key insight is designing a dispatch mechanism that allows for as much static
-resolution as possible.  Julia programs are organized around multiple dispatch:
-programs overload functions for different combinations of argument types.  The
-key ingredients in Julia are multi-methods and a static data flow algorithm for
-type inference.  Julia's multi-methods are designed around static analysis to
-resolve programmer-specific type tags as much as possible.  Julia is
-dynamically typed in that the compiler does not statically reject ill-typed
-programs, but Julia is designed to optimize static type and dispatch inference.
-\TODO{Explain type tags as dynamic tags with runtime coercion, cross-reference literature on dynamically typed lambda calculi.}
+
+\section{Type system}
+Julia is dynamically typed in that the compiler does not statically reject
+ill-typed programs, but Julia is designed to optimize static type and dispatch
+inference.  \TODO{Explain type tags as dynamic tags with runtime coercion,
+cross-reference literature on dynamically typed lambda calculi.}
 \TODO{Contextualize use of multiple dispatch}
 
-In this paper, we argue that languages with dynamic multiple dispatch can
-express naturally the rich polymorphism that is inherent in technical computing
-applications, and furthermore that the dynamic type system necessary to
-describe multimethods, when exposed and extensible by users, enrich the
-language by providing new mechanisms for expressing code. The Julia language
-is designed specifically with these features in mind, and is implemented with a
-just-in-time compiler which performs static optimizations such as automatic
-type inference, tuple elimination and inlining. When combined with an extensive
-base library for parallel execution and numerical analysis, Julia provides a
-convenient environment for rapid prototyping of new analytics which can also be
-deployed performantly, often within a factor of two of the speed of native,
-hand-written C code. We will describe how Julia's type system facilitates the
-expression of numerical algorithms and automatic type inference allows many
-explicit type annotations to be eliminated, thus resulting in shorter and more
-reusable code.
+
+
+\section{Generic functions and multimethods}
+
+Multimethods are a natural mechanism for capturing the polymorphism
+inherent in technical computing. Consider an operation as fundamental as
+multiplication: an expression like \verb|a*b| can mean:
+
+\begin{itemize}
+	\item a matrix--matrix product,
+	\item a matrix--vector product, or
+	\item a scalar--vector product,
+\end{itemize}
+%
+to name just a few possibilities. A generic function system supporting
+multimethods allows for the \verb|*| function to be polymorphic, expressing a
+common metaphor for different kinds of multiplication which can be
+disambiguated by the types of \verb|a| and \verb|b|. In contrast, languages
+supporting only classes cannot capture the full extent of polymorphism in
+\verb|*| in method dispatch: as classes inherently support only single dispatch
+on the first argument, each method \verb|*| defined for each class \verb|a|
+must contain different code blocks for each possible type of \verb|b|, thus in
+practice requiring multiple dispatch to be emulated using visitor patterns.
+Furthermore, implementing binary methods can require knowing the internal
+representation of both objects \verb|a| and \verb|b|, especially for
+performance reasons~\cite{Bruce1995}. Such knowledge fundamentally corrupts the
+abstraction of class-based encapsulation, as the methods associated with
+\verb|a| must know implementation details of all possible objects \verb|b| that
+\verb|a| may interact with. In contrast, there is no conceptual problem with
+allowing a generic function \verb|*| knowledge about the internal
+representations of the types it works on.
+
+Julia's generic function system can be extended with user-defined methods, thus
+allowing for users to define new generic functions and extend existing
+functions with new methods, or even overwrite existing methods to suit their
+needs. Thus multiplications represented by \verb|*| can be extended, for
+example, to multiplication between quaternions, or even to $N$-ary
+matrix-matrix products, where associativity\footnote{Neglecting the lack of
+exact associativity in some fields such as floating-point numbers.} allows
+matrix-matrix products to be regrouped so as to minimize the total memory
+footprint and operation count~\cite{Hu1984}.
+
+\TODO{Orphans/to flesh out}
+The prices we pay for such flexibility:
+- No encapsulation guarantees.  programs may at any point be able to peer into
+the internal representation of types. As a result, type safety requires
+stringent criteria on the allowed variances of types.
+- Increased overhead of dynamic lookups for function dispatch.
+
+One key insight into the design of Julia is that static analysis can eliminate
+the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
+at speeds comparable to analogous code written in fully compiled static
+languages. The key static analysis technique is type inference, which we will
+describe in the next section.
 
 \paragraph{Limitations of class-based dispatch for numerics}
 Arguably, class-based dispatch is not natural for numeric computations.  It's
