@@ -576,7 +576,9 @@ The prices we pay for such flexibility:
 - No encapsulation guarantees.  programs may at any point be able to peer into
 the internal representation of types. As a result, type safety requires
 stringent criteria on the allowed variances of types.
-- Increased overhead of dynamic lookups for function dispatch.
+- Increased overhead of dynamic lookups for function dispatch: unlike in a single dispatch language, multiple lookups in method tables may be necessary to determine which method is most appropriate for dispatch~\cite{Bruce1995}.
+
+\TODO{Is method table caching algorithm related to existing literature?}
 
 \paragraph{Method sorting and dispatch mechanism}
 \TODO{Describe}
