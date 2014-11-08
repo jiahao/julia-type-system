@@ -88,20 +88,27 @@ a static language.
 
 Julia is a dynamic language designed with the ambitious goal of eliminating the
 false dichotomy between dynamism and speed. The language features several
-different mechanisms for expressing polymorphism---a user extensible type
-system featuring subtyping and parametric types, and generic functions with
-dynamic multiple dispatch---which together naturally express the polymorphism
-inherent in technical computing. Julia's implementation also features a
-just-in-time compiler which performs extensive static optimizations such as
-automatic type inference, tuple elimination and inlining, on top of the
-compiler optimizations accessible through LLVM. When combined with an
-extensive base library for parallel execution and numerical analysis, Julia
-provides a convenient environment for rapid prototyping of new analytics which
-can also be deployed performantly, often within a factor of two of the speed of
-native, hand-written C code. This paper aims to explain how Julia's language
-constructs and compiler optimizations conspire to provide expressiveness
-without compromising performance, by carefully designing a language that is
-purposely amenable to static analysis.
+different mechanisms for expressing polymorphism, namely:
+
+\begin{itemize}
+	\item A user extensible type system featuring subtyping and parametric
+		types, and
+	\item A user extensible generic function system with dynamic multiple
+		dispatch
+\end{itemize}
+%
+which together naturally express the polymorphism inherent in technical
+computing. Julia's implementation also features a just-in-time compiler which
+performs extensive static optimizations such as automatic type inference, tuple
+elimination and inlining, on top of the compiler optimizations accessible
+through LLVM. When combined with an extensive base library for parallel
+execution and numerical analysis, Julia provides a convenient environment for
+rapid prototyping of new analytics which can also be deployed performantly,
+often within a factor of two of the speed of native, hand-written C code. This
+paper aims to explain how Julia's language constructs and compiler
+optimizations conspire to provide expressiveness without compromising
+performance, by carefully designing a language that is purposely amenable to
+static analysis.
 
 \TODO{Orphan}
 We will describe how Julia's type system facilitates the
