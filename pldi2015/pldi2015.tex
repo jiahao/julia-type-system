@@ -1,7 +1,7 @@
 \documentclass[pldi]{sigplanconf-pldi15}
 
 \usepackage{url}                  % format URLs
-%\usepackage{listings}          % format code
+\usepackage{listings}          % format code
 \usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
@@ -14,6 +14,8 @@
 \setcounter{tocdepth}{4} %TODO Remove for final submission
 
 \begin{document}
+
+\lstset{basicstyle=\footnotesize\ttfamily,mathescape=true,basewidth=0.5em}
 
 \conferenceinfo{PLDI '15}{June 12---20, 2015, Portland, OR, USA.}
 \copyrightyear{2015}
@@ -240,20 +242,18 @@ parameter.
 
 Julia has different kinds of types which can be formally summarized as:
 
-\begin{minted}[frame=lines,framesep=2mm]{sml}
+\begin{lstlisting}
 Type ::= Abstract | Data | Tuple | ForAll | Union | Singleton
 Abstract ::= Name (P) Super }
 Data ::= Name (P) Super Repr } invariant, nominative
-TODO: What is repr?
-Tuple ::= (T1, T2, …) | (T1, T2, …, Tn, …) } covariant
+Tuple ::= (T1, T2, ...) | (T1, T2, ..., Tn, ...) } covariant
 ForAll ::= $\forall$ (lb <: T <: ub) . Type
-Union ::= U (T1, T2, …)
+Union ::= U (T1, T2, ...)
 Singleton ::= Lift Value
 TypeVar ::= lb <: Name <: ub
-top ::= Any
---
+
 Tag ::= Data | Tuple
-\end{minted}
+\end{lstlisting}
 
 \begin{description}
 
