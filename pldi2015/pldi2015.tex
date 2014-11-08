@@ -56,7 +56,7 @@ manifestations of multiple dispatch in Julia's standard library.
 
 
 
-\section{Introduction}
+\section{Dynamic languages are useful for technical computing}
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
@@ -68,23 +68,34 @@ experimentation, rather than derived from formal software engineering
 specifications.
 
 Static languages focus on being able to prove correctness of programs, and
-compilers usually contain features like type checkers which restrict the set of
-allowed programs in favor of correctness. Code written in static languages
-must be able to account for all possible behaviors of the algorithms
+compilers usually contain features like type checkers which constrain the set
+of allowed programs in favor of provable correctness. Code written in static
+languages must be able to account for all possible behaviors of the algorithms
 implemented for all possible input values. All these possible code paths must
 stated at compile time, posing challenges for authors of technical codes which
 often work on enormous inputs and may fail in subtle ways that require further
-investigation and mitigation. In contrast, dynamic languages do not constrain
-programs to be amenable to static analysis, and hence are more permissive and
-expressive in ways that are more naturally suited for rapid prototyping and
-experimentation. Consequently, dynamic languages like MATLAB, Python and R have
-become popular amongst technical computing users for writing prototype codes.
-However, code written in these languages are difficult to execute performantly;
-the dynamic nature of these languages pose significant challenges for
-implementers to transform code into efficiently executable forms. Technical
+investigation and mitigation. Furthermore, these static analyses for
+correctness tend to concern themselves with only the interface to data types,
+not with their internal representation. Consequently, the formal logic of
+program correctness does nothing for user concerns about performance, since
+they abstract away memory layout details which is crucial for understanding the
+impact of hardware factors such as bus latency and bandwidth. In contrast,
+dynamic languages embody a realist philosophy: programs are not checked for
+correctness, but are executed until termination or when a runtime error is
+thrown. The focus is to make sense out of whatever program a user may write.
+Thus dynamic languages are more permissive and expressive in ways that are more
+naturally suited for rapid prototyping and experimentation.
+
+In other words, a scientist will often run a program in order to find out what
+it does---\emph{proving} anything about what it does would be premature, and an
+unwelcome distraction. As a result, dynamic languages like MATLAB, Python and R
+have become popular amongst technical computing users for writing prototype
+codes. However, code written in these languages are difficult to execute
+performantly; the dynamic nature of these languages pose significant challenges
+for implementers to transform code into efficiently executable forms. Technical
 computing users thus face a dilemma known as the two-language problem: it is
-easier to prototype code in a dynamic language, but faster to run code written in
-a static language. 
+easier to prototype code in a dynamic language, but faster to run code written
+in a static language. 
 
 Julia is a dynamic language designed with the ambitious goal of eliminating the
 false dichotomy between dynamism and speed~\cite{Bezanson2012}. The language
