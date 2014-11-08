@@ -133,85 +133,27 @@ often within a factor of two of the speed of native, hand-written C code.
 
 
 
-
 \section{Type system}
+
+\begin{quote}
+	[I]t behooves the language designer to incorporate distinctions between
+	types into his language. Doing so permits an implementer of the
+	language to choose different representations for different types of
+	objects, taking advantage of the limited contexts in which they will be
+	used.
+\end{quote}
+
+\subsection{Dynamic types are actually type tags}
+
 Julia is dynamically typed in that the compiler does not statically reject
 ill-typed programs, but Julia is designed to optimize static type and dispatch
 inference.  \TODO{Explain type tags as dynamic tags with runtime coercion,
 cross-reference literature on dynamically typed lambda calculi.}
 \TODO{Contextualize use of multiple dispatch}
 
+Parametric polymorphism like template specialization but dynamic.
 
-
-\section{Generic functions and multimethods}
-
-Multimethods are a natural mechanism for capturing the polymorphism
-inherent in technical computing. Consider an operation as fundamental as
-multiplication: an expression like \verb|a*b| can mean:
-
-\begin{itemize}
-	\item a matrix--matrix product,
-	\item a matrix--vector product, or
-	\item a scalar--vector product,
-\end{itemize}
-%
-to name just a few possibilities. A generic function system supporting
-multimethods allows for the \verb|*| function to be polymorphic, expressing a
-common metaphor for different kinds of multiplication which can be
-disambiguated by the types of \verb|a| and \verb|b|. In contrast, languages
-supporting only classes cannot capture the full extent of polymorphism in
-\verb|*| in method dispatch: as classes inherently support only single dispatch
-on the first argument, each method \verb|*| defined for each class \verb|a|
-must contain different code blocks for each possible type of \verb|b|, thus in
-practice requiring multiple dispatch to be emulated using virtual methods and
-visitor patterns~\cite{Gamma1994}. Furthermore, implementing binary methods can
-require knowing the internal representation of both objects \verb|a| and
-\verb|b|, especially for performance reasons~\cite{Bruce1995}. Such knowledge
-fundamentally corrupts the abstraction of class-based encapsulation, as the
-methods associated with \verb|a| must know implementation details of all
-possible objects \verb|b| that \verb|a| may interact with. In contrast, there
-is no abstraction leak associated with allowing a generic function \verb|*|
-knowledge about the internal representations of the types it works on.
-
-Julia's generic function system can be extended with user-defined methods, thus
-allowing for users to define new generic functions and extend existing
-functions with new methods, or even overwrite existing methods to suit their
-needs. Thus multiplications represented by \verb|*| can be extended, for
-example, to multiplication between quaternions, or even to $N$-ary
-matrix-matrix products, where associativity\footnote{Neglecting the lack of
-exact associativity in some fields such as floating-point numbers.} allows
-matrix-matrix products to be regrouped so as to minimize the total memory
-footprint and operation count~\cite{Hu1984}.
-
-\TODO{Orphans/to flesh out}
-The prices we pay for such flexibility:
-- No encapsulation guarantees.  programs may at any point be able to peer into
-the internal representation of types. As a result, type safety requires
-stringent criteria on the allowed variances of types.
-- Increased overhead of dynamic lookups for function dispatch.
-
-One key insight into the design of Julia is that static analysis can eliminate
-the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
-at speeds comparable to analogous code written in fully compiled static
-languages. The key static analysis technique is type inference, which we will
-describe in the next section.
-
-
-
-\section{Type inference}
-
-\TODO{Orphan}
-automatic type inference allows many
-explicit type annotations to be eliminated, thus resulting in shorter and more
-reusable code.
-
-\paragraph{Limitations of class-based dispatch for numerics}
-Arguably, class-based dispatch is not natural for numeric computations.  It's
-difficult to know upfront all the possible things you want to do to a floating
-point number.  In languages like C++, you can extend existing classes with new
-methods, but it's difficult.  Need to have virtual methods and invoke template
-specialization with them.  Oftentimes you also need runtime code to decide what
-kind of object to create.
+the core of functional programming languages, like those in the ML family, support both parametric polymorphism and record subtyping, which can be expressed in System F<:.
 
 Static languages like Haskell have typeclasses\cite{typeclass}, but you'll need
 to anticipate all the necessary use cases ahead of time because everything is
@@ -220,54 +162,7 @@ Dynamic languages provide only dynamic bindings, which means that programmers
 don't have to reason about the differences between static and dynamic
 semantics, and dynamic binding is more general anyway.
 
-\paragraph{Dynamic languages, realism and empiricism}
-Arguably, dynamic languages are more in concord with the empirical mode of
-scientific inquiry that is familiar to users of technical computing, many of
-whom are also scientists and engineers.  Dynamic languages embody a realist
-philosophy: programs are not checked for correctness, but are executed until
-termination or when a runtime error is thrown.  The focus is to make sense out
-of whatever program a user may write.  In contrast, static languages focus on
-formal correctness, validating programming on the basis of satisfying
-constraints imposed by static analyses.  Furthermore, these formal systems tend
-to concern themselves with only the interface to data types, not with their
-internal representation.  Consequently, the formal logic of program correctness
-does nothing for user concerns about performance, since they abstract away
-memory layout details which is crucial for understanding the impact of hardware
-factors such as bus latency and bandwidth.
-
-\paragraph{Empirical philosophy facilitates experimentaion}
-As a result of the more liberal attitude taken toward program validation,
-dynamic languages lend naturally to rapid iteration through many prototypes and
-versions of computer programs.  This sort of experimentation in writing
-programs comes naturally to technical computing users, who often have to write
-programs without any idea of what the final result ought to look like.  Dynamic
-languages offer a natural expression for these use cases that lack formal
-specifications, by not imposing upon users the burden of writing formally
-correct programs, allowing them to focus instead on expressing how to do
-practical computations.  In other words, a scientist will often run a program
-in order to find out what it does --- \emph{proving} anything about what it
-does would be premature, and an unwelcome distraction.  Of course some such
-proofs are innocuous, for example that the program will return a floating-point
-number.  However such proofs are also of no particular interest in the
-application domain.
-
-\paragraph{Multiple dispatch allows dispatch on new types and new functions at the same time}
-\TODO{Maybe this should be "limitations of class-based dispatch" instead}
-The needs of technical computing can exceed the abilities of most dispatch
-systems.  In particular, it is usually not possible to have new behaviors that
-intermix new types and new functions.  One group of languages allows you to
-have new types but their dispatch upon existing functions cannot be defined.
-Subtyping is the usual paradigm here, but it is closed because it assumes
-you've covered all the cases explicitly.  Object oriented programming can be
-seen as a solution around this problem, but in pure OO, objects have only
-identity and have no interface protocol.  Classes are a mechanism for
-implementing message sends, defining actions \textit{upon} an object.  The
-other group of languages allows you to have new functions but not for existing
-types.  Haskell typeclasses~\cite{typeclass} are a fixed collection of
-interfaces; while additional functions can be defined, only the functions that
-form part of the existing interface can interact with an existing type.
-
-\paragraph{Fewer language constructs for user simplicity}
+\paragraph{Types are values: Fewer language constructs for user simplicity}
 The original motivation in Julia for having types as values was to simplify the
 language for technical computing users.  The current design came about from
 considering the desire for users to simplify code dealing with parametrically
@@ -285,224 +180,6 @@ values, a collapsed kind hierarchy (i.e.\ making no distinction between types
 and kinds (meta-types) and meta-kinds etc.), plus being able to reason about
 types dynamically, affords users a way to harmonize the use of types and
 pattern matching language constructions that are common in other languages.
-
-
-
-\section{Motivating Example}
-
-\TODO{A good motivating example for types is $2^{64}$}
-
-\subsection{Why is dynamic multiple dispatch useful for numerical computing?}
-Dynamic multiple dispatch is valuable for writing generic numeric code which
-handles the broadest possible set of inputs while at the same time making use
-of handcrafted performant kernels when they are available.  An illustration of
-this principle can be seen in Julia's linear algebra routines.  Many systems
-provide optimized implementations of standard libraries such as BLAS (Basic
-Linear Algebra Subprograms) and LAPACK (Linear Algebra PACKage) which provide
-standard functionality such as matrix-matrix multiplication and spectral
-decompositions for computing eigenvalues and eigenvectors.  Implementations
-such as ATLAS, GotoBLAS and OpenBLAS provide performant kernels customized for
-individual microarchitectures that can reach a significant fraction of
-theoretical peak FLOPS.
-
-\subsection{Limitations of Fortran libraries}
-There are a few limitations, however.  Chief among these is the cognitive
-burden for users to learn how these routines are named and figuring out which
-routine performs the desired computations.  These libraries, like many
-scientific codes, are written in Fortran, with no notion of polymorphic
-dispatch.  Most of these routines have six letter names in line with
-traditional Fortran 77 subroutine nomenclature.
-
-\begin{enumerate}
-\item The first letter of each routine name describes the floating point type (e.g.\ single precision real, double precision real, single precision complex and double precision complex).
-
-\item The next two letters is a code for the type of matrix (e.g.\ \code{GE} for general, \code{ST} for symmetric tridiagonal).
-
-\item The last few letters describe the type of computation to carry out (e.g.\ \code{SV} for linear solver, \code{EIN} for eigenvalues and eigenvalues).
-\end{enumerate}
-
-\paragraph{No polymorphism in Fortran = verbose and redundant}
-The lack of polymorphism produces a proliferation of routines with a large
-amount of redundant code. Furthermore, it is very difficult to extend these
-libraries with new functionality, as many redundant routines have to be written
-even something as fundamental as adding a new level of floating-point
-precision. \TODO{e.g. QUADPACK is its own thing. Things get even worse with mixed-precision.}
-
-
-\paragraph{Polymorphism with generic functions = expressive overloading}
-In contrast, Julia's system of generic functions with polymorphic dispatch
-system allows a compact factorization of the namespace of linear algebra
-routines.  Instead of a routine name like \code{DSTEIN} (double precision
-symmetric tridiagonal eigenproblem solver), the \code{LinAlg} module in base
-Julia introduces the function \code{eig} which solves eigensystems, and allows
-parametric method signatures like
-\code{eig\{T<:BlasFloat\}(M::SymTridiagonal\{T\})} which allow specialized
-methods to be defined for both the matrix type (\code{SymTridiagonal},
-symmetric tridiagonal) and its element type (\code{BlasFloat} is a union type
-\code{Union(Float32, Float64, Complex\{Float32\}, Complex\{Float64\})}, and so
-\code{T<:BlasFloat} specifies a template that defines four separate,
-specialized methods.  The \code{LinAlg.LAPACK} module also uses Julia's
-metaprogramming capabilities to map Julia function calls onto their LAPACK
-equivalents.  In this way, multiple dispatch allows a handful of overloaded
-functions to accept the widest possible set of inputs while not giving up the
-ability to use handcrafted performant kernels when they are available.
-
-\paragraph{Extensible generic functions allows for fast specalizations and generic fallbacks to coexist}
-The ability to add new specialized methods to existing generic functions allows
-new functionality to be added seamlessly. For example, Julia provides generic
-fallback routines to do matrix computations over arbitrary fields of element
-types \code{T}, providing the ability to compute on numeric types which are not
-mappable to hardware floating point types. This can be useful to perform matrix
-computations in exact rational arithmetic or software--emulated higher
-precision floating point arithmetic to verify the implementations of algorithms
-or to detect the possibility of numerical instability associated with roundoff
-errors. Oftentimes it is possible to write a single kernel that will work
-independently of the underlying field \code{T}, avoiding the need to write
-redundant code.
-
-\paragraph{Dynamic multiple dispatch is useful for polyalgorithms requiring runtime information}
-\TODO{Emphasize that the algorithm used is value-dependent} 
-The ability to perform multiple dispatch dynamically is valuable when you can
-specialize on certain algorithms but you can only determine which algorithm to
-dispatch on at runtime. This is useful for linear algebraic applications where
-certain properties of an input matrix are difficult to determine \textit{a
-priori}, such as matrix symmetries like Hermiticity, or spectral properties
-like positive definiteness. For example the matrix square root function
-(\code{sqrtm}) includes a runtime check to detect if the input matrix is
-symmetric (for real element types) or Hermitian (for complex element types). If
-the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a faster,
-specialized method to compute the principal matrix square root using the
-eigenvalues and eigenvectors, otherwise a different method is dispatched upon
-which computes and uses the Schur factorization instead.
-
-\paragraph{sqrtm}
-The generality afforded by dynamic dispatch allows for runtime dispatch onto
-optimized kernels depending on the input matrix. For example, the
-\code{sqrtm\{M::Matrix\}} function for computing matrix square roots contains a
-runtime check to detect if the input matrix is symmetric. If it is, then the
-computation is dispatched onto a \code{sqrtm\{S::Symmetric\}} method which
-computes more efficiently than the general case. Of course if the user knows at
-the time of writing the code he or she could call the specialized method
-directly, but the ability to do dynamic dispatch allows the same performant
-kernel to be called even in situations where the user does not know about the
-special symmetry of a particular input matrix, or perhaps may not even be aware
-of specialized algorithms that can be enabled by such information that can be
-deduced at runtime.
-
-\paragraph{factorize}
-The \code{factorize} function in Julia is another, more extreme example of how
-dynamic multiple dispatch can be used to detect matrix symmetries and structure
-(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
-and compute appropriate matrix factorizations that best take advantage of the
-detected matrix properties. The output is a matrix factorization object whose
-specific type is only defined at runtime depending on the specific matrix
-properties that are detected at runtime. For example, calling \code{factorize}
-on a symmetric positive definite matrix returns a \code{Cholesky} type
-representing a Cholesky factorization, whereas a symmetric indefinite matrix
-would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
-instead. Positive definiteness is a good example of a matrix property that can
-be difficult to determine \textit{a priori} and the fastest way to detect it
-would be to attempt to compute a matrix factorization that succeeds only on
-postiive definite matrices (such as the Cholesky decomposition), and fallback
-to returning a different type if the computation failed.
-
-\paragraph{User interpretation of generic functions}
-Generic functions express a common action or computation, which may in
-practice be performed in many different ways depending on the inputs. For
-example, one may wish to compute the mean of a given statistical distribution.
-In Julia, the computation can be expressed simply as dispatch onto the method
-\code{mean(D::Distribution)}, with a different method for \code{mean} being
-defined for different \code{Distribution}s. In contrast, much scientific code
-is written in languages that lack generic functions, resulting in users having
-to keep track of a large family of very closely related functions which
-together can be thought of as specialized mthods for a polymorphic function.
-Table~\ref{statsfunctions} shows a family of closely related functions in the R
-programming language and their Julia counterparts in the
-\package{Distributions.jl} package. Julia provides a common functional interface
-for each type of statistical distribution, with generic functions like
-\code{pdf} to compute the probability density function, \code{cdf} for the
-cumulative density function, \code{quantile} to compute quantiles, and
-\code{rand} for sampling random variates. In contrast, each distribution in R
-must have its own associated family of functions prefixed by \code{d},
-\code{p}, \code{q} and \code{r} respectively, and the number of functions grows
-by both the number of distributions and the number of desired computations on
-them.
-
-\code{pdf}
-\begin{table}
-{\tiny
-\begin{tabular}{l || l | l | l | l}
-  \textbf{\code{D}}                & \textbf{\code{pdf(D)}}    & \textbf{\code{cdf(D)}}    &
-        \textbf{\code{quantile(D)}} & \textbf{\code{rand(D)}}  \\ \hline\hline
-  \textbf{\code{Beta}}             & \code{dbeta}     & \code{pbeta}     & \code{qbeta}       & \code{rbeta}    \\
-  \textbf{\code{Binomial}}         & \code{dbinom}    & \code{pbinom}    & \code{qbinom}      & \code{rbinom}   \\
-  \textbf{\code{Cauchy}}           & \code{dcauchy}   & \code{pcauchy}   & \code{qcauchy}     & \code{rcauchy}  \\
-  \textbf{\code{Chisq}}            & \code{dchisq}    & \code{pchisq}    & \code{qchisq}      & \code{rchisq}   \\
-  \textbf{\code{Exponential}}      & \code{dexp}      & \code{pexp}      & \code{qexp}        & \code{rexp}     \\
-  \textbf{\code{Fdist}}            & \code{df}        & \code{pf}        & \code{qf}          & \code{rf}       \\
-  \textbf{\code{Gamma}}            & \code{dgamma}    & \code{pgamma}    & \code{qgamma}      & \code{rgamma}   \\
-  \textbf{\code{Geometric}}        & \code{dgeom}     & \code{pgeom}     & \code{qgeom}       & \code{rgeom}    \\
-  \textbf{\code{Hypergeometric}}   & \code{dhyper}    & \code{phyper}    & \code{qhyper}      & \code{rhyper}   \\
-  \textbf{\code{LogNormal}}        & \code{dlnorm}    & \code{plnorm}    & \code{qlnorm}      & \code{rlnorm}   \\
-  \textbf{\code{Multinomial}}      & \code{dmultinom} & \code{pmultinom} & \code{qmultinom}   & \code{rmultinom}\\
-  \textbf{\code{NegativeBinomial}} & \code{dnbinom}   & \code{pnbinom}   & \code{qnbinom}     & \code{rnbinom}  \\
-  \textbf{\code{Normal}}           & \code{dnorm}     & \code{pnorm}     & \code{qnorm}       & \code{rnorm}    \\
-  \textbf{\code{Poisson}}          & \code{dpois}     & \code{ppois}     & \code{qpois}       & \code{rpois}    \\
-  \textbf{\code{TDist}}            & \code{dt}        & \code{pt}        & \code{qt}          & \code{rt}       \\
-  \textbf{\code{Uniform}}          & \code{dunif}     & \code{punif}     & \code{qunif}       & \code{runif}    \\
-  \textbf{\code{Weibull}}          & \code{dweibull}  & \code{pweibull}  & \code{qweibull}    & \code{rweibull} \\
-\end{tabular}
-}
-\label{statsfunctions}
-\caption{List of common distributions in R v3.1.1\cite{rlang} and their
-associated functions. Shown in bold are the equivalent Julia generic
-functions and \code{Distribution} types provided by the Julia package
-\package{Distributions.jl}, showing how the namespace
-is simplified by generic functions and multiple dispatch.}
-\end{table}
-
-\TODO{show code examples}
-
-\TODO{Other possible examples from Distributions.jl: QQ plots, posterior function}
-
-\subsection{External dispatch with dynamic multimethods}
-
-\paragraph{writemime example}
-One thing you can do with dynamic multiple dispatch is external dispatch,
-i.e.\ to be able to add new methods to an existing type rather than
-specifying all the possible methods upfront. This is used to good effect
-in Julia packages to extend functionality of the base library. For example,
-the package \package{Color.jl} for manipulating color spaces extends the
-\code{writemime} base function, which writes an object as a specified
-MIME type\cite{mimerfc} to an I/O stream. \code{Color.jl} extends
-\code{writemime} with new methods that draw color swatches.
-
-\TODO{Here, we could put a figure showing writemime being called on a base
-Julia object, writemime(::Color), and writemime(::VectorColor) objects.
-Possibly take a screenshot in IJulia.}
-
-\paragraph{External dispatch for package interaction}
-External dispatch also facilitates interaction between Julia packages---
-colors can be rendered using the \package{Cairo.jl} package,
-which allows rendering to a Cairo backend~\cite{cairographics}.
-When using Cairo to render an object in a given color, \code{Cairo.jl}
-doesn't need to know anything about the underlying color space; it just
-needs to call \code{convert} methods provided by \code{Color.jl}.
-Julia's \code{convert} protocol is the ``narrow waist'' that allows
-packages to allow using all kinds of color spaces naturally, without
-needing to know anything specifically about them.
-
-\paragraph{External dispatch is clunky in C++}
-External dispatch can be performed in other languages like C++. However,
-C++ only allows static external dispatch, which severely limits its utility.
-Furthermore, external dispatch in C++ requires virtual methods and visitor
-patterns\cite{designpatterns} to work around the absence of explicit support
-for external dispatch.
-
-
-
-\section{The Julia Language}
-\TODO{Give an overview of the Julia language.}
 
 We have designed the type system to be as permissive as possible to programmers
 while still providing enough information to statically resolve a significant
@@ -523,7 +200,6 @@ with different element types.
 \TODO{What about promoters? Do type promotions show up in other languages?}
 Type promotions are written as user-level code to compute new types.
 
-\subsection{Types in Julia}
 The defining feature of dynamic typing is that all values, semantically at
 least, have two parts: a \emph{tag} and some \emph{data}. The tag classifies
 the value according to some ontology defined by the programming language, and
@@ -541,7 +217,7 @@ was not concerned with tags at all, but rather with other program properties
 (e.g. checking for possible uses of null references). Tags are a mechanism, and as
 such neither require nor preclude any particular formalism.
 
-\paragraph{Tags are constraining and hecne self-describing}
+\paragraph{Tags are constraining and hence self-describing}
 Tags are valuable because they have a constrained structure. While the data
 part of a value may vary arbitrarily at run time, tags are drawn from a limited,
 well-understood family. This provides for self-describing data: it becomes possible
@@ -567,39 +243,6 @@ possibly containing arbitrary values.
 - describing memory layout
 - describing what, if anything, is statically known about a potential value
 
-\paragraph{Type inference is a key part of the language}
-A somewhat unusual feature of julia is that we consider dataflow type inference a
-key part of the language. Strictly speaking, this is an optional, external program
-analysis that might be used for various purposes, chief among them implementing
-an optimizing compiler. However, it is highly important to programmers since it
-largely defines not the semantics, but the performance model of the language.
-
-\paragraph{Dataflow captures intuition of control flow}
-We feel that dataflow analysis, especially of forward flow, captures a piece of
-the human intuition of how programs work: values start at the top and move through
-the program step by step. For example, compilers are much more user-friendly
-when they elide a possibly-uninitialized variable warning in
-
-\begin{minted}[frame=lines,framesep=2mm]{julia}
-int a;
-if (cond)
-    a = 1;
-else
-    a = 2;
-f(a);
-\end{minted}
-
-The programmer knows that \code{a} is always initialized before use.
-
-
-
-\section{The Julia Type System}
-
-\begin{quote}
-  \textit{Ceci n'est pas une type} \\
-  (With apologies to H. Magritte)
-\end{quote}
-
 \paragraph{Dynamic semantics only}
 Julia has no static semantics, and therefore everything it does must be
 dynamically describable.
@@ -607,18 +250,9 @@ In Julia all compiler values are pairs of a value v and a type tag T. Julia
 values are essentially equivalent of what is sometimes called dynamic
 types~\cite[Section 11.10, p. 142]{Pierce2002}
 
-\paragraph{Subtyping relations and the type lattice}
 
-Julia requires allows user-defined types to have exactly one declared supertype.
-If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
+\subsection{Kinds of types}
 
-The subtype relations define a lattice of types~\cite{Scott1976}. Furthermore
-the lattice is bounded by a top type, \code{Any}, from above and a bottom
-type, \code{Union()}, below.
-
-We inherit the meet and join operations on the type lattice.
-
-\paragraph{Kinds of types}
 Julia has different kinds of types which can be formally summarized as:
 
 \begin{minted}[frame=lines,framesep=2mm]{sml}
@@ -752,46 +386,7 @@ whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
 \footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
 \code{getfield} is Julia's field accessor function.}
 
-\paragraph{Nonobvious consequences}
-
-A nonobvious consequence of the invariance of type parameters is that
-parametric types can be instantiated with any type parameter regardless of
-whether it is abstract or concrete.
-
-The three \code{Complex} numbers
-
-\begin{minted}{julia}
-z1 = Complex{Float64}(0.0, 1.0)
-z2 = Complex{FloatingPoint}(0.0, 1.0)
-z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
-\end{minted}
-
-are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
-identical (in the \textit{egal} sense).
-
-If we inspect the variables using Julia's \code{dump} command, we get:
-
-\begin{minted}{jlcon}
-julia> dump(z1)
-Complex{Float64} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z2)
-Complex{FloatingPoint} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z3)
-Complex{Union(Integer,Float64,Rational{T<:Integer})} 
-  re: Int64 0
-  im: Float64 1.0
-
-\end{minted}
-
-We see that the \code{::T} annotation on a field does not guarantee that the
-type of a value placed in the field in any given instance of that type is
-exactly of type \code{T}, merely that it is a subtype of \code{T}.
+\TODO{Talk about the psychological implications of types.}
 
 \paragraph{abstract type}
 An abstract type declares a type without a representation. It takes the name of
@@ -800,28 +395,230 @@ type. Data type declarations additionally provide a representation. \TODO{Talk
 about the representation.} Abstract type and data type declarations are
 invariant and nominative.
 
-\subsection{Basics}
-
-\TODO{This is where we write one of those trees.}
-
-Can write procedures to subtype.
-
 Jeff is pretty sure subtyping is decidable and well-defined
 Join is union of any two types; meet is less well-defined in this lattice
 
-How does types as value play into this description?
-What are types in Julia?
-Dynamically typed.
-What is inheritance like?
-How does Julia avoid problems that OO languages tend to have with dispatch? (I'm not actually sure what they are.)
+\paragraph{Subtyping relations and the type lattice}
+
+Julia requires allows user-defined types to have exactly one declared supertype.
+If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
+
 Is there multiple inheritance?
 No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
-Is there multiple subtyping?
-No, each type has only one supertype
-We should also describe the dispatch mechanism.
+
+The subtype relations define a lattice of types~\cite{Scott1976}. Furthermore
+the lattice is bounded by a top type, \code{Any}, from above and a bottom
+type, \code{Union()}, below.
+
+We inherit the meet and join operations on the type lattice.
+
+\paragraph{Subtyping is not set embedding!}
+Another aspect of the type system that can be confusing to new users is that
+subtyping can express some, but not all, mathematical embeddings between sets
+of allowed values.
+
+Examples:
+
+- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
+\dots, 255}. Each of these in turn has an exact representation as a
+double-precision floating point number (Float64). Nevertheless, Uint8 is not a
+subtype of Float64.
+
+- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
+
+- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
+where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
+correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
+Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
+\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
+of Complex.
+
+- Real is not a subtype of Complex because for each type T that is a subtype of
+Real, there is a corresponding instantiable type Complex{T}. None of these
+correspond to Real since there is no T such that Complex{T} is a one-component
+number, and each concrete type only has $\bot$ as its subtype.  
+
+
+\paragraph{\code{typeof}}
+
+You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
+
+\begin{minted}[frame=lines,framesep=2mm]{julia}
+typeof(bits, tag) = (tag, DataType) #Returns a value
+\end{minted}
+
+\code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is
+also true in other dynamic languages, e.g.\ Python (CPython). In other
+languages like Haskell, \code{typeof(DataType) = Kind}, etc. Static languages
+can just truncate the tower of metatypes and also refuse to type-check code
+that reasons about types and kinds too far up the hierarchy. In fact, early
+versions of Haskell did not allow for programs to reason about kinds at the
+data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
+
+\TODO{There is a subtlety about typeof's behavior. typeof is a projection;
+typeof(not-a-type) produces a DataType, which projects non-type values onto
+types. It also has the effect of lifting non-type values onto a type lattice;
+the latter is defined only for values that are DataTypes.}
+
+\TODO{The main novelty and challenge is explaining type parameters and
+typevars. Currently typevars are not first-class objects in Julia; you can't
+pass them to a function. Expressions of the form \code{T<:SomeType} don't have
+an independent existence outside a function signature that also contains the
+\code{\{T...\}} construction.}
+
+\subsection{Type promotion}
+
+\subsection{Example: modular integer arithmetic with \code{lcm}}
+
+Here's an example of a type parameter computed with the \code{lcm} function:
+
+\begin{minted}[frame=lines,fontsize=\footnotesize,
+               framesep=2mm]{julia}
+import Base: convert, promote_rule, show, showcompact
+
+immutable ModInt{n} <: Integer
+    k::Int
+    ModInt(k) = new(mod(k,n))
+end
+
+-{n}(a::ModInt{n}) = ModInt{n}(-a.k)
++{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k+b.k)
+-{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k-b.k)
+*{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k*b.k)
+
+convert{n}(::Type{ModInt{n}}, k::Int) = ModInt{n}(k)
+convert{n}(::Type{ModInt{n}}, k::ModInt) = ModInt{n}(k.k)
+promote_rule{n}(::Type{ModInt{n}}, ::Type{Int}) = ModInt{n}
+promote_rule{m,n}(::Type{ModInt{m}}, ::Type{ModInt{n}}) =
+    ModInt{lcm(m,n)}
+
+show{n}(io::IO, k::ModInt{n}) = print(io, "$(k.k) mod $n")
+showcompact(io::IO, k::ModInt) = print(io, k.k)
+
+julia> a = ModInt{12}(18278176231)
+7 mod 12
+
+julia> b = ModInt{15}(2837628736423)
+13 mod 15
+
+julia> a + b
+20 mod 60
+\end{minted}
+
+The type of the result \code{a + b} depends on the types of \code{a} and \code{b} via \code{lcm}.
+
+
+
+
+
+\section{Generic functions and multimethods}
+
+Multimethods are a natural mechanism for capturing the polymorphism
+inherent in technical computing. Consider an operation as fundamental as
+multiplication: an expression like \verb|a*b| can mean:
+
+\begin{itemize}
+	\item a matrix--matrix product,
+	\item a matrix--vector product, or
+	\item a scalar--vector product,
+\end{itemize}
+%
+to name just a few possibilities. A generic function system supporting
+multimethods allows for the \verb|*| function to be polymorphic, expressing a
+common metaphor for different kinds of multiplication which can be
+disambiguated by the types of \verb|a| and \verb|b|. In contrast, languages
+supporting only classes cannot capture the full extent of polymorphism in
+\verb|*| in method dispatch: as classes inherently support only single dispatch
+on the first argument, each method \verb|*| defined for each class \verb|a|
+must contain different code blocks for each possible type of \verb|b|, thus in
+practice requiring multiple dispatch to be emulated using virtual methods and
+visitor patterns~\cite{Gamma1994}. Furthermore, implementing binary methods can
+require knowing the internal representation of both objects \verb|a| and
+\verb|b|, especially for performance reasons~\cite{Bruce1995}. Such knowledge
+fundamentally corrupts the abstraction of class-based encapsulation, as the
+methods associated with \verb|a| must know implementation details of all
+possible objects \verb|b| that \verb|a| may interact with, thus further
+compounding the problem of enumerating all possible code paths at compile time.
+In contrast, there is no abstraction leak associated with allowing a generic
+function \verb|*| knowledge about the internal representations of the types it
+works on.
+
+Julia's generic function system can be extended with user-defined methods, thus
+allowing for users to define new generic functions and extend existing
+functions with new methods, or even overwrite existing methods to suit their
+needs. Thus multiplications represented by \verb|*| can be extended, for
+example, to multiplication between quaternions, or even to $N$-ary
+matrix-matrix products, where associativity\footnote{Neglecting the lack of
+exact associativity in some fields such as floating-point numbers.} allows
+matrix-matrix products to be regrouped so as to minimize the total memory
+footprint and operation count~\cite{Hu1984}.
+
+\paragraph{Multiple dispatch allows dispatch on new types and new functions at the same time}
+The needs of technical computing can exceed the abilities of most dispatch
+systems.  In particular, it is usually not possible to have new behaviors that
+intermix new types and new functions.  One group of languages allows you to
+have new types but their dispatch upon existing functions cannot be defined.
+Subtyping is the usual paradigm here, but it is closed because it assumes
+you've covered all the cases explicitly.  Object oriented programming can be
+seen as a solution around this problem, but in pure OO, objects have only
+identity and have no interface protocol.  Classes are a mechanism for
+implementing message sends, defining actions \textit{upon} an object.  The
+other group of languages allows you to have new functions but not for existing
+types.  Haskell typeclasses~\cite{typeclass} are a fixed collection of
+interfaces; while additional functions can be defined, only the functions that
+form part of the existing interface can interact with an existing type.
+
+\TODO{Orphans/to flesh out}
+The prices we pay for such flexibility:
+- No encapsulation guarantees.  programs may at any point be able to peer into
+the internal representation of types. As a result, type safety requires
+stringent criteria on the allowed variances of types.
+- Increased overhead of dynamic lookups for function dispatch.
+
+\paragraph{Method sorting and dispatch mechanism}
+\TODO{Describe}
 Method tables are a sorted list of these types.
 Implemented as \code{jl\_methtable\_t}
 
+
+One key insight into the design of Julia is that static analysis can eliminate
+the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
+at speeds comparable to analogous code written in fully compiled static
+languages. The key static analysis technique is type inference, which we will
+describe in the next section.
+
+
+
+\section{Type inference}
+
+\paragraph{Type inference is a key part of the language}
+A somewhat unusual feature of julia is that we consider dataflow type inference a
+key part of the language. Strictly speaking, this is an optional, external program
+analysis that might be used for various purposes, chief among them implementing
+an optimizing compiler. However, it is highly important to programmers since it
+largely defines not the semantics, but the performance model of the language.
+
+\paragraph{Dataflow captures intuition of control flow}
+We feel that dataflow analysis, especially of forward flow, captures a piece of
+the human intuition of how programs work: values start at the top and move through
+the program step by step. For example, compilers are much more user-friendly
+when they elide a possibly-uninitialized variable warning in
+
+\begin{minted}[frame=lines,framesep=2mm]{julia}
+int a;
+if (cond)
+    a = 1;
+else
+    a = 2;
+f(a);
+\end{minted}
+
+The programmer knows that \code{a} is always initialized before use.
+
+\TODO{Orphan}
+automatic type inference allows many
+explicit type annotations to be eliminated, thus resulting in shorter and more
+reusable code.
 
 \paragraph{Code transformations in the Julia compiler}
 The Julia code is parsed, then macro expanded, then lowered into SSA form, then
@@ -830,8 +627,6 @@ linearized with jumps. This form is relatively straightforward to map onto LLVM
 IR and is also simpler to run dataflow analysis on. After type inference comes
 tuple elimination, inlining and then conversion to LLVM IR where further
 optimizations passes occur.
-
-\TODO{Is there a sense in which Julia "maximally leverages" LLVM?}
 
 Type inference avoids explicit annotations and yet recovers almost enough information for performant dispatch. The goal is to dispatch onto machine types where possible and yet be flexible enough to support general code. Multiple dispatch was one part of the puzzle. The other part is type inference.
 
@@ -842,6 +637,14 @@ Standard dataflow analysis makes use of the lattice structure of types to perfor
 In general, type inference is NOT decidable! The set of pure terms which are typable in the λII-calculus in a given context is not recursive. So there is no general type inference algorithm for the programming language Elf and, in some cases, some type information has to be mentioned by the programmer. 
 
 \paragraph{Dataflow analysis}
+ flow-sensitive analysis, the topic of Section 4.5,
+may improve precision in this case by allowing slots to have different types at different points in the target program.
+More specifically, flow-sensitive analysis tracks the flow of control from assignments to reads of slots, attempting to
+eliminate certain object types from the types of slots when control-flow properties make it impossible for them to
+reach specific reads.
+
+Need flow senstitive analysis because variable identifiers are allowed to be rebound and retyped at any point in the code. This rules out flow-insensitive type inference algorithms such as Hindley-Milner, which are popular in the ML family of languages.
+
 What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
 Problem is finding the tightest possible set of allowable types.
 There are tweaks to the standard algorithm. One big thing is that dataflow analysis only goes in forward direction.
@@ -896,60 +699,6 @@ complete lattice with top implies that we have descending chains, so meets exist
 It is also crucial for dataflow algorithms to converge to a fixed point
 The finite height assumption of a lattice is essential to prove termination.
 
-Parametric invariance makes it easy to construct monotone flow functions
-because the underlying type lattice lends naturally to disentangled finite
-chains and there is a lot more disjointedness to the lattice.
-
-\paragraph{Subtyping relations and the type lattice}
-
-\paragraph{Subtyping is not set embedding!}
-Another aspect of the type system that can be confusing to new users is that
-subtyping can express some, but not all, mathematical embeddings between sets
-of allowed values.
-
-Examples:
-
-- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
-\dots, 255}. Each of these in turn has an exact representation as a
-double-precision floating point number (Float64). Nevertheless, Uint8 is not a
-subtype of Float64.
-
-- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
-
-- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
-where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
-correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
-Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
-\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
-of Complex.
-
-- Real is not a subtype of Complex because for each type T that is a subtype of
-Real, there is a corresponding instantiable type Complex{T}. None of these
-correspond to Real since there is no T such that Complex{T} is a one-component
-number, and each concrete type only has $\bot$ as its subtype.  
-
-
-\paragraph{\code{typeof}}
-
-You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
-
-\begin{minted}[frame=lines,framesep=2mm]{julia}
-typeof(bits, tag) = (tag, DataType) #Returns a value
-\end{minted}
-
-\code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is
-also true in other dynamic languages, e.g.\ Python (CPython). In other
-languages like Haskell, \code{typeof(DataType) = Kind}, etc. Static languages
-can just truncate the tower of metatypes and also refuse to type-check code
-that reasons about types and kinds too far up the hierarchy. In fact, early
-versions of Haskell did not allow for programs to reason about kinds at the
-data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
-
-\TODO{There is a subtlety about typeof's behavior. typeof is a projection;
-typeof(not-a-type) produces a DataType, which projects non-type values onto
-types. It also has the effect of lifting non-type values onto a type lattice;
-the latter is defined only for values that are DataTypes.}
-
 \paragraph{Widening for convergence acceleration}
 We also use widening as a convergence acceleration technique. Although widening
 does not guarantee converging to a minimal fixed point, the analysis
@@ -957,72 +706,230 @@ nonetheless converges and that is good enough.  Widening also deals with
 infinite types because there are heuristic cutoffs for the traversal into the
 substructure of data types.
 
-\subsection{Dispatch}
 
-\paragraph{method sorting for specificity}
 
-\TODO{The main novelty and challenge is explaining type parameters and
-typevars. Currently typevars are not first-class objects in Julia; you can't
-pass them to a function. Expressions of the form \code{T<:SomeType} don't have
-an independent existence outside a function signature that also contains the
-\code{\{T...\}} construction.}
+\section{Applications in technical computing}
 
-\subsection{Type inference}
+\TODO{A good motivating example for types is $2^{64}$}
 
-\subsection{Type promotion}
+\subsection{Numerical linear algebra}
 
-\subsection{Example: modular integer arithmetic with \code{lcm}}
+\subsubsection{BLAS and LAPACK: wrapping custom numerical routines}
 
-Here's an example of a type parameter computed with the \code{lcm} function:
+Dynamic multiple dispatch is valuable for writing generic numeric code which
+handles the broadest possible set of inputs while at the same time making use
+of handcrafted performant kernels when they are available.  An illustration of
+this principle can be seen in Julia's linear algebra routines.  Many systems
+provide optimized implementations of standard libraries such as BLAS (Basic
+Linear Algebra Subprograms) and LAPACK (Linear Algebra PACKage) which provide
+standard functionality such as matrix-matrix multiplication and spectral
+decompositions for computing eigenvalues and eigenvectors.  Implementations
+such as ATLAS, GotoBLAS and OpenBLAS provide performant kernels customized for
+individual microarchitectures that can reach a significant fraction of
+theoretical peak FLOPS.
 
-\begin{minted}[frame=lines,fontsize=\footnotesize,
-               framesep=2mm]{julia}
-import Base: convert, promote_rule, show, showcompact
+\subsection{Limitations of Fortran libraries}
+There are a few limitations, however.  Chief among these is the cognitive
+burden for users to learn how these routines are named and figuring out which
+routine performs the desired computations.  These libraries, like many
+scientific codes, are written in Fortran, with no notion of polymorphic
+dispatch.  Most of these routines have six letter names in line with
+traditional Fortran 77 subroutine nomenclature.
 
-immutable ModInt{n} <: Integer
-    k::Int
-    ModInt(k) = new(mod(k,n))
-end
+\begin{enumerate}
+\item The first letter of each routine name describes the floating point type (e.g.\ single precision real, double precision real, single precision complex and double precision complex).
 
--{n}(a::ModInt{n}) = ModInt{n}(-a.k)
-+{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k+b.k)
--{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k-b.k)
-*{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k*b.k)
+\item The next two letters is a code for the type of matrix (e.g.\ \code{GE} for general, \code{ST} for symmetric tridiagonal).
 
-convert{n}(::Type{ModInt{n}}, k::Int) = ModInt{n}(k)
-convert{n}(::Type{ModInt{n}}, k::ModInt) = ModInt{n}(k.k)
-promote_rule{n}(::Type{ModInt{n}}, ::Type{Int}) = ModInt{n}
-promote_rule{m,n}(::Type{ModInt{m}}, ::Type{ModInt{n}}) =
-    ModInt{lcm(m,n)}
+\item The last few letters describe the type of computation to carry out (e.g.\ \code{SV} for linear solver, \code{EIN} for eigenvalues and eigenvalues).
+\end{enumerate}
 
-show{n}(io::IO, k::ModInt{n}) = print(io, "$(k.k) mod $n")
-showcompact(io::IO, k::ModInt) = print(io, k.k)
+\paragraph{No polymorphism in Fortran = verbose and redundant}
+The lack of polymorphism produces a proliferation of routines with a large
+amount of redundant code. Furthermore, it is very difficult to extend these
+libraries with new functionality, as many redundant routines have to be written
+even something as fundamental as adding a new level of floating-point
+precision. \TODO{e.g. QUADPACK is its own thing. Things get even worse with mixed-precision.}
 
-julia> a = ModInt{12}(18278176231)
-7 mod 12
 
-julia> b = ModInt{15}(2837628736423)
-13 mod 15
+\subsubsection{Polyalgorithms and Polymorphism with generic functions}
 
-julia> a + b
-20 mod 60
-\end{minted}
+\paragraph{Polymorphism with generic functions = expressive overloading}
+In contrast, Julia's system of generic functions with polymorphic dispatch
+system allows a compact factorization of the namespace of linear algebra
+routines.  Instead of a routine name like \code{DSTEIN} (double precision
+symmetric tridiagonal eigenproblem solver), the \code{LinAlg} module in base
+Julia introduces the function \code{eig} which solves eigensystems, and allows
+parametric method signatures like
+\code{eig\{T<:BlasFloat\}(M::SymTridiagonal\{T\})} which allow specialized
+methods to be defined for both the matrix type (\code{SymTridiagonal},
+symmetric tridiagonal) and its element type (\code{BlasFloat} is a union type
+\code{Union(Float32, Float64, Complex\{Float32\}, Complex\{Float64\})}, and so
+\code{T<:BlasFloat} specifies a template that defines four separate,
+specialized methods.  The \code{LinAlg.LAPACK} module also uses Julia's
+metaprogramming capabilities to map Julia function calls onto their LAPACK
+equivalents.  In this way, multiple dispatch allows a handful of overloaded
+functions to accept the widest possible set of inputs while not giving up the
+ability to use handcrafted performant kernels when they are available.
 
-The type of the result \code{a + b} depends on the types of \code{a} and \code{b} via \code{lcm}.
+\paragraph{Extensible generic functions allows for fast specalizations and generic fallbacks to coexist}
+The ability to add new specialized methods to existing generic functions allows
+new functionality to be added seamlessly. For example, Julia provides generic
+fallback routines to do matrix computations over arbitrary fields of element
+types \code{T}, providing the ability to compute on numeric types which are not
+mappable to hardware floating point types. This can be useful to perform matrix
+computations in exact rational arithmetic or software--emulated higher
+precision floating point arithmetic to verify the implementations of algorithms
+or to detect the possibility of numerical instability associated with roundoff
+errors. Oftentimes it is possible to write a single kernel that will work
+independently of the underlying field \code{T}, avoiding the need to write
+redundant code.
+
+\paragraph{Dynamic multiple dispatch is useful for polyalgorithms requiring runtime information}
+\TODO{Emphasize that the algorithm used is value-dependent} 
+The ability to perform multiple dispatch dynamically is valuable when you can
+specialize on certain algorithms but you can only determine which algorithm to
+dispatch on at runtime. This is useful for linear algebraic applications where
+certain properties of an input matrix are difficult to determine \textit{a
+priori}, such as matrix symmetries like Hermiticity, or spectral properties
+like positive definiteness. For example the matrix square root function
+(\code{sqrtm}) includes a runtime check to detect if the input matrix is
+symmetric (for real element types) or Hermitian (for complex element types). If
+the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a faster,
+specialized method to compute the principal matrix square root using the
+eigenvalues and eigenvectors, otherwise a different method is dispatched upon
+which computes and uses the Schur factorization instead.
+
+\paragraph{sqrtm}
+The generality afforded by dynamic dispatch allows for runtime dispatch onto
+optimized kernels depending on the input matrix. For example, the
+\code{sqrtm\{M::Matrix\}} function for computing matrix square roots contains a
+runtime check to detect if the input matrix is symmetric. If it is, then the
+computation is dispatched onto a \code{sqrtm\{S::Symmetric\}} method which
+computes more efficiently than the general case. Of course if the user knows at
+the time of writing the code he or she could call the specialized method
+directly, but the ability to do dynamic dispatch allows the same performant
+kernel to be called even in situations where the user does not know about the
+special symmetry of a particular input matrix, or perhaps may not even be aware
+of specialized algorithms that can be enabled by such information that can be
+deduced at runtime.
+
+\paragraph{factorize}
+The \code{factorize} function in Julia is another, more extreme example of how
+dynamic multiple dispatch can be used to detect matrix symmetries and structure
+(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
+and compute appropriate matrix factorizations that best take advantage of the
+detected matrix properties. The output is a matrix factorization object whose
+specific type is only defined at runtime depending on the specific matrix
+properties that are detected at runtime. For example, calling \code{factorize}
+on a symmetric positive definite matrix returns a \code{Cholesky} type
+representing a Cholesky factorization, whereas a symmetric indefinite matrix
+would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
+instead. Positive definiteness is a good example of a matrix property that can
+be difficult to determine \textit{a priori} and the fastest way to detect it
+would be to attempt to compute a matrix factorization that succeeds only on
+postiive definite matrices (such as the Cholesky decomposition), and fallback
+to returning a different type if the computation failed.
+
+
+\subsection{Application: statistical library routines}
+
+\paragraph{User interpretation of generic functions}
+Generic functions express a common action or computation, which may in
+practice be performed in many different ways depending on the inputs. For
+example, one may wish to compute the mean of a given statistical distribution.
+In Julia, the computation can be expressed simply as dispatch onto the method
+\code{mean(D::Distribution)}, with a different method for \code{mean} being
+defined for different \code{Distribution}s. In contrast, much scientific code
+is written in languages that lack generic functions, resulting in users having
+to keep track of a large family of very closely related functions which
+together can be thought of as specialized mthods for a polymorphic function.
+Table~\ref{statsfunctions} shows a family of closely related functions in the R
+programming language and their Julia counterparts in the
+\package{Distributions.jl} package. Julia provides a common functional interface
+for each type of statistical distribution, with generic functions like
+\code{pdf} to compute the probability density function, \code{cdf} for the
+cumulative density function, \code{quantile} to compute quantiles, and
+\code{rand} for sampling random variates. In contrast, each distribution in R
+must have its own associated family of functions prefixed by \code{d},
+\code{p}, \code{q} and \code{r} respectively, and the number of functions grows
+by both the number of distributions and the number of desired computations on
+them.
+
+\code{pdf}
+\begin{table}
+{\tiny
+\begin{tabular}{l || l | l | l | l}
+  \textbf{\code{D}}                & \textbf{\code{pdf(D)}}    & \textbf{\code{cdf(D)}}    &
+        \textbf{\code{quantile(D)}} & \textbf{\code{rand(D)}}  \\ \hline\hline
+  \textbf{\code{Beta}}             & \code{dbeta}     & \code{pbeta}     & \code{qbeta}       & \code{rbeta}    \\
+  \textbf{\code{Binomial}}         & \code{dbinom}    & \code{pbinom}    & \code{qbinom}      & \code{rbinom}   \\
+  \textbf{\code{Cauchy}}           & \code{dcauchy}   & \code{pcauchy}   & \code{qcauchy}     & \code{rcauchy}  \\
+  \textbf{\code{Chisq}}            & \code{dchisq}    & \code{pchisq}    & \code{qchisq}      & \code{rchisq}   \\
+  \textbf{\code{Exponential}}      & \code{dexp}      & \code{pexp}      & \code{qexp}        & \code{rexp}     \\
+  \textbf{\code{Fdist}}            & \code{df}        & \code{pf}        & \code{qf}          & \code{rf}       \\
+  \textbf{\code{Gamma}}            & \code{dgamma}    & \code{pgamma}    & \code{qgamma}      & \code{rgamma}   \\
+  \textbf{\code{Geometric}}        & \code{dgeom}     & \code{pgeom}     & \code{qgeom}       & \code{rgeom}    \\
+  \textbf{\code{Hypergeometric}}   & \code{dhyper}    & \code{phyper}    & \code{qhyper}      & \code{rhyper}   \\
+  \textbf{\code{LogNormal}}        & \code{dlnorm}    & \code{plnorm}    & \code{qlnorm}      & \code{rlnorm}   \\
+  \textbf{\code{Multinomial}}      & \code{dmultinom} & \code{pmultinom} & \code{qmultinom}   & \code{rmultinom}\\
+  \textbf{\code{NegativeBinomial}} & \code{dnbinom}   & \code{pnbinom}   & \code{qnbinom}     & \code{rnbinom}  \\
+  \textbf{\code{Normal}}           & \code{dnorm}     & \code{pnorm}     & \code{qnorm}       & \code{rnorm}    \\
+  \textbf{\code{Poisson}}          & \code{dpois}     & \code{ppois}     & \code{qpois}       & \code{rpois}    \\
+  \textbf{\code{TDist}}            & \code{dt}        & \code{pt}        & \code{qt}          & \code{rt}       \\
+  \textbf{\code{Uniform}}          & \code{dunif}     & \code{punif}     & \code{qunif}       & \code{runif}    \\
+  \textbf{\code{Weibull}}          & \code{dweibull}  & \code{pweibull}  & \code{qweibull}    & \code{rweibull} \\
+\end{tabular}
+}
+\label{statsfunctions}
+\caption{List of common distributions in R v3.1.1\cite{rlang} and their
+associated functions. Shown in bold are the equivalent Julia generic
+functions and \code{Distribution} types provided by the Julia package
+\package{Distributions.jl}, showing how the namespace
+is simplified by generic functions and multiple dispatch.}
+\end{table}
+
+\TODO{show code examples}
+
+\TODO{Other possible examples from Distributions.jl: QQ plots, posterior function}
+
+\subsection{External dispatch with dynamic multimethods}
+
+\paragraph{writemime example}
+One thing you can do with dynamic multiple dispatch is external dispatch,
+i.e.\ to be able to add new methods to an existing type rather than
+specifying all the possible methods upfront. This is used to good effect
+in Julia packages to extend functionality of the base library. For example,
+the package \package{Color.jl} for manipulating color spaces extends the
+\code{writemime} base function, which writes an object as a specified
+MIME type\cite{mimerfc} to an I/O stream. \code{Color.jl} extends
+\code{writemime} with new methods that draw color swatches.
+
+\TODO{Here, we could put a figure showing writemime being called on a base
+Julia object, writemime(::Color), and writemime(::VectorColor) objects.
+Possibly take a screenshot in IJulia.}
+
+\paragraph{External dispatch for package interaction}
+External dispatch also facilitates interaction between Julia packages---
+colors can be rendered using the \package{Cairo.jl} package,
+which allows rendering to a Cairo backend~\cite{cairographics}.
+When using Cairo to render an object in a given color, \code{Cairo.jl}
+doesn't need to know anything about the underlying color space; it just
+needs to call \code{convert} methods provided by \code{Color.jl}.
+Julia's \code{convert} protocol is the ``narrow waist'' that allows
+packages to allow using all kinds of color spaces naturally, without
+needing to know anything specifically about them.
+
+\paragraph{External dispatch is clunky in C++}
+External dispatch can be performed in other languages like C++. However,
+C++ only allows static external dispatch, which severely limits its utility.
+Furthermore, external dispatch in C++ requires virtual methods and visitor
+patterns\cite{designpatterns} to work around the absence of explicit support
+for external dispatch.
+
+
 
 \section{Performance}
-
-\TODO{Talk about how much type inference improves.}
-
-\TODO{Talk about gains over non-Julia languages.}
-
-\section{Dispatch in Practice}
-
-\TODO{Talk about the library examples.}
-
-\section{Discussion}
-
-\TODO{Talk about the psychological implications of types.}
 
 
 \section{Related Work}
@@ -1136,10 +1043,56 @@ Invariance is useful for things like arrays but they can make mathematical
 reasoning tricky when the parametric type is something like complex.  Subtyping
 is not embedding.
 
+\paragraph{Nonobvious consequences}
+
+A nonobvious consequence of the invariance of type parameters is that
+parametric types can be instantiated with any type parameter regardless of
+whether it is abstract or concrete.
+
+The three \code{Complex} numbers
+
+\begin{minted}{julia}
+z1 = Complex{Float64}(0.0, 1.0)
+z2 = Complex{FloatingPoint}(0.0, 1.0)
+z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
+\end{minted}
+
+are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
+identical (in the \textit{egal} sense).
+
+If we inspect the variables using Julia's \code{dump} command, we get:
+
+\begin{minted}{jlcon}
+julia> dump(z1)
+Complex{Float64} 
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z2)
+Complex{FloatingPoint} 
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z3)
+Complex{Union(Integer,Float64,Rational{T<:Integer})} 
+  re: Int64 0
+  im: Float64 1.0
+
+\end{minted}
+
+We see that the \code{::T} annotation on a field does not guarantee that the
+type of a value placed in the field in any given instance of that type is
+exactly of type \code{T}, merely that it is a subtype of \code{T}.
+
+
 \paragraph{Parametric invariance interacts with dataflow in nonobvious ways}
 Parametric invariance makes it easy to construct monotone flow functions
 because the underlying type lattice lends naturally to disentangled finite
 chains and there is a lot more disjoint functions.
+Parametric invariance makes it easy to construct monotone flow functions
+because the underlying type lattice lends naturally to disentangled finite
+chains and there is a lot more disjointedness to the lattice.
+
 
 The 1,2,Nat example and the induced structures on \verb|S{#} <: T{#}| make for
 interesting flow functions.
