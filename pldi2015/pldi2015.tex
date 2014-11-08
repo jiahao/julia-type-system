@@ -157,6 +157,47 @@ often within a factor of two of the speed of native, hand-written C code.
 
 \section{Type system}
 
+Julia is a dynamic language, i.e.\ it has no static semantics. As such, Julia
+does not have types in the strict sense, but rather run-time type tags used to
+differentiate heap-allocated objects~\cite[Section 11.10, p. 142]{Pierce2002}.
+Nevertheless, the formal theory of dynamic type tags is well-defined as static
+promises that are coerced at run-time into 
+types~\cite{Henglein1994,Shields1998,Baars2002}, and there should be no ambiguity
+in using the terms ``type'' and ``type tag'' in this paper. This
+section aims to describe how dynamic type tags can be used, not for type
+checking to statically reject ill-typed programs, but rather to disambiguate
+objects and facilitate dispatch in ways similar to static
+types~\cite{Tratt2009,Kell2014}.
+
+All values in a dynamically typed language have two semantic components:
+a \emph{tag} and some \emph{data}. The tag classifies the data, which are the
+contents of some block of memory whose format is set by the programming
+language. Tags are useful for both users and compilers for deciding what to do
+to values, but incur overhead which increases the memory footprint of a data
+item. This overhead motivates most dynamically typed languages to simplify and
+minimize their tag systems.
+
+In contrast, Julia's types are designed for expressiveness, allowing programs
+to reason about:
+
+\begin{itemize}
+\item when code is applicable (dispatch),
+\item what to specialize on,
+\item memory layout, and
+\item what can be statically known about a potential value.
+\end{itemize}
+%
+Furthermore, types are first-class values, allowing programs that can compute on types and reason about all of the above.
+
+An expressive type system can result in fewer components to the
+language design. An important example is arrays, which are special cased in
+some languages for performance reasons, but in Julia are described as a
+particular kind of parametric type~\cite{Bezanson2014}. The type parameter is
+important for understanding the memory layout of arrays.
+
+
+
+\TODO{Orphans}
 \begin{quote}
 	[I]t behooves the language designer to incorporate distinctions between
 	types into his language. Doing so permits an implementer of the
@@ -165,13 +206,7 @@ often within a factor of two of the speed of native, hand-written C code.
 	used.
 \end{quote}
 
-\subsection{Dynamic types are actually type tags}
-
-Julia is dynamically typed in that the compiler does not statically reject
-ill-typed programs, but Julia is designed to optimize static type and dispatch
-inference.  \TODO{Explain type tags as dynamic tags with runtime coercion,
-cross-reference literature on dynamically typed lambda calculi.}
-\TODO{Contextualize use of multiple dispatch}
+Statically determining all tags is generally not possible.
 
 Parametric polymorphism like template specialization but dynamic.
 
@@ -183,6 +218,13 @@ resolved statically and also know all the cases you'll be in at compile time.
 Dynamic languages provide only dynamic bindings, which means that programmers
 don't have to reason about the differences between static and dynamic
 semantics, and dynamic binding is more general anyway.
+
+A key design of the Julia type system is that in enables polymorphism by having type parameters and subtyping relations.
+
+The challenge in designing such a type system are in specifying how
+tags can be computed and how the subtyping relationships work.
+
+Type promotions are written as user-level code to compute new types.
 
 \paragraph{Types are values: Fewer language constructs for user simplicity}
 The original motivation in Julia for having types as values was to simplify the
@@ -203,74 +245,7 @@ and kinds (meta-types) and meta-kinds etc.), plus being able to reason about
 types dynamically, affords users a way to harmonize the use of types and
 pattern matching language constructions that are common in other languages.
 
-We have designed the type system to be as permissive as possible to programmers
-while still providing enough information to statically resolve a significant
-portion of dispatches. The main contribution of the type system design is that
-types are values that the programmer can write programs to compute. The
-challenge in designing such a type system are in specifying how tags can be
-computed and how the subtyping relationships work. \TODO{Question: is this type
-system based on/similar to any other type system?} Motivating reason: having
-types as values allows you to have fewer components to the language design.
-Lets you write array parametric on a type without explicitly declaring the type
-parameter.
-
-Main challenges:
-- Types/tags exist to describe things in a standard way. Challenge to think
-about what needs to be described. Canonical example for long time was arrays
-with different element types.
-\TODO{What were the main difficulties in designing the type system?}
-\TODO{What about promoters? Do type promotions show up in other languages?}
-Type promotions are written as user-level code to compute new types.
-
-The defining feature of dynamic typing is that all values, semantically at
-least, have two parts: a \emph{tag} and some \emph{data}. The tag classifies
-the value according to some ontology defined by the programming language, and
-the data is a block of memory whose format is set by the programming language,
-possibly in a way that depends on the tag.
-
-\paragraph{Our types are actually tags}
-Colloquially tags are typically called ``types'' by programmers, as the distinction
-is not important in most uses of dynamic typing. In type theory each tag corresponds
-one-to-one to a type encoding the proposition that some term evaluates to a value
-with that tag. However dynamically-typed languages usually do not require that such
-a type system be used. Statically determining all tags is generally not possible.
-Furthermore, it would be perfectly reasonable to impose a static type system that
-was not concerned with tags at all, but rather with other program properties
-(e.g. checking for possible uses of null references). Tags are a mechanism, and as
-such neither require nor preclude any particular formalism.
-
-\paragraph{Tags are constraining and hence self-describing}
-Tags are valuable because they have a constrained structure. While the data
-part of a value may vary arbitrarily at run time, tags are drawn from a limited,
-well-understood family. This provides for self-describing data: it becomes possible
-to write a program that accepts an \emph{arbitrary} value, discovers its structure,
-and operates on it, by examining its tag.
-
-\paragraph{Tags incur overhead and most languages try to limit use of tags}
-The potential of tags is to provide a common descriptive language shared by all users
-of a language, as well as the compiler. The cost of tags is overhead. The addition of
-a tag may double, or more, the memory footprint of a data item. Partly for this reason,
-most dynamically typed languages try to simplify and minimize their tag systems.
-\TODO{Laurence Tratt also points out that tags tend to resemble the types used in static
-languages, likely as a result of cultural expectations.} Taken to an extreme,
-as in Scheme, the set of possible tags might be finite and small, allowing tags to be
-overlaid with pointer bits in many implementations.
-
 \paragraph{Maximally expressive types in Julia}
-Julia tries to reach the other extreme, providing for tags with nested structure, and
-possibly containing arbitrary values.
-
-- describing when code is applicable (dispatch)
-- describing what to specialize on
-- describing memory layout
-- describing what, if anything, is statically known about a potential value
-
-\paragraph{Dynamic semantics only}
-Julia has no static semantics, and therefore everything it does must be
-dynamically describable.
-In Julia all compiler values are pairs of a value v and a type tag T. Julia
-values are essentially equivalent of what is sometimes called dynamic
-types~\cite[Section 11.10, p. 142]{Pierce2002}
 
 
 \subsection{Kinds of types}
@@ -615,6 +590,10 @@ describe in the next section.
 
 
 \section{Type inference}
+
+The process of type inference can be thought of as a process of describing data
+automatically: programs can accept an \emph{arbitrary} value, discover its structure,
+and operate on it by examining its tag.
 
 \paragraph{Type inference is a key part of the language}
 A somewhat unusual feature of julia is that we consider dataflow type inference a
