@@ -11,8 +11,6 @@
 
 @unpublished{Strachey1967,
 	Author = {Strachey, Christopher},
-	Date-Added = {2014-09-04 17:38:34 +0000},
-	Date-Modified = {2014-09-04 17:38:40 +0000},
 	Month = {August},
 	Note = {Lecture Notes at the International Summer School in Computer Programming, Copenhagen, Denmark},
 	Title = {Fundamental concepts of programming languages},
@@ -21,45 +19,35 @@
 @manual{rlang,
 	Address = {Vienna, Austria},
 	Author = {{R Development Core Team}},
-	Date-Added = {2014-09-04 17:24:11 +0000},
-	Date-Modified = {2014-09-04 17:24:19 +0000},
 	Organization = {R Foundation for Statistical Computing},
 	Title = {R: A Language and Environment for Statistical Computing},
 	Url = {http://www.R-project.org},
 	Year = {2008},
-	Bdsk-Url-1 = {http://www.R-project.org}}
+}
 
 @book{dylanman,
 	Address = {Cupertino, CA},
 	Author = {Andrew Shalit},
-	Date-Added = {2014-07-22 01:58:11 +0000},
-	Date-Modified = {2014-07-22 01:59:08 +0000},
 	Publisher = {Apple},
 	Title = {The Dylan Reference Manual: The Definitive Guide to the New Object-Oriented Dynamic Language},
-	Url = {http://opendylan.org/books/drm/},
+	Url = {http://opendylan.org/books/drm},
 	Year = {1996},
-	Bdsk-Url-1 = {http://opendylan.org/books/drm/}}
+}
 
 @article{lua,
 	Author = {Roberto Ierusalimschy and de Figueiredo, Luiz Henrique and Celes Filho, Waldemar},
-	Date-Added = {2014-07-21 23:12:51 +0000},
-	Date-Modified = {2014-07-21 23:32:57 +0000},
 	Doi = {10.1002/(SICI)1097-024X(199606)26:6<635::AID-SPE26>3.0.CO;2-P},
 	Journal = {Software---Practice \& Experience},
 	Number = {6},
 	Pages = {635-652},
 	Title = {Lua---an extensible extension language},
-	Url = {http://www.lua.org/spe.html},
 	Volume = {26},
 	Year = {1996},
-	Bdsk-Url-1 = {http://www.lua.org/spe.html},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1002/(SICI)1097-024X(199606)26:6%3C635::AID-SPE26%3E3.0.CO;2-P}}
+}	
 
 @techreport{mimerfc,
 	Annote = {Defines MIME types. There are six IETF RFCs but this one describes the actual media typing system.},
 	Author = {N Freed and N Borenstein},
-	Date-Added = {2014-07-21 22:00:45 +0000},
-	Date-Modified = {2014-07-21 23:36:06 +0000},
 	Institution = {IETF},
 	Month = {November},
 	Number = {RFC 2046},
@@ -72,91 +60,64 @@
 	Abstract = {Four software designers present a catalog of simple and succinct solutions to commonly occurring design problems, using Smalltalk and C++ in example code. These 23 patterns allow designers to create more flexible, elegant, and ultimately reusable designs without having to rediscover the design solutions themselves. The authors begin by describing what patterns are and how they can help you design object-oriented software. They go on to systematically name, explain, evaluate, and catalog recurring designs in object-oriented systems.--From publisher description.},
 	Address = {Reading, Massachusetts},
 	Author = {Gamma, Erich and Helm, Richard and Johnson, Ralph and Vlissides, John},
-	Date-Added = {2014-07-21 20:58:41 +0000},
-	Date-Modified = {2014-07-21 21:01:26 +0000},
 	Publisher = {Addison-Wesley},
 	Title = {Design patterns: elements of reusable object-oriented software},
 	Year = {1995}}
 
 @inproceedings{exotypes,
 	Address = {New York, New York, USA},
-	Annote = {Exotypes are essentially macros that generate staged functions in Julia.
-        
-Main differences:
-        
-- Multiple dispatch paradigm obviates the need for some uses (maybe) and could make this more powerful
-- Terra is a separate layer on top of the Lua host language.
-- Specialization must be explicitly called in Terra
-- No need to distinguish between special syntax for built-in methods vs user-defined methods in Julia (Julia doesn't really have built-in methods)
-- Julia doesn't use automatic broadcasting to implement the Proxy design patten. In Terra, automatic broadcasting happens automatically when there is a \_\_methodmissing property defined.
-- Currently Julia uses an eager approach to resolving circularity. They did so initially in a prior paper also but they switched to lazy evaluation
-- In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting to being abole to create types with an unbounded number of behaviors becomes irrelvant. There is a separation of functions and objects in Julia that obviates the need for lazily queried properties (although it may still be a more efficient implementation choice).
-        
-      },
 	Author = {DeVito, Zachary and Ritchie, Daniel and Fisher, Matt and Aiken, Alex and Hanrahan, Pat},
 	Booktitle = {Proceedings of the 35th ACM SIGPLAN Conference on Programming Language Design and Implementation - PLDI '14},
-	Date-Modified = {2014-07-21 22:49:18 +0000},
 	Doi = {10.1145/2594291.2594307},
 	Pages = {77--88},
 	Publisher = {ACM Press},
 	Title = {First-class runtime generation of high-performance types using exotypes},
 	Year = {2014},
-	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2594291.2594307},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2594291.2594307}}
+}
 
 @inproceedings{typeclass,
 	Address = {New York, New York, USA},
 	Author = {Wadler, Philip and Blott, Stephen},
 	Booktitle = {Proceedings of the 16th ACM SIGPLAN-SIGACT symposium on Principles of programming languages - POPL '89},
-	Date-Modified = {2014-07-21 23:34:39 +0000},
 	Doi = {10.1145/75277.75283},
 	Pages = {60--76},
 	Publisher = {ACM},
 	Title = {How to make \textit{ad-hoc} polymorphism less \textit{ad hoc}},
 	Year = {1989},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1145/75277.75283}}
+}
 
 @inproceedings{terra,
 	Address = {New York, New York, USA},
 	Author = {DeVito, Zachary and Hegarty, James and Aiken, Alex and Hanrahan, Pat and Vitek, Jan},
 	Booktitle = {Proceedings of the 34th ACM SIGPLAN conference on Programming language design and implementation - PLDI '13},
 	Doi = {10.1145/2491956.2462166},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/DeVito et al/Proceedings of the 34th ACM SIGPLAN conference on Programming language design and implementation - PLDI '13/DeVito et al. - 2013 - Terra.pdf:pdf},
-	Isbn = {9781450320146},
-	Keywords = {a multi-stage language for,high-performance computing,ra},
 	Pages = {105--116},
 	Publisher = {ACM},
-	Title = {{Terra}},
+	Title = {Terra},
 	Year = {2013},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1145/2491956.2462166}}
+}
 
 @inproceedings{stagedfunc,
 	Address = {New York, New York, USA},
 	Author = {J{\o}rring, Ulrik and Scherlis, William L.},
 	Booktitle = {Proceedings of the 13th ACM SIGACT-SIGPLAN symposium on Principles of programming languages - POPL '86},
-	Date-Modified = {2014-07-21 23:35:18 +0000},
 	Doi = {10.1145/512644.512652},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/J\o rring, Scherlis/Proceedings of the 13th ACM SIGACT-SIGPLAN symposium on Principles of programming languages - POPL '86/J\o rring, Scherlis - 1986 - Compilers and staging transformations.pdf:pdf},
 	Pages = {86--96},
-	Publisher = {ACM Press},
+	Publisher = {ACM},
 	Title = {Compilers and staging transformations},
-	Url = {http://portal.acm.org/citation.cfm?doid=512644.512652},
 	Year = {1986},
-	Bdsk-Url-1 = {http://portal.acm.org/citation.cfm?doid=512644.512652},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/512644.512652}}
+}
 
 @article{haskellkindtypes,
 	Address = {New York, New York, USA},
 	Author = {Yorgey, Brent A and Weirich, Stephanie and Cretin, Julien and {Peyton Jones}, Simon and Vytiniotis, Dimitrios and Magalh\~{a}es, Jos\'{e} Pedro},
-	Date-Modified = {2014-07-21 23:56:26 +0000},
 	Doi = {10.1145/2103786.2103795},
 	Journal = {Proceedings of the 8th ACM SIGPLAN workshop on Types in language design and implementation - TLDI '12},
 	Pages = {53--66},
 	Publisher = {ACM Press},
 	Title = {Giving {H}askell a promotion},
 	Year = {2012},
-	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2103786.2103795},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2103786.2103795}}
+}
 
 @inproceedings{Gabriel2012,
 	Abstract = {Engineering often precedes science. Incommensurability is real.},
@@ -164,32 +125,24 @@ Main differences:
 	Author = {Gabriel, Richard P},
 	Booktitle = {Proceedings of the ACM international symposium on New ideas, new paradigms, and reflections on programming and software - Onward! '12},
 	Doi = {10.1145/2384592.2384611},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Gabriel/Proceedings of the ACM international symposium on New ideas, new paradigms, and reflections on programming and software - Onward! '12/Gabriel - 2012 - The structure of a programming language revolution.pdf:pdf},
 	Isbn = {9781450315623},
-	Keywords = {don,i can,in a language,t understand,t want to die},
 	Pages = {195--214},
 	Publisher = {ACM Press},
-	Title = {{The structure of a programming language revolution}},
-	Url = {http://dl.acm.org/citation.cfm?doid=2384592.2384611},
+	Title = {The structure of a programming language revolution},
 	Year = {2012},
-	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2384592.2384611},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2384592.2384611}}
+}
 
 @article{Mehnert2010,
 	Address = {New York, New York, USA},
 	Author = {Mehnert, Hannes},
 	Doi = {10.1145/1869643.1869645},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Mehnert/Proceedings of the 2010 international conference on Lisp - ILC '10/Mehnert - 2010 - Extending Dylan's type system for better type inference and error detection.pdf:pdf},
 	Isbn = {9781450304702},
 	Journal = {Proceedings of the 2010 international conference on Lisp - ILC '10},
-	Keywords = {better,detection,ending dylan,s type system for,type inference and error},
 	Pages = {1--10},
 	Publisher = {ACM Press},
-	Title = {{Extending Dylan's type system for better type inference and error detection}},
-	Url = {http://portal.acm.org/citation.cfm?doid=1869643.1869645},
+	Title = {Extending {D}ylan's type system for better type inference and error detection},
 	Year = {2010},
-	Bdsk-Url-1 = {http://portal.acm.org/citation.cfm?doid=1869643.1869645},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/1869643.1869645}}
+}
 
 @article{Cardelli1985,
 	Abstract = {Our objective is to understand the notion of type in programming languages, present a model of typed, polymorphic programming languages that reflects recent research in type theory, and examine the relevance of recent research to the design of practical programming languages. Object-oriented languages provide both a framework and a motivation for exploring the interaction among the concepts of type, data abstraction, and polymorphism, since they extend the notion of type to data abstraction and since type inheritance is an important form of polymorphism. We develop a \&lgr;-calculus-based model for type systems that allows us to explore these interactions in a simple setting, unencumbered by complexities of production programming languages. The evolution of languages from untyped universes to monomorphic and then polymorphic type systems is reviewed. Mechanisms for polymorphism such as overloading, coercion, subtyping, and parameterization are examined. A unifying framework for polymorphic type systems is developed in terms of the typed \&lgr;-calculus augmented to include binding of types by quantification as well as binding of values by abstraction. The typed \&lgr;-calculus is augmented by universal quantification to model generic functions with type parameters, existential quantification and packaging (information hiding) to model abstract data types, and bounded quantification to model subtypes and type inheritance. In this way we obtain a simple and precise characterization of a powerful type system that includes abstract data types, parametric polymorphism, and multiple inheritance in a single consistent framework. The mechanisms for type checking for the augmented \&lgr;-calculus are discussed. The augmented typed \&lgr;-calculus is used as a programming language for a variety of illustrative examples. We christen this language Fun because fun instead of \&lgr; is the functional abstraction keyword and because it is pleasant to deal with. Fun is mathematically simple and can serve as a basis for the design and implementation of real programming languages with type facilities that are more powerful and expressive than those of existing programming languages. In particular, it provides a basis for the design of strongly typed object-oriented languages.},
@@ -204,91 +157,63 @@ Main differences:
 	Title = {{On understanding types, data abstraction, and polymorphism}},
 	Volume = {17},
 	Year = {1985},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1145/6041.6042}}
-
-@article{Yorgey2012,
-	Address = {New York, New York, USA},
-	Author = {Yorgey, Brent A and Weirich, Stephanie and Cretin, Julien and {Peyton Jones}, Simon and Vytiniotis, Dimitrios and Magalh\~{a}es, Jos\'{e} Pedro},
-	Doi = {10.1145/2103786.2103795},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Yorgey et al/Proceedings of the 8th ACM SIGPLAN workshop on Types in language design and implementation - TLDI '12/Yorgey et al. - 2012 - Giving Haskell a promotion.pdf:pdf},
-	Isbn = {9781450311205},
-	Journal = {Proceedings of the 8th ACM SIGPLAN workshop on Types in language design and implementation - TLDI '12},
-	Pages = {53--66},
-	Publisher = {ACM Press},
-	Title = {{Giving Haskell a promotion}},
-	Url = {http://dl.acm.org/citation.cfm?doid=2103786.2103795},
-	Year = {2012},
-	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2103786.2103795},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2103786.2103795}}
+}	
 
 @article{Vytiniotis2012,
-	Abstract = {The Glasgow Haskell Compiler is an optimizing compiler that expresses and manipulates first-class equality proofs in its intermediate language. We describe a simple, elegant technique that exploits these equality proofs to support deferred type errors. The technique requires us to treat equality proofs as possibly-divergent terms; we show how to do so without losing either soundness or the zero-overhead cost model that the programmer expects.},
 	Author = {Vytiniotis, Dimitrios and {Peyton Jones}, Simon and Magalh\~{a}es, Jos\'{e} Pedro},
 	Doi = {10.1145/2398856.2364554},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Vytiniotis, Peyton Jones, Magalh\~{a}es/ACM SIGPLAN Notices/Vytiniotis, Peyton Jones, Magalh\~{a}es - 2012 - Equality proofs and deferred type errors.pdf:pdf},
-	Issn = {03621340},
 	Journal = {ACM SIGPLAN Notices},
 	Month = oct,
 	Number = {9},
 	Pages = {341--352},
-	Title = {{Equality proofs and deferred type errors}},
-	Url = {http://dl.acm.org/citation.cfm?doid=2398856.2364554},
+	Title = {Equality proofs and deferred type errors},
 	Volume = {47},
 	Year = {2012},
-	Bdsk-Url-1 = {http://dl.acm.org/citation.cfm?doid=2398856.2364554},
-	Bdsk-Url-2 = {http://dx.doi.org/10.1145/2398856.2364554}}
+}
 
 @inproceedings{Weirich2011,
-	Abstract = {Modular languages support generative type abstraction, ensuring that an abstract type is distinct from its representation, except inside the implementation where the two are synonymous. We show that this well-established feature is in tension with the non-parametric features of newer type systems, such as indexed type families and GADTs. In this paper we solve the problem by using kinds to distinguish between parametric and non-parametric contexts. The result is directly applicable to Haskell, which is rapidly developing support for type-level computation, but the same issues should arise whenever generativity and non-parametric features are combined.},
 	Author = {Weirich, Stephanie and Vytiniotis, Dimitrios and {Peyton Jones}, Simon and Zdancewic, Steve},
 	Booktitle = {POPL '11 Proceedings of the 38th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages},
-	Date-Modified = {2014-09-04 17:38:30 +0000},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Weirich et al/POPL '11 Proceedings of the 38th annual ACM SIGPLAN-SIGACT symposium on Principles of programming languages/Weirich et al. - 2011 - Generative type abstraction and type-level computation.pdf:pdf},
-	Isbn = {9781450304900},
-	Issn = {03621340},
 	Month = jan,
 	Number = {1},
 	Pages = {227--240},
-	Title = {{Generative type abstraction and type-level computation}},
+	Title = {Generative type abstraction and type-level computation},
 	Volume = {46},
 	Year = {2011},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1145/1925844.1926411}}
+	Doi = {10.1145/1925844.1926411}
+}
 
 @article{Strachey2000,
-	Abstract = {This paper forms the substance of a course of lectures given at the International Summer School in Computer Programming at Copenhagen in August, 1967. The lectures were originally given from notes and the paper was written after the course was finished. In spite of this, and only partly because of the shortage of time, the paper still retains many of the shortcomings of a lecture course. The chief of these are an uncertainty of aim---it is never quite clear what sort of audience there will be for such lectures---and an associated switching from formal to informal modes of presentation which may well be less acceptable in print than it is natural in the lecture room. For these (and other) faults, I apologise to the reader. There are numerous references throughout the course to CPL [1--3]. This is a programming language which has been under development since 1962 at Cambridge and London and Oxford. It has served as a vehicle for research into both programming languages and the design of compilers. Partial implementations exist at Cambridge and London. The language is still evolving so that there is no definitive manual available yet. We hope to reach another resting point in its evolution quite soon and to produce a compiler and reference manuals for this version. The compiler will probably be written in such a way that it is relatively easyto transfer it to another machine, and in the first instance we hope to establish it on three or four machines more or less at the same time. The lack of a precise formulation for CPL should not cause much difficulty in this course, as we are primarily concerned with the ideas and concepts involved rather than with their precise representation in a programming language.},
 	Author = {Strachey, Christopher},
-	Date-Modified = {2014-10-16 20:05:37 +0000},
-	File = {:Users/jiahao/Documents/Mendeley Desktop/Strachey/Higher-Order and Symbolic Computation/Strachey - 2000 - Fundamental Concepts in Programming Languages.pdf:pdf},
 	Journal = {Higher-Order and Symbolic Computation},
-	Keywords = {CPL,L-values,R-values,ad hoc polymorphism,binding mechanisms,foundations of computing,functions as data,parameter passing,parametric polymorphism,programming languages,semantics,type completeness,variable binding},
 	Number = {1-2},
 	Pages = {11--49},
 	Title = {{Fundamental Concepts in Programming Languages}},
 	Volume = {13},
 	Year = {2000},
-	Bdsk-Url-1 = {http://dx.doi.org/10.1023/A:1010000313106}}
+	Doi = {10.1023/A:1010000313106}}
 
 @article{Henglein1994,
 	Author = {Henglein, Fritz},
-	Date-Modified = {2014-10-16 20:05:37 +0000},
 	Issn = {01676423},
 	Journal = {Science of Computer Programming},
 	Month = jun,
 	Number = {3},
 	Pages = {197--230},
-	Title = {{Dynamic typing: syntax and proof theory}},
+	Title = {Dynamic typing: syntax and proof theory},
 	Volume = {22},
 	Year = {1994},
+	Doi = {10.1016/0167-6423(94)00004-2},
 }
 
 @inproceedings{Shields1998,
 	Address = {New York, New York, USA},
 	Author = {Shields, Mark and Sheard, Tim and {Peyton Jones}, Simon},
 	Booktitle = {Proceedings of the 25th ACM SIGPLAN-SIGACT symposium on Principles of programming languages - POPL '98},
-	Isbn = {0897919793},
 	Pages = {289--302},
 	Publisher = {ACM Press},
-	Title = {{Dynamic typing as staged type inference}},
+	Title = {Dynamic typing as staged type inference},
+	Doi = {10.1145/268946.268970},
 	Year = {1998},
 }
 @article{Scott1976,
@@ -310,7 +235,6 @@ volume = {1},
 year = {1995}
 }
 @article{Hu1984,
-abstract = {This paper considers the computation of matrix chain products of the form $M_1 \times M_2 \times \cdots \times M_{n - 1} $. If the matrices are of different dimensions, the order in which the matrices are computed affects the number of operations. An optimum order is an order which minimizes the total number of operations. Some theorems about an optimum order of computing the matrices have been presented in Part I [SIAM J. Comput., 11 (1982), pp. 362–373]. Based on those theorems, an $O(n\log n)$ algorithm for finding the optimum order is presented here.},
 author = {Hu, T. C. and Shing, M. T.},
 doi = {10.1137/0213017},
 journal = {SIAM J. Comput.},
@@ -322,7 +246,6 @@ volume = {13},
 year = {1984}
 }
 @article{Bezanson2012,
-abstract = {Dynamic languages have become popular for scientific computing. They are generally considered highly productive, but lacking in performance. This paper presents Julia, a new dynamic language for technical computing, designed for performance from the beginning by adapting and extending modern programming language techniques. A design based on generic functions and a rich type system simultaneously enables an expressive programming model and successful type inference, leading to good performance for a wide range of programs. This makes it possible for much of the Julia library to be written in Julia itself, while also incorporating best-of-breed C and Fortran libraries.},
 archivePrefix = {arXiv},
 arxivId = {1209.5145},
 author = {Bezanson, Jeff and Karpinski, Stefan and Shah, Viral B. and Edelman, Alan},
@@ -372,13 +295,12 @@ address = {Berlin, Heidelberg},
 author = {Demmel, James W and Dongarra, Jack and Parlett, Beresford and Kahan, William and Gu, Ming and Bindel, David and Hida, Yozo and Li, Xiaoye and Marques, Osni and Riedy, E Jason and Voemel, Christof and Langou, Julien and Luszczek, Piotr and Kurzak, Jakub and Buttari, Alfredo and Langou, Julie and Tomov, Stanimire},
 chapter = {2},
 doi = {10.1007/978-3-540-75755-9},
-editor = {K\aa gstr\"{o}m, Bo and Elmroth, Erik and Dongarra, Jack and Wa\'{s}niewski, Jerzy},
-isbn = {978-3-540-75754-2},
+editor = {K\aa{}gstr\"{o}m, Bo and Elmroth, Erik and Dongarra, Jack and Wa\'{s}niewski, Jerzy},
 pages = {11--23},
 publisher = {Springer Berlin Heidelberg},
 series = {Lecture Notes in Computer Science},
 booktitle = {Applied Parallel Computing. State of the Art in Scientific Computing},
-title = {Prospectus for the Next LAPACK and ScaLAPACK Libraries},
+title = {Prospectus for the Next {LAPACK} and {ScaLAPACK} Libraries},
 year = {2007}
 }
 @book{Higham2008,
@@ -428,31 +350,23 @@ year = {2009}
 @article{Donahue1985,
 author = {Donahue, James and Demers, Alan},
 doi = {10.1145/3916.3987},
-file = {:Users/jiahao/Documents/Mendeley Desktop/Donahue, Demers/ACM Transactions on Programming Languages and Systems/Donahue, Demers - 1985 - Data types are values.pdf:pdf},
 issn = {01640925},
 journal = {ACM Trans. Program. Lang. Syst.},
-keywords = {a types are values},
 month = jul,
 number = {3},
 pages = {426--445},
-title = {{Data types are values}},
-url = {http://portal.acm.org/citation.cfm?doid=3916.3987},
+title = {Data types are values},
 volume = {7},
 year = {1985}
 }
 @article{Baars2002,
 author = {Baars, Arthur I. and Swierstra, S. Doaitse},
 doi = {10.1145/583852.581494},
-file = {:Users/jiahao/Documents/Mendeley Desktop/Baars, Swierstra/ACM SIGPLAN Notices/Baars, Swierstra - 2002 - Typing dynamic typing.pdf:pdf},
-isbn = {1581134878},
-issn = {03621340},
 journal = {ACM SIGPLAN Not.},
-keywords = {ing dynamic typing},
 month = sep,
 number = {9},
 pages = {157--166},
-title = {{Typing dynamic typing}},
-url = {http://portal.acm.org/citation.cfm?doid=583852.581494},
+title = {Typing dynamic typing},
 volume = {37},
 year = {2002}
 }
@@ -460,14 +374,11 @@ year = {2002}
 address = {New York, New York, USA},
 author = {Kell, Stephen},
 doi = {10.1145/2661136.2661154},
-file = {:Users/jiahao/Documents/Mendeley Desktop/Kell/Unknown/Kell - Unknown - In Search of Types.pdf:pdf},
 isbn = {9781450332101},
 journal = {Proc. 2014 ACM Int. Symp. New Ideas, New Paradig. Reflections Program. Softw. - Onward! '14},
-keywords = {search of types},
 pages = {227--241},
 publisher = {ACM Press},
-title = {{In Search of Types}},
-url = {http://dl.acm.org/citation.cfm?doid=2661136.2661154},
+title = {In Search of Types},
 year = {2014}
 }
 @inproceedings{Bezanson2014,
@@ -475,12 +386,8 @@ address = {New York, New York, USA},
 author = {Bezanson, Jeff and Chen, Jiahao and Karpinski, Stefan and Shah, Viral and Edelman, Alan},
 booktitle = {Proc. ACM SIGPLAN Int. Work. Libr. Lang. Compil. Array Program. - ARRAY'14},
 doi = {10.1145/2627373.2627383},
-file = {:Users/jiahao/Documents/Mendeley Desktop/Bezanson et al/Proceedings of ACM SIGPLAN International Workshop on Libraries, Languages, and Compilers for Array Programming - ARRAY'14/Bezanson et al. - 2014 - Array Operators Using Multiple Dispatch.pdf:pdf},
-isbn = {9781450329378},
-keywords = {a design methodology for,array implementations in dynamic,ay operators using multiple,dispatch,languages},
 pages = {56--61},
-publisher = {ACM Press},
-title = {{Array Operators Using Multiple Dispatch}},
-url = {http://dl.acm.org/citation.cfm?id=2627383 http://dl.acm.org/citation.cfm?doid=2627373.2627383},
+publisher = {ACM},
+title = {Array Operators Using Multiple Dispatch},
 year = {2014}
 }

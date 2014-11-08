@@ -4,7 +4,7 @@
 %\usepackage{listings}          % format code
 \usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
-%\newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
+\newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 
 \usepackage{todonotes} %TODO Remove for final submission
 \usepackage{minted}
@@ -992,12 +992,12 @@ One flavor is described in \cite{Henglein1994}, where a special type tag
 into other types. %But this is not the kind of polymorphism that Julia has
 
 Other examples of coercive polymorphic $\lambda$-calculi: the $F^\uparrow_C$
-language of \cite{Vytiniotis2012,Yorgey2012} used to describe the type
+language of \cite{Vytiniotis2012,haskellkindtypes} used to describe the type
 inference algorithm in GHC \cite{Weirich2011} contains type coercion
 information that allows type errors to deferred to runtime
 \cite{Vytiniotis2012} while preserving type-correctness. (This requires
 so-called kind polymorphism, which allows for programs to reason about kinds.
-\cite{Yorgey2012})
+\cite{haskellkindtypes})
 
 %Attempt to explain Julia's polymorphism features
 
