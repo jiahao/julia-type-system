@@ -736,7 +736,7 @@ substructure of data types.
 
 \TODO{A good motivating example for types is $2^{64}$}
 
-\subsection{Numerical linear algebra}
+\subsection{Numerical linear algebra library}
 
 Designing a general-purpose linear algebra library involves several different
 layers of complexity, and has been described as implementing the following
@@ -783,8 +783,37 @@ routines for such as mixed-precision and quad precision routines (which must
 implement all the existing algorithms).
 
 The code redundancy problem is largely ameliorated with the combination of type
-polymorphism and dynamic multiple dispatch. 
+polymorphism and dynamic multiple dispatch. The six-tiered hierarchy above maps
+naturally onto different language constructs in Julia as follows:
 
+\vspace{12pt}
+\begin{tabular}{c l l}
+	\hline
+	Tier & Description & Language construct \\ \hline
+	1 & linear algebra problems & generic function \\
+	2 & matrix types & parametric types \\
+	3 & data types & type parameter \\
+	4 & machine architectures & method body \\
+	5 & programming interfaces & generic function \\
+	6 & (poly)algorithms & method body \\ \hline
+\end{tabular}
+\vspace{12pt}
+
+The generic function system allows for fast specializations and generic
+fall-backs to coexist, thus allowing for speed when possible and flexibility
+otherwise. For example, Julia provides generic fall-back routines to do matrix
+computations over arbitrary fields of element types, providing the ability to
+compute on numeric types which are not mappable to hardware floating point
+types. This can be useful to perform matrix computations in exact rational
+arithmetic or software--emulated higher precision floating point arithmetic to
+verify the implementations of algorithms or to detect the possibility of
+numerical instability associated with roundoff errors. These general purpose
+routines coexist with BLAS and LAPACK wrappers, thus allowing dispatch onto
+performant code when available, and general code otherwise. User code can be
+written that will work regardless of element type (Tier 3), and can be tuned
+for performance later.
+
+\subsection{Dynamic dispatch in matrix functions}
 
 Dynamic, i.e.\ late binding, dispatch allows for high performance
 polyalgorithms with specialized code paths depending on matrix properties which
@@ -815,41 +844,6 @@ that specialized algorithms for symmetric matrices exist.
 	the value.}
 	\label{fig:sqrtm}
 \end{figure}
-
-
-\subsubsection{Polyalgorithms and Polymorphism with generic functions}
-
-\paragraph{Polymorphism with generic functions = expressive overloading}
-In contrast, Julia's system of generic functions with polymorphic dispatch
-system allows a compact factorization of the namespace of linear algebra
-routines.  Instead of a routine name like \code{DSTEIN} (double precision
-symmetric tridiagonal eigenproblem solver), the \code{LinAlg} module in base
-Julia introduces the function \code{eig} which solves eigensystems, and allows
-parametric method signatures like
-\code{eig\{T<:BlasFloat\}(M::SymTridiagonal\{T\})} which allow specialized
-methods to be defined for both the matrix type (\code{SymTridiagonal},
-symmetric tridiagonal) and its element type (\code{BlasFloat} is a union type
-\code{Union(Float32, Float64, Complex\{Float32\}, Complex\{Float64\})}, and so
-\code{T<:BlasFloat} specifies a template that defines four separate,
-specialized methods.  The \code{LinAlg.LAPACK} module also uses Julia's
-metaprogramming capabilities to map Julia function calls onto their LAPACK
-equivalents.  In this way, multiple dispatch allows a handful of overloaded
-functions to accept the widest possible set of inputs while not giving up the
-ability to use handcrafted performant kernels when they are available.
-
-\paragraph{Extensible generic functions allows for fast specalizations and generic fallbacks to coexist}
-The ability to add new specialized methods to existing generic functions allows
-new functionality to be added seamlessly. For example, Julia provides generic
-fallback routines to do matrix computations over arbitrary fields of element
-types \code{T}, providing the ability to compute on numeric types which are not
-mappable to hardware floating point types. This can be useful to perform matrix
-computations in exact rational arithmetic or software--emulated higher
-precision floating point arithmetic to verify the implementations of algorithms
-or to detect the possibility of numerical instability associated with roundoff
-errors. Oftentimes it is possible to write a single kernel that will work
-independently of the underlying field \code{T}, avoiding the need to write
-redundant code.
-
 
 
 \subsection{Application: statistical library routines}
