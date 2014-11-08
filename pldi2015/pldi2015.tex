@@ -177,9 +177,9 @@ to values, but incur overhead which increases the memory footprint of a data
 item. This overhead motivates most dynamically typed languages to simplify and
 minimize their tag systems.
 
-In contrast, Julia's types are designed for expressiveness, which results in
-fewer components to the language design. An important example is arrays, which
-are special cased in some languages for performance reasons, but in Julia are
+In contrast, Julia's types are designed for expressiveness, resulting in fewer
+components to the language design. An important example is arrays, which are
+special cased in some languages for performance reasons, but in Julia are
 described as a particular kind of parametric type, with the type parameter
 encoding information about memory layout.~\cite{Bezanson2014}. In general,
 Julia's types allowing programs to reason about:
@@ -191,7 +191,8 @@ Julia's types allowing programs to reason about:
 \item what can be statically known about a potential value.
 \end{itemize}
 %
-Furthermore, types are first-class values, allowing programs that can compute on types and reason about all of the above.
+Furthermore, types are first-class values, allowing programs that can compute
+on types and reason about all of the above.
 
 \TODO{Orphans}
 \begin{quote}
@@ -223,10 +224,7 @@ tags can be computed and how the subtyping relationships work.
 Type promotions are written as user-level code to compute new types.
 
 \paragraph{Types are values: Fewer language constructs for user simplicity}
-The original motivation in Julia for having types as values was to simplify the
-language for technical computing users.  The current design came about from
-considering the desire for users to simplify code dealing with parametrically
-polymorphic types, i.e.\ be able to write things like \code{Array} as a synonym
+Being able to write things like \code{Array} as a synonym
 for \code{Array\{T\}}.  Such synonyms are valuable for composability when
 writing methods that are agnostic about the type parameter \code{T}.  Methods
 that cared about \code{T} can be defined with a type signature that explicitly
@@ -235,13 +233,7 @@ signature that left it out.  The ability to leave out type parameters in
 function signatures contrasts with other languages \TODO{like which} which
 require explicit specification of all type parameters, resulting in users
 having to write redundant code blocks whose sole purpose is handle the nuisance
-parameter.  In contrast, the value proposition in Julia is that having types as
-values, a collapsed kind hierarchy (i.e.\ making no distinction between types
-and kinds (meta-types) and meta-kinds etc.), plus being able to reason about
-types dynamically, affords users a way to harmonize the use of types and
-pattern matching language constructions that are common in other languages.
-
-\paragraph{Maximally expressive types in Julia}
+parameter.
 
 
 \subsection{Kinds of types}
