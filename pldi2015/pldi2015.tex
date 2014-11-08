@@ -816,23 +816,6 @@ that specialized algorithms for symmetric matrices exist.
 	\label{fig:sqrtm}
 \end{figure}
 
-\paragraph{factorize}
-The \code{factorize} function in Julia is another, more extreme example of how
-dynamic multiple dispatch can be used to detect matrix symmetries and structure
-(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
-and compute appropriate matrix factorizations that best take advantage of the
-detected matrix properties. The output is a matrix factorization object whose
-specific type is only defined at runtime depending on the specific matrix
-properties that are detected at runtime. For example, calling \code{factorize}
-on a symmetric positive definite matrix returns a \code{Cholesky} type
-representing a Cholesky factorization, whereas a symmetric indefinite matrix
-would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
-instead. Positive definiteness is a good example of a matrix property that can
-be difficult to determine \textit{a priori} and the fastest way to detect it
-would be to attempt to compute a matrix factorization that succeeds only on
-postiive definite matrices (such as the Cholesky decomposition), and fallback
-to returning a different type if the computation failed.
-
 
 \subsubsection{Polyalgorithms and Polymorphism with generic functions}
 
@@ -867,51 +850,6 @@ errors. Oftentimes it is possible to write a single kernel that will work
 independently of the underlying field \code{T}, avoiding the need to write
 redundant code.
 
-\paragraph{Dynamic multiple dispatch is useful for polyalgorithms requiring runtime information}
-\TODO{Emphasize that the algorithm used is value-dependent} 
-The ability to perform multiple dispatch dynamically is valuable when you can
-specialize on certain algorithms but you can only determine which algorithm to
-dispatch on at runtime. This is useful for linear algebraic applications where
-certain properties of an input matrix are difficult to determine \textit{a
-priori}, such as matrix symmetries like Hermiticity, or spectral properties
-like positive definiteness. For example the matrix square root function
-(\code{sqrtm}) includes a runtime check to detect if the input matrix is
-symmetric (for real element types) or Hermitian (for complex element types). If
-the matrix is symmetric/Hermitian, \code{sqrtm} dispatches on a faster,
-specialized method to compute the principal matrix square root using the
-eigenvalues and eigenvectors, otherwise a different method is dispatched upon
-which computes and uses the Schur factorization instead.
-
-\paragraph{sqrtm}
-The generality afforded by dynamic dispatch allows for runtime dispatch onto
-optimized kernels depending on the input matrix. For example, the
-\code{sqrtm\{M::Matrix\}} function for computing matrix square roots contains a
-runtime check to detect if the input matrix is symmetric. If it is, then the
-computation is dispatched onto a \code{sqrtm\{S::Symmetric\}} method which
-computes more efficiently than the general case. Of course if the user knows at
-the time of writing the code he or she could call the specialized method
-directly, but the ability to do dynamic dispatch allows the same performant
-kernel to be called even in situations where the user does not know about the
-special symmetry of a particular input matrix, or perhaps may not even be aware
-of specialized algorithms that can be enabled by such information that can be
-deduced at runtime.
-
-\paragraph{factorize}
-The \code{factorize} function in Julia is another, more extreme example of how
-dynamic multiple dispatch can be used to detect matrix symmetries and structure
-(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
-and compute appropriate matrix factorizations that best take advantage of the
-detected matrix properties. The output is a matrix factorization object whose
-specific type is only defined at runtime depending on the specific matrix
-properties that are detected at runtime. For example, calling \code{factorize}
-on a symmetric positive definite matrix returns a \code{Cholesky} type
-representing a Cholesky factorization, whereas a symmetric indefinite matrix
-would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
-instead. Positive definiteness is a good example of a matrix property that can
-be difficult to determine \textit{a priori} and the fastest way to detect it
-would be to attempt to compute a matrix factorization that succeeds only on
-postiive definite matrices (such as the Cholesky decomposition), and fallback
-to returning a different type if the computation failed.
 
 
 \subsection{Application: statistical library routines}
