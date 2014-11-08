@@ -177,8 +177,12 @@ to values, but incur overhead which increases the memory footprint of a data
 item. This overhead motivates most dynamically typed languages to simplify and
 minimize their tag systems.
 
-In contrast, Julia's types are designed for expressiveness, allowing programs
-to reason about:
+In contrast, Julia's types are designed for expressiveness, which results in
+fewer components to the language design. An important example is arrays, which
+are special cased in some languages for performance reasons, but in Julia are
+described as a particular kind of parametric type, with the type parameter
+encoding information about memory layout.~\cite{Bezanson2014}. In general,
+Julia's types allowing programs to reason about:
 
 \begin{itemize}
 \item when code is applicable (dispatch),
@@ -188,14 +192,6 @@ to reason about:
 \end{itemize}
 %
 Furthermore, types are first-class values, allowing programs that can compute on types and reason about all of the above.
-
-An expressive type system can result in fewer components to the
-language design. An important example is arrays, which are special cased in
-some languages for performance reasons, but in Julia are described as a
-particular kind of parametric type~\cite{Bezanson2014}. The type parameter is
-important for understanding the memory layout of arrays.
-
-
 
 \TODO{Orphans}
 \begin{quote}
@@ -503,8 +499,6 @@ julia> a + b
 \end{minted}
 
 The type of the result \code{a + b} depends on the types of \code{a} and \code{b} via \code{lcm}.
-
-
 
 
 
