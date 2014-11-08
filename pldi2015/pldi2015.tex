@@ -716,7 +716,7 @@ computation at a node is influenced by information from previous nodes in the
 control flow.
 
 \paragraph{Existence and termination}
-Monotonic flow functions (a.k.a.\ t-functions) are essential.
+Monotonic flow functions (a.k.a.\ transfer functions or t-functions) are essential.
 Monotonicity implies flow functions preserve the ordering of approximations.
 parametric invariance makes it easy to construct monotonic flow functions since invariance means disjoint lattice structure
 complete lattice with top implies that we have descending chains, so meets exists so a lub exists done.
@@ -738,42 +738,54 @@ substructure of data types.
 
 \subsection{Numerical linear algebra}
 
-\subsubsection{BLAS and LAPACK: wrapping custom numerical routines}
+Designing a general-purpose linear algebra library involves several different
+layers of complexity, and has been described as implementing the following
+meta-program~\cite{Demmel2007}:
 
-Dynamic multiple dispatch is valuable for writing generic numeric code which
-handles the broadest possible set of inputs while at the same time making use
-of handcrafted performant kernels when they are available.  An illustration of
-this principle can be seen in Julia's linear algebra routines.  Many systems
-provide optimized implementations of standard libraries such as BLAS (Basic
-Linear Algebra Subprograms) and LAPACK (Linear Algebra PACKage) which provide
-standard functionality such as matrix-matrix multiplication and spectral
-decompositions for computing eigenvalues and eigenvectors.  Implementations
-such as ATLAS, GotoBLAS and OpenBLAS provide performant kernels customized for
-individual microarchitectures that can reach a significant fraction of
-theoretical peak FLOPS.
+{\small
+\begin{verbatim}
+(1) for all linear algebra problems
+    (linear systems, eigenproblems, ...)
+(2)  for all matrix types
+     (general, symmetric, banded, ...)
+(3)   for all data types (real, complex,
+      single, double, higher precision)
+(4)    for all machine architectures and
+       communication topologies
+(5)     for all programming interfaces
+(6)      provide the best algorithm(s) available
+         in terms of performance and accuracy
+         (``algorithms'' is plural because
+         sometimes no single one is always best)
+\end{verbatim}
+}
+%
+The six-tiered hierarchy neatly delineates how the basic collection of linear
+algebra problems (1) have to be specialized by data representation (2-3) and
+machine details (4), which are then used to decide which specific algorithms
+(5-6) to use.
 
-\subsection{Limitations of Fortran libraries}
-There are a few limitations, however.  Chief among these is the cognitive
-burden for users to learn how these routines are named and figuring out which
-routine performs the desired computations.  These libraries, like many
-scientific codes, are written in Fortran, with no notion of polymorphic
-dispatch.  Most of these routines have six letter names in line with
-traditional Fortran 77 subroutine nomenclature.
+Many systems provide optimized implementations of standard libraries for
+numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
+LAPACK (Linear Algebra PACKage). Computational routines can be customized
+for individual microarchitectures and can reach a significant fraction of
+theoretical peak FLOPS. However, these libraries inherit archaic Fortran 77
+interfaces and hence tend to restrict routine names to six letters or shorter.
+When combined with the lack of polymorphism in Fortran, the names are terse and
+cryptic to nonexperts: a typical routine like \verb|DSTEV| solves the
+eigenvalue problem (\verb|EV|) for symmetric tridiagonal matrices (\verb|ST|)
+with double precision floating point entries (\verb|D|), and furthermore takes
+eight positional arguments specifying the inputs, outputs, computation mode,
+and scratch variables. The lack of polymorphism results in redundancy due to
+lack of code reuse, which hinders the implementation of new algorithms (which
+have to be reimplemented for each level of floating-point precision) and new
+routines for such as mixed-precision and quad precision routines (which must
+implement all the existing algorithms).
 
-\begin{enumerate}
-\item The first letter of each routine name describes the floating point type (e.g.\ single precision real, double precision real, single precision complex and double precision complex).
+The code redundancy problem is largely ameliorated with the combination of type
+polymorphism and dynamic multiple dispatch. 
 
-\item The next two letters is a code for the type of matrix (e.g.\ \code{GE} for general, \code{ST} for symmetric tridiagonal).
 
-\item The last few letters describe the type of computation to carry out (e.g.\ \code{SV} for linear solver, \code{EIN} for eigenvalues and eigenvalues).
-\end{enumerate}
-
-\paragraph{No polymorphism in Fortran = verbose and redundant}
-The lack of polymorphism produces a proliferation of routines with a large
-amount of redundant code. Furthermore, it is very difficult to extend these
-libraries with new functionality, as many redundant routines have to be written
-even something as fundamental as adding a new level of floating-point
-precision. \TODO{e.g. QUADPACK is its own thing. Things get even worse with mixed-precision.}
 Dynamic, i.e.\ late binding, dispatch allows for high performance
 polyalgorithms with specialized code paths depending on matrix properties which
 can only be inferred at runtime based on the specific values of the inputs. For
@@ -803,6 +815,23 @@ that specialized algorithms for symmetric matrices exist.
 	the value.}
 	\label{fig:sqrtm}
 \end{figure}
+
+\paragraph{factorize}
+The \code{factorize} function in Julia is another, more extreme example of how
+dynamic multiple dispatch can be used to detect matrix symmetries and structure
+(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
+and compute appropriate matrix factorizations that best take advantage of the
+detected matrix properties. The output is a matrix factorization object whose
+specific type is only defined at runtime depending on the specific matrix
+properties that are detected at runtime. For example, calling \code{factorize}
+on a symmetric positive definite matrix returns a \code{Cholesky} type
+representing a Cholesky factorization, whereas a symmetric indefinite matrix
+would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
+instead. Positive definiteness is a good example of a matrix property that can
+be difficult to determine \textit{a priori} and the fastest way to detect it
+would be to attempt to compute a matrix factorization that succeeds only on
+postiive definite matrices (such as the Cholesky decomposition), and fallback
+to returning a different type if the computation failed.
 
 
 \subsubsection{Polyalgorithms and Polymorphism with generic functions}
