@@ -58,29 +58,33 @@ manifestations of multiple dispatch in Julia's standard library.
 
 \section{Introduction}
 
-%TODO These paragraph markings are structural only; take them out for final submission 
-\paragraph{Why dynamically typed languages?} 
-Dynamically typed languages are popular when computing on data of uncertain
-formats or with uncertain outcomes.  Suppose you have a ten-terabyte dataset.
-You want to find the parts of it that are useful.  The first step is to
-summarize the data set.  There are various tools to summarize the data set, but
-it is usually not clear which of the tools will produce useful summaries.  This
-process is one of rapid iteration: the programmer must keep trying summary
-toolchains until there is one that works.
+Engineers, mathematicians and scientists routinely write software for
+computational simulations and data analysis to discover new insights.
+Users writing code for the purposes of discovery often by definition do not
+know what computations they need upfront, but rather discover what they want by
+iterating through several different prototypes. Consequently, technical
+computing code is often the product of an organic process of continuous
+experimentation, rather than derived from formal software engineering
+specifications.
 
-\paragraph{Dynamic languages are good for rapid iteration and scientific experimentation}
-Dynamically typed languages are often better suited for this rapid iteration
-process.  In this class of programs, the programming process is one of running
-experiments rather than one of building robust systems.  This is the nature of
-many scientific programs: programs operating over data sets created by
-scientific experiments.  Scientific programs frequently involve operating over
-reified data values whose types are difficult to predict.  Because it is not
-always clear what the properties of the data are going to be, it is not clear
-what the types of the values and which functions to call.  Writing this code in
-statically typed languages involves extensive case statements on types and
-typed enumeration of the possible different cases.  The programmer can avoid
-this in dynamic languages.
-\TODO{Point: static languages introduce straitjackets that constrain the pliability and reusability of code.}
+Static languages focus on being able to prove correctness of programs, and
+compilers usually contain features like type checkers which restrict the set of
+allowed programs in favor of correctness. Code written in static languages
+must be able to account for all possible behaviors of the algorithms
+implemented for all possible input values. All these possible code paths must
+stated at compile time, posing challenges for authors of technical codes which
+often work on enormous inputs and may fail in subtle ways that require further
+investigation and mitigation. In contrast, dynamic languages do not constrain
+programs to be amenable to static analysis, and hence are more permissive and
+expressive in ways that are more naturally suited for rapid prototyping and
+experimentation. Consequently, dynamic languages like MATLAB, Python and R have
+become popular amongst technical computing users for writing prototype codes.
+However, code written in these languages are difficult to execute performantly;
+the dynamic nature of these languages pose significant challenges for
+implementers to transform code into efficiently executable forms. Technical
+computing users thus face a dilemma known as the two-language problem: it is
+easier to prototype code in a dynamic language, but faster to run code written in
+a static language. 
 
 \paragraph{Classes are awkward to express technical computation}
 Binary operations are awkward to handle with class-based object-orientedness.
