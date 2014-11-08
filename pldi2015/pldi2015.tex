@@ -257,47 +257,40 @@ Tag ::= Data | Tuple
 
 \begin{description}
 
-\item[Data constructor/Tag types] (Pierce calls these atomic types or base types \cite[Fig.
-	11-1, p.118]{Pierce2002}): types whose internal structure are not
-	represented by the type system. (ACTUALLY I don't think this is true
-	anymore, since \code{abstract} has no internal structure.) Julia has a
-	special kind of tag type called \code{bitstype}s which simply label a
-	contiguous number of bits.
+\item[Data constructor/Tag types] are types with associated constructors. They
+	are further subdivided into:
+	\begin{description}
+	
+	\item[Bits types] like double precision floating point numbers
+	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which can
+	be stored unboxed as raw bits without tag overhead,
 
-??? Are things defined by \code{type} and \code{immutable} also tag types?
-This is a different kind of type - they define an internal representation but
-they are also abstract data types. These are \textit{abstract data types} that
-completely define a different kind of type algebra and method interaction interface.
-(These types abstract away the semantics of the containing fields and are not
-record types.)
+	\item[Abstract data types] which have an internal representation
+		declared with the \verb|type| keyword, and
+		
+	\item[Immutable types] which are similar to abstract data types
+		declared with the \verb|immutable| keyword, but whose internal
+		variables are immutable, thus potentially allowing for unboxed
+		representations.
 
-\code{DataType}s have associated inner and outer constructors.
+	\end{description}
+
 
 \item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
-product of zero or more existing types \code{T1}, \code{T2}, etc.~\cite[Sec. 11.7]{Pierce2002}
-Tuples are covariant.
+	product of zero or more existing types \code{T1}, \code{T2},
+	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
 
-\item[Abstract types] define a type with no declared representation. Abstract
-	types are uninstantiable in the sense that there are no values whose
-	types are abstract types. Their primary purpose is as declared
-	supertypes of leaf types (which are instantiable); their role in
-	providing structure in the type lattice is useful for writing
-	multimethod signatures and type inference.
+\item[Abstract types] define an uninstantiable type which are used as declared
+	supertypes of leaf types (which are concrete and instantiable).
 
-\item[Singleton types] In Julia, singleton types may be specified explicitly as
-	using the \code{::Type\{T\}} construct. Singletons are used for
-	computations on types themselves, such as type promotions. For example,
-	given two types, can ask what the promoted type is. So far haven't had
-	singleton types for general values. (Sorting algorithms example: used
-	more for dispatch as shorthand for type with no parameters.) Will use
-	this more because generating specialized code is big for scientific
-	computing, but need to figure out what to specialize on and how to tell
-	system what to specialize on. State of the art is to have ad hoc
-	systems.
+\item[Singleton types] are constructed with the \code{::Type\{T\}} syntax and
+	are used for primarily for computations on types themselves, such as
+	type promotions, and for dispatch. \TODO{Sorting algorithms example: used
+	more for dispatch as shorthand for type with no parameters.}
 
-\item[Union types] declared as \code{Union(T1, T2,...)} which can be defined as
-	the join of zero, or two or more, types \code{T1}, \code{T2},
-	...~\cite[Sec.  15.7]{Pierce2002}
+\item[Union types] declared as \code{Union(T1, T2,...)} are the join of zero,
+	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
+	15.7]{Pierce2002}
 	%
 	\begin{equation}
 		Union(T_1, T_2, ..., T_N) = \bigwedge_{i=1}^N T_i 
@@ -320,16 +313,17 @@ Tuples are covariant.
 			is an $\eta$-reduction.)
 	\end{itemize}
 
-\item[\code{TypeVar}] A quantification over a set of types.  ForAll types
-	quantify over all types between a lower bound and upper bound. Have
-	lower bound and upper bound because of containers that can be read and
-	written. People mostly only use the upper bounds. No function types, so
-	no contravariance, so lower bounds don't get used much. In theory, can
-	still use them for functions that mutate things.
+\item[\code{TypeVar}s] are not types, but are quantifications over sets of
+	types. They are used to define
+	
+\item[\code{ForAll} types] which quantify over all types between a lower bound
+	and upper bound.
 
 \end{description}
 
-\paragraph{Type parameters}
+\subsection{Subtyping}
+
+\subsection{Type parameters}
 
 Parametric types are invariant.
 The conventional wisdom is that type safety requires covariance if components
