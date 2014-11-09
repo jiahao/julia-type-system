@@ -122,8 +122,9 @@ easier to prototype code in a dynamic language, but faster to run code written
 in a static language. 
 
 Julia is a dynamic language designed with the ambitious goal of eliminating the
-false dichotomy between dynamism and speed~\cite{Bezanson2012}. The language
-features several different mechanisms for expressing polymorphism, namely:
+false dichotomy between dynamism and speed~\cite{Bezanson2012,Bezanson2014b}.
+The language features several different mechanisms for expressing polymorphism,
+namely:
 
 \begin{itemize}
 	\item A user extensible type system featuring subtyping and parametric
@@ -294,7 +295,7 @@ Tag ::= Data | Tuple
 	15.7]{Pierce2002}
 	%
 	\begin{equation}
-		Union(T_1, T_2, ..., T_N) = \bigwedge_{i=1}^N T_i 
+		\texttt{Union}(T_1, T_2, ..., T_N) = \bigwedge_{i=1}^N T_i 
 	\end{equation}
 	%
 	The union with zero types, \code{Union()}, is simply the bottom type.
@@ -334,6 +335,8 @@ replaced with objects of their subtype without altering desirable program
 behavior. This property is called the Liskov substitution
 principle~\cite{Liskov1974}.
 
+Julia requires allows user-defined types to have exactly one declared supertype.
+If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
 
 \subsection{Type parameters}
 
@@ -385,15 +388,17 @@ No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
 
 \paragraph{Subtyping relations and the type lattice}
 
-Join is union of any two types; meet is less well-defined in this lattice
-Julia requires allows user-defined types to have exactly one declared supertype.
-If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
+The existence of the subtyping relation \verb|<:| imbues Julia types with
+lattice structure~\cite{Scott1976}, with a meet operator $\wedge$ computing the
+type intersection (\verb|typeintersect|), and a join operator \TODO{pin
+symbol?} which creates union types. Furthermore, the lattice is complete, as it
+is live on a complete lattice bounded below by the bottom type $\bot$ or
+\verb|Union()|, and bounded above by the top type $\top$ or \verb|Any|. As we
+shall see later, the existence of type lattice allows for sophisticated type
+inference algorithms to be used.  
 
-The subtype relations define a lattice of types~\cite{Scott1976}. Furthermore
-the lattice is bounded by a top type, \code{Any}, from above and a bottom
-type, \code{Union()}, below.
-
-We inherit the meet and join operations on the type lattice.
+In practice, joins are easy to construct by forming unions.  Meets are more
+difficult as Julia does not natively support intersection types.
 
 \paragraph{Subtyping is not set embedding!}
 Another aspect of the type system that can be confusing to new users is that
