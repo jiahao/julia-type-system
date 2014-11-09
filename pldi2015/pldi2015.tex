@@ -564,20 +564,58 @@ stringent criteria on the allowed variances of types.
 Method tables are a sorted list of these types.
 Implemented as \code{jl\_methtable\_t}
 
+\subsection{Diagonal dispatch}
 
-One key insight into the design of Julia is that static analysis can eliminate
-the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
-at speeds comparable to analogous code written in fully compiled static
-languages. The key static analysis technique is type inference, which we will
-describe in the next section.
+Diagonal dispatch is a special refinement of method dispatch that occurs when a
+type parameter appears in more than position in the method signature, e.g.:
 
+\verb|f{T}(x::T, y::T)|
+%
+Diagonal dispatch occurs only for concrete types \verb|T|. For example,
+\verb|f(1, 2)| works as the arguments are of type \verb|(Int, Int)|, but not
+\verb|f(1, 2.0)| as the arguments are of type \verb|(Int, Float64)|, even
+though that tuple type is a subtype of \verb|(T, T)| where
+\verb|T = Union(Int,| \verb|Float64)| or any larger union of \verb|Int| and
+\verb|Float64|. Thus for diagonal dispatch to match only concrete \verb|T|s,
+the tuple of arguments is treated \textit{not} covariantly, but rather,
+\textit{invariantly}. Although this is an unusual special--casing of tuple
+behavior, the greater specificity allowed by invariance makes diagonal dispatch
+more useful in practice by matching only concrete types, particularly when
+\verb|T| appears multiple times in the method signature, e.g.\ 
+\verb|f{T}(x::T, y::T, z::T)| or even \verb|f{T}(xs::T...)|. 
+
+The \textit{diagonal} nature of diagonal dispatch is apparent when considering
+the dispatch table for the method \verb|f{T}| \verb|(x::T, y::T)|: when written
+out as a table with all possible types of \texttt{x} and \texttt{y} along the
+rows and columns as shown in Table~\ref{tab:diagonal}, the method dispatches
+only along the diagonal of the table.
+
+\begin{table}
+\begin{tabular}{c | c c c c c}
+	& \verb|Int| & \verb|Float64| & \verb|Bool| & \verb|Real| & $\cdots$ \\ \hline
+	\verb|Int|     & \checkmark &  &  &  & \\
+	\verb|Float64| &  & \checkmark &  &  & \\
+	\verb|Bool|    &  &  & \checkmark &  & \\
+	\verb|Real|    &  &  &  & \checkmark & \\
+	$\vdots$       &  &  &  &  &
+\end{tabular}
+\caption{Dispatch table for the function \texttt{f} with method
+\texttt{f\{T\}(x::T, y::T)}, showing that dispatch occurs only along the
+diagonal with all possible types of \texttt{x} and \texttt{y} along the rows
+and columns.}
+\label{tab:diagonal}
+\end{table}
 
 
 \section{Type inference}
 
-The process of type inference can be thought of as a process of describing data
-automatically: programs can accept an \emph{arbitrary} value, discover its structure,
-and operate on it by examining its tag.
+One key insight into the design of Julia is that static analysis can eliminate
+the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
+at speeds comparable to analogous code written in fully compiled static
+languages. The key static analysis technique is type inference, which can be
+thought of as a process of describing data automatically: programs can accept
+an \emph{arbitrary} value, discover its structure, and operate on it by
+examining its tag.
 
 \paragraph{Type inference is a key part of the language}
 A somewhat unusual feature of julia is that we consider dataflow type inference a
