@@ -5,7 +5,7 @@
 \usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
-
+\usepackage{amssymb}
 \usepackage{todonotes} %TODO Remove for final submission
 \usepackage{minted}
 
@@ -280,8 +280,9 @@ Tag ::= Data | Tuple
 	product of zero or more existing types \code{T1}, \code{T2},
 	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
 
-\item[Abstract types] define an uninstantiable type which are used as declared
-	supertypes of leaf types (which are concrete and instantiable).
+\item[Abstract types] define an uninstantiable type with no declared
+	representation. They are used as declared supertypes of leaf types
+	(which are concrete and instantiable).
 
 \item[Singleton types] are constructed with the \code{::Type\{T\}} syntax and
 	are used for primarily for computations on types themselves, such as
@@ -302,26 +303,37 @@ Tag ::= Data | Tuple
 	simplifications in their construction:
 	\begin{itemize}
 		\item If there are types \code{S} and \code{T} obeying the
-			subtyping relation \code{S <: T}, then \code{S} is
-			deleted from the final union type constructed. Note
-			that this simplification includes the special case
-			where \code{S} and \code T are identical.  (I think
-			this is a $\beta$-reduction.)
+			subtyping relation \code{S <: T} in the union
+			constructor, then \code{S} is deleted ($\beta$-reduced)
+			from the final union type constructed. This
+			simplification includes the special case where \code{S}
+			and \code T are identical.
 
 		\item A union type \code{Union(T)} with a single type parameter
-			\code{T} is identical to just \code{T}. (I think this
-			is an $\eta$-reduction.)
+			\code{T} is identical (by $\eta$-reduction) to just
+			\code{T}.
 	\end{itemize}
 
 \item[\code{TypeVar}s] are not types, but are quantifications over sets of
-	types. They are used to define
+	types. They are used to define constraints on type parameters in type
+	constructors, and also
 	
 \item[\code{ForAll} types] which quantify over all types between a lower bound
 	and upper bound.
 
 \end{description}
 
+Julia's type system supports two mechanisms for polymorphism, namely subtyping
+and type parameters. 
+
+
 \subsection{Subtyping}
+
+Julia supports strong behavioral subtyping: objects of a given type can be
+replaced with objects of their subtype without altering desirable program
+behavior. This property is called the Liskov substitution
+principle~\cite{Liskov1974}.
+
 
 \subsection{Type parameters}
 
@@ -367,23 +379,15 @@ whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
 
 \TODO{Talk about the psychological implications of types.}
 
-\paragraph{abstract type}
-An abstract type declares a type without a representation. It takes the name of
-a type, parameters [what do the parameters do?], and the name of the super
-type. Data type declarations additionally provide a representation. \TODO{Talk
-about the representation.} Abstract type and data type declarations are
-invariant and nominative.
+Is there multiple inheritance?
+No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
 
-Jeff is pretty sure subtyping is decidable and well-defined
-Join is union of any two types; meet is less well-defined in this lattice
 
 \paragraph{Subtyping relations and the type lattice}
 
+Join is union of any two types; meet is less well-defined in this lattice
 Julia requires allows user-defined types to have exactly one declared supertype.
 If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
-
-Is there multiple inheritance?
-No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
 
 The subtype relations define a lattice of types~\cite{Scott1976}. Furthermore
 the lattice is bounded by a top type, \code{Any}, from above and a bottom
@@ -635,8 +639,6 @@ There are tweaks to the standard algorithm. One big thing is that dataflow analy
 Kaplan-Ullman also doesn't treat parametric types
 Julia also has a widening step.
 Relies on types having only one supertype.
-Diagonal dispatch: can constrain arguments to same type.
-
 
 \TODO{What are the challenges?}
 
