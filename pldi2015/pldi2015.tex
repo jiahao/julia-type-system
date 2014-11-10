@@ -1154,11 +1154,21 @@ h1(x) = sin(x) + im*cos(x)
 For scalar numbers \verb|x| of type \verb|Float64|, \verb|h1| constructs a
 complex number of type \verb|Complex{Float64}|. However, \verb|h1| also accepts
 arrays of type \verb|Array{Float64, N}| (where $N$ is the rank), returning a
-corresponding array \verb|Array{Complex| \verb|{Float64}, N}|. The vectorized
-methods enable convenient syntax for mapping over many scalar values, but can incur
-unwanted allocation of array temporaries. In this example, \verb|h1| constructs
-three temporary arrays on top of the new array needed to contain the answer,
-namely the arrays \verb|A|, \verb|B| and \verb|C| in the equivalent code: 
+corresponding array \verb|Array{Complex| \verb|{Float64}, N}|.
+
+In other dynamic languages, vectorization is an accepted mantra for
+performance, as the vectorized functions often wrap kernels written in a
+low--level language that deliver performance over functionally equivalent
+devectorized code which use slow, directly interpreted scalar
+loops~\cite{Seljebotn2009,Velt2011}. Users have therefore learned that
+vectorized functions provide speed, and will sometimes go to great lengths to
+contort their computations into vectorized form to speed up their code, even if
+the computation cannot be expressed conveniently or naturally in vectorized
+form. Furthermore, vectorization still incurs significant overhead,
+particularly in the unwanted allocation of array temporaries. In this example,
+\verb|h1| constructs three temporary arrays on top of the new array needed to
+contain the answer, namely the arrays \verb|A|, \verb|B| and \verb|C| in the
+equivalent code: 
 
 \begin{lstlisting}
 function h2(x)
@@ -1183,7 +1193,8 @@ end
 %
 computes the same result but avoids allocating temporary arrays and their
 concomitant overhead costs for heap allocation, memory access and garbage
-collection.
+collection. Thus devectorized code is preferred in Julia as scalar loops are
+fast with minimal overhead~\cite{Bezanson2014b}. 
 
 
 \subsection{Problems with vectorization and higher--order functions}
@@ -1209,9 +1220,10 @@ The example of \verb|h1| suggests that what users really want is not vectorized
 functions, but rather convenient syntax for vectorized \textit{expressions}.
 The \package{Devectorize.jl} package uses code generation techniques to marry
 the convenient syntax for vectorized functions with the speed of devectorized
-code with explicit loops. Alternatively, a more general approach is to use
-higher order functions like \verb|map| to vectorize an entire expression, like
-so:
+code with explicit loops. The restructuring for vectorization is often
+unnatural, and at times not possible. Alternatively, a more general approach is
+to use higher order functions like \verb|map| to vectorize an entire
+expression, like so:
 
 \begin{lstlisting}
 h3(x) = map(_ -> sin(_) + im*cos(_), x)
