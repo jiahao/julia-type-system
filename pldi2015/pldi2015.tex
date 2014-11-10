@@ -1099,7 +1099,9 @@ Julia provides some language features to detect type instability, e.g.:
 		
 	\item Variables can also be given explicit \textbf{type annotations};
 	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
-	of type \verb|Float64| within the current scope.
+	of type \verb|Float64| within the current scope, and all assignments
+	\verb|x = _| implicitly call the type conversion function
+	\verb|convert(Float64, _)|.
 
 	\item Expressions can be given \textbf{type assertions}; changing
 	\verb|x += y| to \verb|x += y :: Int| asserts that \verb|y| must be of
