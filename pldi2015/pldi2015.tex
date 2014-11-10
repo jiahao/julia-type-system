@@ -1285,10 +1285,42 @@ remains one of the hardest unsolved problems in the standard library, as it
 touches upon all the aspects of the type system, generic function system,
 dispatch, and type inference that have been discussed above.
 
+In order to implement \verb|map(f, x)| efficiently, we need to know the output
+type of \verb|f| over each element of \verb|x|. Determining the output type of
+\verb|map| is difficult for several reasons:
+
+\begin{enumerate}
+
+	\item To know the output type of \verb|f(y)| for some element \verb|y|
+	of \verb|x|, the type of \verb|y| must be known so that the actual
+	method being dispatched for the generic function \verb|f| can be looked
+	up in the dispatch table. This means that the data \verb|x| must be
+	fully typed within the type environment where \verb|map| is invoked.
+	Furthermore the type environment must yield enough information about
+	\verb|y| so that the method dispatcher is able to pick out a
+	specialized method over the generic fall--back for \verb|f|.
+
+	\item Since Julia lacks true function types, the output type of
+	\verb|f(y)| must be inferred from data flow analysis, and the inferred
+	type must be sufficiently sharp to determine the type of the output of
+	\verb|map|.
+
+	\item For performance, the scalar operation \verb|f(y)| must be
+	inlined, and hence the inlining code transformation pass must deem the
+	inlining to be viable.
+
+\end{enumerate}
+
 The general problem of implementing \verb|map| over an arbitrary iterable is an
 even harder problem, since one lacks the guarantee provided by \verb|Array|
-types that every element has the same type.
+types that every element has the same type.  In general you may need to run the
+dispatcher for each element just to find out which method is dispatched for the
+particular type of the specific value being iterated over.
 
+The current implementation uses functor types, which simplify the reasoning
+about function outputs since they only represent functions of type $(T, T, T,
+...) \rightarrow T$. However, the functor technique is difficult to extend to
+the general case.
 
 \paragraph{Many unexplored implementation challenges}
 Possibly peephole optimizations. Constant propagation. Backward type inference.
