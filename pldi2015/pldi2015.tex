@@ -1278,7 +1278,7 @@ collection. Thus devectorized code is preferred in Julia as scalar loops are
 fast with minimal overhead~\cite{Bezanson2014b}. 
 
 
-\subsection{Problems with vectorization and higher--order functions}
+\subsection{Vectorization and higher--order functions}
 
 Another more subtle issue with vectorized functions is their limited
 extensibility and composability. Implementations can only bless some
@@ -1307,7 +1307,7 @@ The \package{Devectorize.jl} package uses code generation techniques to marry
 the convenient syntax for vectorized functions with the speed of devectorized
 code with explicit loops. The restructuring for vectorization is often
 unnatural, and at times not possible. Alternatively, a more general approach is
-to use higher order functions like \verb|map| to vectorize an entire
+to use higher order functions like \verb|map| to compute an entire vectorized
 expression, like so:
 
 \begin{lstlisting}
@@ -1318,13 +1318,22 @@ h3(x) = map(_ -> sin(_) + im*cos(_), x)
 collection of input data. However, implementing \verb|map| efficiently in Julia
 remains one of the hardest unsolved problems in the standard library, as it
 touches upon all the aspects of the type system, generic function system,
-dispatch, and type inference that have been discussed above.
-
-In order to implement \verb|map(f, x)| efficiently, we need to know the output
-type of \verb|f| over each element of \verb|x|. Determining the output type of
+dispatch, and type inference that have been discussed above. In order to
+implement \verb|map(f, x)| efficiently, we need to know the output type of
+\verb|f| over each element of \verb|x|. Determining the output type of
 \verb|map| is difficult for several reasons:
 
 \begin{enumerate}
+
+	\item The output type of \verb|f| must be an \verb|Array{T}| with
+	element type \verb|T| wide enough to describe all the possible output
+	elements. \verb|T = Any| is the widest possible array, but provides no
+	information about the mutability of each element. Consequently the
+	array must be represented in memory with pointers to boxed elements. In
+	contrast, being able to infer a concrete immutable element type like
+	\verb|T = Float64| allows the indirection to array elements and the
+	overhead of tagging to be eliminated, allowing the resulting array data
+	to stored contiguously like a C or Fortran array.
 
 	\item To know the output type of \verb|f(y)| for some element \verb|y|
 	of \verb|x|, the type of \verb|y| must be known so that the actual
@@ -1344,24 +1353,40 @@ type of \verb|f| over each element of \verb|x|. Determining the output type of
 	inlined, and hence the inlining code transformation pass must deem the
 	inlining to be viable.
 
+	\item Implementing \verb|map| over an arbitrary iterable \verb|x| is
+	harder than implementing vectorized functions, since the former lacks
+	the guarantee provided by \verb|Array| inputs types that every element
+	has the same type. In the worst case, the method dispatcher must be
+	called for each element \verb|y| just to find out which method is
+	dispatched for \verb|f(y)|.
+
 \end{enumerate}
 
-The general problem of implementing \verb|map| over an arbitrary iterable is an
-even harder problem, since one lacks the guarantee provided by \verb|Array|
-types that every element has the same type.  In general you may need to run the
-dispatcher for each element just to find out which method is dispatched for the
-particular type of the specific value being iterated over.
+The implementation of \verb|map| hence speaks to the conflicting demands of
+flexibility and performance that underlie the design tradeoffs built into
+Julia's types, generic functions and type inference algorithms. The current
+implementation optimistically assumes an element type based on the output
+returned from the first element, and makes further copies into increasingly
+wider arrays as necessary if a later return type is wider than the current
+element type. The aggressive method specialization in Julia's compiler can emit
+specialized code which optimize away branch checks for widening in cases where
+the input type is completely known, e.g.\ when the input is an \verb|Array|
+with some concrete element type, and thus avoid the cost of conditional
+branches. The current design leverages empirical studies which indicate that
+most applications use homogeneous arrays of concrete types, and most other
+applications have heterogeneity that be detected early on~\cite{Bolz2013}.
+advanced static analyses which allow performant specialization by the compiler,
+yet have flexible generic fall--backs which will still work when necessary.
 
-The current implementation uses functor types, which simplify the reasoning
-about function outputs since they only represent functions of type $(T, T, T,
-...) \rightarrow T$. However, the functor technique is difficult to extend to
-the general case.
-
-\paragraph{Many unexplored implementation challenges}
-Possibly peephole optimizations. Constant propagation. Backward type inference.
-More convoluted thingies with a general abstract interpretation framework.
-
-
+Julia as a language is still evolving, and there is room for further
+improvements to the compiler, such as additional static analyses for peephole
+optimizations, constant propagation, and backward data flow type inference.
+Nevertheless, the current type system, generic function system with
+multimethods and type inference with aggressive method specialization afford
+rich semantics which are useful for technical computing applications.
+Furthermore, the design and interaction between these language components allow
+users to design their own Pareto--optimal tradeoffs between performant
+specialization and flexible generality within a single programming language.
 
 \acks{We thank the many Julia users and developers for their contributions to
 the Julia language.}
