@@ -112,8 +112,9 @@ naturally suited for rapid prototyping and experimentation.
 
 In other words, a scientist will often run a program in order to find out what
 it does---\emph{proving} anything about what it does would be premature, and an
-unwelcome distraction. As a result, dynamic languages like MATLAB, Python and R
-have become popular amongst technical computing users for writing prototype
+unwelcome distraction. As a result, dynamic languages like
+MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
+become popular amongst technical computing users for writing prototype
 codes. However, code written in these languages are difficult to execute
 performantly; the dynamic nature of these languages pose significant challenges
 for implementers to transform code into efficiently executable forms. Technical
@@ -1055,7 +1056,41 @@ Dynamic typing in polymorphic languages
 M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming / Volume 5 / Issue 01 / January 1995, pp 111 - 130 DOI: 10.1017/S095679680000126X
 }
 
-\section{Conclusions}
+
+
+\section{Challenges and outlook}
+
+\paragraph{Type stability}
+New users migrating from other dynamic languages like MATLAB, Python and R are
+often surprised that direct, line--for--line translations to Julia do not
+achieve claimed C--like performance. Empirical reports~\cite{julia-users}
+indicate that such users are unfamiliar with reasoning about types. One common
+pitfall is \textbf{type instability}, which is exemplified in the following
+code:
+
+\begin{lstlisting}
+function f()
+   x = 0
+   for y=1.0:1000000.0
+      x += y
+   end
+end
+\end{lstlisting}
+%
+This seemingly innocuous routine runs slowly because \verb|x| is initialized to
+\verb|0| which is of type \verb|Int|, but accumulates floating point values
+\verb|y| of type \verb|Float64| and so within the inner loop undergoes type
+promotion to \verb|promote_type(Int,Float64)| \verb|== Float64|. The data flow
+analysis thus cannot deduce that \verb|x| is a concrete type, but only that it
+is of type \verb|Union(Int,| \verb|Float64)|. Thus the generated LLVM code must
+call back to the Julia runtime to determine the value's actual type, and hence
+boxes the value \verb|x|. As a result, \verb|x| cannot be mapped onto an LLVM
+register, but must instead be heap allocated. To minimize performance problems
+arising from type instability, Julia provides introspection functions like
+\verb|code_typed|, which allow users to inspect generated type annotations
+and avoid second--guessing the compiler's intentions.
+
+
 
 \paragraph{Logical challenges of parametric invariance}
 Invariance is useful for things like arrays but they can make mathematical
