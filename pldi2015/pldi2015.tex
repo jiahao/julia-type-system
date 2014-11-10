@@ -738,7 +738,10 @@ nonetheless converges and that is good enough.  Widening also deals with
 infinite types because there are heuristic cutoffs for the traversal into the
 substructure of data types.
 
-
+Hard to do type inference on infinite lattice. We have infinities because of
+typevars and infinite tuples.  In practice there are heuristics built into type
+inference which trigger widening (pessimizing), such as maximum lengths of
+unions and tuples, and the maximal depths of types and tuples analyzed.
 
 \section{Applications in technical computing}
 
@@ -1184,46 +1187,6 @@ Complex{Union(Integer,Float64,Rational{T<:Integer})}
 We see that the \code{::T} annotation on a field does not guarantee that the
 type of a value placed in the field in any given instance of that type is
 exactly of type \code{T}, merely that it is a subtype of \code{T}.
-
-
-\paragraph{Parametric invariance interacts with dataflow in nonobvious ways}
-Parametric invariance makes it easy to construct monotone flow functions
-because the underlying type lattice lends naturally to disentangled finite
-chains and there is a lot more disjoint functions.
-Parametric invariance makes it easy to construct monotone flow functions
-because the underlying type lattice lends naturally to disentangled finite
-chains and there is a lot more disjointedness to the lattice.
-
-
-The 1,2,Nat example and the induced structures on \verb|S{#} <: T{#}| make for
-interesting flow functions.
-
-Consider the flow function \verb|# -> S{#}|.
-
-It is not distributive.
-flow functions need not be distributive. Distribution is desirable because it
-guarantees that merging information before function application does not result
-in loss of precision. However the presence of types with invariant parameters
-leads naturally to consider flow functions that are NOT distributive.
-
-\paragraph{Recursive functions are problematic to infer}
-
-\paragraph{Widening heuristics are challenging to design}
-It is not obvious how to choose widening heuristics. Widening is NOT
-commutative with arbitrary flow function. This example is a direct
-counterexample to the intuition that widening (pessimizing) after analysis
-produces the same result as analyzing after pessimizing. In fact, in this case
-we cannot say that one has a subtype relation to the other, so that in general
-switching the order of flow function application and widening can produce
-different results which are neither tighter nor narrower approximations, but
-merely different in general.
-
-\paragraph{Type inference on infinite lattice}
-Hard to do type inference on infinite lattice. We have infinities because of
-typevars and infinite tuples.  In practice there are heuristics built into type
-inference which trigger widening (pessimizing), such as maximum lengths of
-unions and tuples, and the maximal depths of types and tuples analyzed.
- 
 
 \paragraph{Many unexplored implementation challenges}
 Possibly peephole optimizations. Constant propagation. Backward type inference.
