@@ -1085,11 +1085,25 @@ analysis thus cannot deduce that \verb|x| is a concrete type, but only that it
 is of type \verb|Union(Int,| \verb|Float64)|. Thus the generated LLVM code must
 call back to the Julia runtime to determine the value's actual type, and hence
 boxes the value \verb|x|. As a result, \verb|x| cannot be mapped onto an LLVM
-register, but must instead be heap allocated. To minimize performance problems
-arising from type instability, Julia provides introspection functions like
-\verb|code_typed|, which allow users to inspect generated type annotations
-and avoid second--guessing the compiler's intentions.
+register, but must instead be heap allocated.
 
+Julia provides some language features to detect type instability, e.g.:
+
+\begin{enumerate}
+
+	\item The base library provides introspection functions like
+	\verb|code_typed|, which allow users to inspect generated type
+	annotations and avoid second--guessing the compiler's intentions.
+		
+	\item Variables can also be given explicit \textbf{type annotations};
+	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
+	of type \verb|Float64| within the current scope.
+
+	\item Expressions can be given \textbf{type assertions}; changing
+	\verb|x += y| to \verb|x += y :: Int| asserts that \verb|y| must be of
+	type \verb|Int| or otherwise raise a run-time error.
+
+\end{enumerate}
 
 
 \paragraph{Logical challenges of parametric invariance}
