@@ -299,7 +299,7 @@ Tag ::= Data | Tuple
 	15.7]{Pierce2002}
 	%
 	\begin{equation}
-		\texttt{Union}(T_1, T_2, ..., T_N) = \bigwedge_{i=1}^N T_i 
+		\texttt{Union}(T_1, T_2, ..., T_N) = \bigvee_{i=1}^N T_i 
 	\end{equation}
 	%
 	The union with zero types, \code{Union()}, is simply the bottom type.
@@ -420,11 +420,44 @@ whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
 
 \paragraph{Nonobvious consequences}
 
-A nonobvious consequence of the invariance of type parameters is that
-parametric types can be instantiated with any type parameter regardless of
-whether it is abstract or concrete.
+Consider the very simple type system of Figure~\ref{fig:lattice}a, with two
+leaf (instantiable types) types \textbf{1} and \textbf{2} representing
+singleton values 1 and 2 of the natural numbers, \verb|Nat|. A user can
+augment the lattice with a new parametric type \verb|S{T}|. If there is no
+restriction whatsoever on the type parameter \verb|T|, then there are 5
+different parametric types of the form \verb|S{T}|. Furthermore, each
+\verb|S{T}| has supertype \verb|S| by construction, and by invariance of
+\verb|T| there are no values of the type parameters \verb|T| and \verb|U| such
+that \verb|S{T}| is a subtype of \verb|S{U}|. Additionally, none of the types
+\verb|S{T}| is a subtype or supertype of any of \textbf{1}, \textbf{2} or
+\verb|Nat|.  Thus each \verb|S{T}| appears in exactly one finite poset $\bot$
+\verb| <: S{T} <: S <:| $top$, and the new type lattice has the structure shown
+in Figure~\ref{fig:lattice}b.
 
-The three \code{Complex} numbers
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{fig-lattice}
+	\caption{
+		\textbf{a.} A simple lattice with bottom type $\bot$, top type
+		$\top$, singleton types \textbf{1} and \textbf{2}, and their
+		supertype \texttt{Nat}.
+		\textbf{b.} The same lattice extended with a parametric type
+		\texttt{S\{T\}} with no restriction on the type parameter
+		\texttt{T}, showing that for each \texttt{T}, invariance
+		requires that the corresponding type \texttt{S\{T\}} be a leaf
+		type (i.e.\ instantiable), even if \texttt{T} itself is not a
+		leaf type.}
+	\label{fig:lattice}
+\end{figure}
+
+From this example, we can conclude that invariance of type parameters requires
+parametric types to be instantiable with any type parameter, regardless of
+whether the parameter corresponds to an abstract or concrete type.
+
+\TODO{Say more about how this makes sense for arrays in terms to determining
+what types can be put in the array.}
+
+A second example: the three \code{Complex} numbers
 
 \begin{minted}{julia}
 z1 = Complex{Float64}(0.0, 1.0)
@@ -464,9 +497,9 @@ exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 The existence of the subtyping relation \verb|<:| imbues Julia types with
 lattice structure~\cite{Scott1976}, with a meet operator $\wedge$ computing the
-type intersection (\verb|typeintersect|), and a join operator \TODO{pin
-symbol?} which creates union types. Furthermore, the lattice is complete, as it
-is live on a complete lattice bounded below by the bottom type $\bot$ or
+type intersection (\verb|typeintersect|), and a join operator $\vee$ which
+creates union types. Furthermore, the lattice is complete, as it is live on a
+complete lattice bounded below by the bottom type $\bot$ or
 \verb|Union()|, and bounded above by the top type $\top$ or \verb|Any|. As we
 shall see later, the existence of type lattice allows for sophisticated type
 inference algorithms to be used.  
