@@ -212,8 +212,6 @@ on types and reason about all of the above.
 	used.
 \end{quote}
 
-Statically determining all tags is generally not possible.
-
 Parametric polymorphism like template specialization but dynamic.
 
 the core of functional programming languages, like those in the ML family, support both parametric polymorphism and record subtyping, which can be expressed in System F<:.
@@ -743,13 +741,15 @@ IR and is also simpler to run dataflow analysis on. After type inference comes
 tuple elimination, inlining and then conversion to LLVM IR where further
 optimizations passes occur.
 
+Statically determining all tags is generally not possible, and is in fact known
+to be undecidable in a language supporting parametric polymorphism as
+describable by System F~\cite{Wells1999}.
+
 Type inference avoids explicit annotations and yet recovers almost enough information for performant dispatch. The goal is to dispatch onto machine types where possible and yet be flexible enough to support general code. Multiple dispatch was one part of the puzzle. The other part is type inference.
 
 Type inference must be flow sensitive for a dynamic language since the type of a variable can change over the course of a program. Therefore we can't do Hindley Milner because it is flow insensitive. Instead, have to use dataflow-style static analysis for type inference.
 
 Standard dataflow analysis makes use of the lattice structure of types to perform minimal fixed point analysis.
-
-In general, type inference is NOT decidable! The set of pure terms which are typable in the λII-calculus in a given context is not recursive. So there is no general type inference algorithm for the programming language Elf and, in some cases, some type information has to be mentioned by the programmer. 
 
 \paragraph{Dataflow analysis}
  flow-sensitive analysis, the topic of Section 4.5,
