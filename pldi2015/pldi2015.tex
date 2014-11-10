@@ -212,11 +212,9 @@ on types and reason about all of the above.
 	used.
 \end{quote}
 
-Parametric polymorphism like template specialization but dynamic.
-
 the core of functional programming languages, like those in the ML family, support both parametric polymorphism and record subtyping, which can be expressed in System F<:.
 
-Static languages like Haskell have typeclasses\cite{typeclass}, but you'll need
+Static languages like Haskell have typeclasses~\cite{typeclass}, but you'll need
 to anticipate all the necessary use cases ahead of time because everything is
 resolved statically and also know all the cases you'll be in at compile time.
 Dynamic languages provide only dynamic bindings, which means that programmers
@@ -331,7 +329,6 @@ Tag ::= Data | Tuple
 Julia's type system supports two mechanisms for polymorphism, namely subtyping
 and type parameters. 
 
-
 \subsection{Subtyping}
 
 Julia supports strong behavioral subtyping: objects of a given type can be
@@ -372,6 +369,9 @@ number, and each concrete type only has $\bot$ as its subtype.
 
 
 \subsection{Type parameters}
+Parametric polymorphism like template specialization but dynamic.
+
+
 
 Julia types can also take parameters which are also types. 
 
@@ -758,7 +758,7 @@ More specifically, flow-sensitive analysis tracks the flow of control from assig
 eliminate certain object types from the types of slots when control-flow properties make it impossible for them to
 reach specific reads.
 
-Need flow senstitive analysis because variable identifiers are allowed to be rebound and retyped at any point in the code. This rules out flow-insensitive type inference algorithms such as Hindley-Milner, which are popular in the ML family of languages.
+Need flow sensitive analysis because variable identifiers are allowed to be rebound and retyped at any point in the code. This rules out flow-insensitive type inference algorithms such as Hindley-Milner, which are popular in the ML family of languages.
 
 What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
 Problem is finding the tightest possible set of allowable types.
@@ -1173,7 +1173,7 @@ call back to the Julia runtime to determine the value's actual type, and hence
 boxes the value \verb|x|. As a result, \verb|x| cannot be mapped onto an LLVM
 register, but must instead be heap allocated.
 
-Another example of type instability results from the subtle interaction of
+Another class of type instabilities results from the subtle interaction of
 parametric invariance, the use of non-leaf type parameters and type promotion.
 For example, the parametric type \verb|Complex{FloatingPoint}| is
 type--unstable under addition (\verb|+|):
