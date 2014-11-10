@@ -342,9 +342,41 @@ principle~\cite{Liskov1974}.
 Julia requires allows user-defined types to have exactly one declared supertype.
 If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
 
+\TODO{No multiple inheritance}
+
+\paragraph{Subtyping is not set embedding!}
+Another aspect of the type system that can be confusing to new users is that
+subtyping can express some, but not all, mathematical embeddings between sets
+of allowed values.
+
+Examples:
+
+- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
+\dots, 255}. Each of these in turn has an exact representation as a
+double-precision floating point number (Float64). Nevertheless, Uint8 is not a
+subtype of Float64.
+
+- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
+
+- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
+where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
+correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
+Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
+\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
+of Complex.
+
+- Real is not a subtype of Complex because for each type T that is a subtype of
+Real, there is a corresponding instantiable type Complex{T}. None of these
+correspond to Real since there is no T such that Complex{T} is a one-component
+number, and each concrete type only has $\bot$ as its subtype.  
+
+
 \subsection{Type parameters}
 
+Julia types can also take parameters which are also types. 
+
 Parametric types are invariant.
+
 The conventional wisdom is that type safety requires covariance if components
 are read but not written, and contravariance if they are written but not
 read~\cite{Castagna1995}. As type parameters can represent the types of mutable
@@ -386,8 +418,46 @@ whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
 
 \TODO{Talk about the psychological implications of types.}
 
-Is there multiple inheritance?
-No, but it's been discussed (https://github.com/JuliaLang/julia/issues/5)
+\paragraph{Nonobvious consequences}
+
+A nonobvious consequence of the invariance of type parameters is that
+parametric types can be instantiated with any type parameter regardless of
+whether it is abstract or concrete.
+
+The three \code{Complex} numbers
+
+\begin{minted}{julia}
+z1 = Complex{Float64}(0.0, 1.0)
+z2 = Complex{FloatingPoint}(0.0, 1.0)
+z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
+\end{minted}
+
+are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
+identical (in the \textit{egal} sense).
+
+If we inspect the variables using Julia's \code{dump} command, we get:
+
+\begin{minted}{jlcon}
+julia> dump(z1)
+Complex{Float64} 
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z2)
+Complex{FloatingPoint} 
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z3)
+Complex{Union(Integer,Float64,Rational{T<:Integer})} 
+  re: Int64 0
+  im: Float64 1.0
+
+\end{minted}
+
+We see that the \code{::T} annotation on a field does not guarantee that the
+type of a value placed in the field in any given instance of that type is
+exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 
 \paragraph{Subtyping relations and the type lattice}
@@ -403,32 +473,6 @@ inference algorithms to be used.
 
 In practice, joins are easy to construct by forming unions.  Meets are more
 difficult as Julia does not natively support intersection types.
-
-\paragraph{Subtyping is not set embedding!}
-Another aspect of the type system that can be confusing to new users is that
-subtyping can express some, but not all, mathematical embeddings between sets
-of allowed values.
-
-Examples:
-
-- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
-\dots, 255}. Each of these in turn has an exact representation as a
-double-precision floating point number (Float64). Nevertheless, Uint8 is not a
-subtype of Float64.
-
-- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
-
-- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
-where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
-correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
-Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
-\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
-of Complex.
-
-- Real is not a subtype of Complex because for each type T that is a subtype of
-Real, there is a corresponding instantiable type Complex{T}. None of these
-correspond to Real since there is no T such that Complex{T} is a one-component
-number, and each concrete type only has $\bot$ as its subtype.  
 
 
 \paragraph{\code{typeof}}
@@ -497,7 +541,8 @@ julia> a + b
 20 mod 60
 \end{minted}
 
-The type of the result \code{a + b} depends on the types of \code{a} and \code{b} via \code{lcm}.
+The type of the result \code{a + b} depends on the types of \code{a} and
+\code{b} via \code{lcm}.
 
 
 
@@ -1240,46 +1285,10 @@ remains one of the hardest unsolved problems in the standard library, as it
 touches upon all the aspects of the type system, generic function system,
 dispatch, and type inference that have been discussed above.
 
-\paragraph{Nonobvious consequences}
+The general problem of implementing \verb|map| over an arbitrary iterable is an
+even harder problem, since one lacks the guarantee provided by \verb|Array|
+types that every element has the same type.
 
-A nonobvious consequence of the invariance of type parameters is that
-parametric types can be instantiated with any type parameter regardless of
-whether it is abstract or concrete.
-
-The three \code{Complex} numbers
-
-\begin{minted}{julia}
-z1 = Complex{Float64}(0.0, 1.0)
-z2 = Complex{FloatingPoint}(0.0, 1.0)
-z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
-\end{minted}
-
-are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
-identical (in the \textit{egal} sense).
-
-If we inspect the variables using Julia's \code{dump} command, we get:
-
-\begin{minted}{jlcon}
-julia> dump(z1)
-Complex{Float64} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z2)
-Complex{FloatingPoint} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z3)
-Complex{Union(Integer,Float64,Rational{T<:Integer})} 
-  re: Int64 0
-  im: Float64 1.0
-
-\end{minted}
-
-We see that the \code{::T} annotation on a field does not guarantee that the
-type of a value placed in the field in any given instance of that type is
-exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 \paragraph{Many unexplored implementation challenges}
 Possibly peephole optimizations. Constant propagation. Backward type inference.
