@@ -1089,7 +1089,33 @@ call back to the Julia runtime to determine the value's actual type, and hence
 boxes the value \verb|x|. As a result, \verb|x| cannot be mapped onto an LLVM
 register, but must instead be heap allocated.
 
-Julia provides some language features to detect type instability, e.g.:
+Another example of type instability results from the subtle interaction of
+parametric invariance, the use of non-leaf type parameters and type promotion.
+For example, the parametric type \verb|Complex{FloatingPoint}| is
+type--unstable under addition (\verb|+|):
+
+\begin{lstlisting}
+function g()
+    x = Complex{FloatingPoint}(1.0, 2.0f0) #(Float64, Float32)
+    x + x #inferred type is Complex
+end
+\end{lstlisting}
+%
+Calling \verb|g()| returns a value of type \verb|Complex{Float64}| because the
+\verb|+| method called uses the external constructor
+
+\begin{lstlisting}
+Complex(x::Real, y::Real) = Complex(promote(x,y)...)
+\end{lstlisting}
+%
+which promotes the real and imaginary components to a common supertype (in this
+case, \verb|Float64|). Since type parameters are invariant, the resulting type
+is neither a subtype nor a supertype of the original type.
+
+Most static languages like C require users to explicitly reason about type
+instabilities (e.g.\ by requiring type casts); most dynamic languages allow
+type--unstable code, but at the price of degraded performance. Julia provides
+some useful language features to detect potential type instability, e.g.:
 
 \begin{enumerate}
 
