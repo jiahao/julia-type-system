@@ -1269,15 +1269,11 @@ expression, like so:
 \begin{lstlisting}
 h3(x) = map(_ -> sin(_) + im*cos(_), x)
 \end{lstlisting}
-
+%
 \verb|map| provides an elegant solution to mapping a computation over a
 collection of input data. However, implementing \verb|map| efficiently in Julia
-remains one of the hardest unsolved problems in the standard library, as it
 touches upon all the aspects of the type system, generic function system,
-dispatch, and type inference that have been discussed above. In order to
-implement \verb|map(f, x)| efficiently, we need to know the output type of
-\verb|f| over each element of \verb|x|. Determining the output type of
-\verb|map| is difficult for several reasons:
+dispatch, and type inference that have been discussed above:
 
 \begin{enumerate}
 
