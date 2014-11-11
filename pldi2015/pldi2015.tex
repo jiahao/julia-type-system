@@ -465,7 +465,7 @@ which is \code{Number}.
 \code{Complex} comes with a default, implicitly defined inner constructor
 
 \begin{lstlisting}
-Complex{T<:Number}(re::T, y::T) = new(re, im)
+Complex{T<:Number}(re::T, im::T) = new(re, im)
 \end{lstlisting}
 %
 which makes use of a special intrinsic function \code{new} to allocate new
@@ -480,10 +480,9 @@ z = Complex{Float64}(0.0, 1.0)
 \end{lstlisting}
 %
 
-whose fields can be accessed directly as \code{P.x} and \code{P.y} 
-\todo[color=green]{Alan: P on the line above should be z?}
+whose fields can be accessed directly as \code{z.re} and \code{z,im} 
 respectively~
-\footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
+\footnote{\code{z.im} is desugared into the equivalent Julia code \code{getfield(z, :im)}.
 \code{getfield} is Julia's field accessor function.}
 
 Type invariance has some subtle consequences: the three \code{Complex} numbers
