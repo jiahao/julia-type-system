@@ -612,7 +612,9 @@ Implemented as \code{jl\_methtable\_t}
 Diagonal dispatch is a special refinement of method dispatch that occurs when a
 type parameter appears in more than position in the method signature, e.g.:
 
-\verb|f{T}(x::T, y::T)|
+\begin{lstlisting}
+f{T}(x::T, y::T)
+\end{lstlisting}
 %
 Diagonal dispatch occurs only for concrete types \verb|T|. For example,
 \verb|f(1, 2)| works as the arguments are of type \verb|(Int, Int)|, but not
