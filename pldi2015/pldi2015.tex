@@ -352,10 +352,18 @@ Julia types can also take one or more parameters which are also types. Such
 parametric polymorphism is akin to a dynamic form of C++ template
 specialization.
 
-\TODO{Something missing about typevars...}
+A parametric type is defined as a type with additional parameters specified
+within braces, e.g.:
 
-For convenience, an unqualified type parameter can be omitted from a parametric
-type declaration. For example, \verb|Array| is a synonym for \verb|Array{T,N}|
+\begin{lstlisting}
+abstract foo{S, T<:Real, Int<:U<:Signed}
+\begin{lstlisting}
+%
+\verb|foo| is defined with three \verb|TypeVar|s which act as placeholders for
+types. \verb|T| and \verb|U| are bounded \verb|TypeVar|s, which constrain the
+set of allowed types which can be placed in their respective slots. For
+convenience, an unbound type parameter can be omitted from a parametric type
+declaration. For example, \verb|Array| is a synonym for \verb|Array{T,N}|
 for some element type \verb|T| and rank \verb|N|, and is convenient shorthand
 for writing methods that are agnostic about these type parameters.
 
@@ -380,9 +388,12 @@ Furthermore, each \verb|S{T}| has supertype \verb|S| by construction, and by
 invariance of \verb|T| there are no values of the type parameters \verb|T| and
 \verb|U| such that \verb|S{T}| is a subtype of \verb|S{U}|. Additionally, none
 of the types \verb|S{T}| is a subtype or supertype of any of \textbf{1},
-\textbf{2} or \verb|Nat|.  Thus each \verb|S{T}| appears in exactly one finite
+\textbf{2} or \verb|Nat|. Thus each \verb|S{T}| appears in exactly one finite
 poset $\bot$ \verb|<: S{T} <: S <:| $\top$, and the new type lattice has the
-structure shown in Figure~\ref{fig:lattice}b.
+structure shown in Figure~\ref{fig:lattice}b. Note that \verb|S{|$\top$\verb|}|
+is a concrete type with type parameter $\top$ (\verb|Any|), while \verb|S{T}|
+is a synonym for the abstract type \verb|S| where \verb|T| is a \verb|TypeVar|
+with lower bound $\bot$ and upper bound $\top$. 
 
 \begin{figure}
 	\centering
