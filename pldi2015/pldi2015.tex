@@ -662,27 +662,26 @@ and columns.}
 
 
 \section{Type inference}
+\label{sec:inference}
 
 One key insight into the design of Julia is that static analysis can eliminate
-the overhead of dynamic dispatch in many cases, thus allowing Julia code to run
-at speeds comparable to analogous code written in fully compiled static
-languages. The key static analysis technique is type inference, which can be
-thought of as a process of describing data automatically: programs can accept
-an \emph{arbitrary} value, discover its structure, and operate on it by
-examining its tag.
+the overhead of dynamic dispatch and run--time type checking in many cases,
+thus allowing Julia code to run at speeds comparable to analogous code written
+in fully compiled static languages. The key static analysis technique is type
+inference, which can be thought of as a process of describing data
+automatically: programs can accept an \emph{arbitrary} value, discover its
+structure, and operate on it by examining its tag.
 
-\paragraph{Type inference is a key part of the language}
-A somewhat unusual feature of julia is that we consider dataflow type inference a
-key part of the language. Strictly speaking, this is an optional, external program
-analysis that might be used for various purposes, chief among them implementing
-an optimizing compiler. However, it is highly important to programmers since it
-largely defines not the semantics, but the performance model of the language.
-
-\paragraph{Dataflow captures intuition of control flow}
-We feel that dataflow analysis, especially of forward flow, captures a piece of
-the human intuition of how programs work: values start at the top and move through
-the program step by step. For example, compilers are much more user-friendly
-when they elide a possibly-uninitialized variable warning in
+Data flow type inference is an integral part of Julia's semantics, unlike most
+other programming languages where it is relegated to an implementation detail
+of optimizing compilers~\cite{Nielson2005,Khedker2009}. Automatic type
+inference allows code to omit type annotations, resulting in shorter and more
+reusable code that still retains most of the benefits of static analyses
+enabled by types. More generally, data flow analysis, particularly in the
+forward direction, captures the human intuition of how programs work: the human
+intuition of how programs work: values start at the top and move through the
+program step by step. For example, a C compiler is much more user-friendly when
+it elides a possibly-uninitialized variable warning in
 
 \begin{lstlisting}
 int a;
@@ -692,104 +691,63 @@ else
     a = 2;
 f(a);
 \end{lstlisting}
-
+%
 The programmer knows that \code{a} is always initialized before use.
 
-\TODO{Orphan}
-automatic type inference allows many
-explicit type annotations to be eliminated, thus resulting in shorter and more
-reusable code.
+Type inference in Julia occurs after code is parsed, macro--expanded, and
+lowered into a static single assignment (SSA) intermediate representation
+(IR)~\cite{Alpern1988,Rosen1988} that facilitates data flow
+analysis~\cite{Cousot1977,Cousot2000,Nielson2005} and is relatively
+straightforward to map onto LLVM IR. Julia uses Mohnen's algorithm
+for abstract interpretation~\cite{Cousot1992} which works directly on the SSA
+IR~\cite{Mohnen2002}. The abstract semantics are described internally using
+transfer functions (a.k.a.\ t--functions or flow functions), which approximate
+program semantics by inferring possible output types based only on the types of
+the inputs, rather than their specific values. 
 
-\paragraph{Code transformations in the Julia compiler}
-The Julia code is parsed, then macro expanded, then lowered into SSA form, then
-type inference runs on the lowered code where the code paths are essentially
-linearized with jumps. This form is relatively straightforward to map onto LLVM
-IR and is also simpler to run dataflow analysis on. After type inference comes
-tuple elimination, inlining and then conversion to LLVM IR where further
-optimizations passes occur.
+In practice, the expressiveness of Julia's late binding semantics, combined
+with the presence of potentially infinite types such as varargs tuples
+\verb|(T...)|, complicate type inference. The combination of late binding and
+the ability to use generic functions as type parameters also means that the
+general type inference problem is undecidable, as was proved for the System F
+calculus~\cite{Wells1999}. Therefore practical type inference necessitates
+widening heuristics, which reduce computational costs and guarantee termination
+in the presence of recursive types~\cite{Cousot1992a}. Examples of such
+heuristics include widening (pessimizing) type unions and tuple types which
+exceed a certain length, and limiting the maximal depths of types
+and tuples analyzed. Widening operations are not guaranteed to be monotonic,
+i.e.\ the ordering of approximations may no longer be preserved, and hence the
+fixed point computed by abstract interpretation is not guaranteed to be
+minimal even in a formally monotonic data flow framework~\cite{Cousot1992}.
+Thus the inferred types are not necessarily the least upper bounds on the
+possible values~\cite{Kaplan1977,Kaplan1980}.
 
-Statically determining all tags is generally not possible, and is in fact known
-to be undecidable in a language supporting parametric polymorphism as
-describable by System F~\cite{Wells1999}.
+Julia provides language features to help users inspect the results of type
+inference and specify additional type information where necessary to sharpen
+the types of variables.
 
-Type inference avoids explicit annotations and yet recovers almost enough information for performant dispatch. The goal is to dispatch onto machine types where possible and yet be flexible enough to support general code. Multiple dispatch was one part of the puzzle. The other part is type inference.
+\begin{enumerate}
 
-Type inference must be flow sensitive for a dynamic language since the type of a variable can change over the course of a program. Therefore we can't do Hindley Milner because it is flow insensitive. Instead, have to use dataflow-style static analysis for type inference.
+	\item The base library provides introspection functions like
+	\verb|code_typed|, which allow users to inspect generated type
+	annotations and avoid second--guessing the compiler's intentions.
+		
+	\item Variables can also be given explicit \textbf{type annotations};
+	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
+	of type \verb|Float64| within the current scope, and all assignments
+	\verb|x = _| implicitly call the type conversion function
+	\verb|convert(Float64, _)|.
 
-Standard dataflow analysis makes use of the lattice structure of types to perform minimal fixed point analysis.
+	\item Expressions can be given \textbf{type assertions}; changing
+	\verb|x += y| to \verb|x += y :: Int| asserts that \verb|y| must be of
+	type \verb|Int| or otherwise raise a run-time error.
 
-\paragraph{Dataflow analysis}
- flow-sensitive analysis, the topic of Section 4.5,
-may improve precision in this case by allowing slots to have different types at different points in the target program.
-More specifically, flow-sensitive analysis tracks the flow of control from assignments to reads of slots, attempting to
-eliminate certain object types from the types of slots when control-flow properties make it impossible for them to
-reach specific reads.
+\end{enumerate}
+%
+External packages like \package{TypeCheck.jl} and \package{Lint.jl} provide
+further static analyses which are useful for detecting type instabilities.
 
-Need flow sensitive analysis because variable identifiers are allowed to be rebound and retyped at any point in the code. This rules out flow-insensitive type inference algorithms such as Hindley-Milner, which are popular in the ML family of languages.
 
-What is the goal of the dataflow analysis? Primarily for static type inference. Eliminate runtime checks. Lattice-based. Kaplan-Ullman.
-Problem is finding the tightest possible set of allowable types.
-There are tweaks to the standard algorithm. One big thing is that dataflow analysis only goes in forward direction.
-Kaplan-Ullman also doesn't treat parametric types
-Julia also has a widening step.
-Relies on types having only one supertype.
-
-\TODO{What are the challenges?}
-
-\TODO{What is the complexity?}
-
-\TODO{What is the best way to express this?}
-
-\TODO{bit of background}
-
-\paragraph{Abstract interpretation and flow functions}
-The basic idea is abstract interpretation with flow functions (in Julia, called
-t-functions) to represent the types of variables going in and out of each basic
-block.  Abstract interpretation is essentially about systematic reasoning about
-approximations. For type inference the approximation we make is to figure out
-what types come in and out of program fragments. Further approximation is
-widening which provides looser bounds on the inferred types. 
-
-In general it suffices to consider lattices which have only finite chains. The
-point of view of DFA based on abstract interpretation [CC77, AH87]is to replace
-the standard semantics of programs by an abstract semantics describing how the
-instructions operate on the abstract values A. Formally,we assume a
-monotone semantic functional $![.!] : Instr \rightarrow (A \rightarrow A)$
-which assigns a function on A to each instruction.
-
-\paragraph{Mohnen's algorithm}
-We use Mohnen's algorithm which avoids explicit initialization of graphical
-representations of code structures, but instead work on the static single
-assignment (SSA) form of the lowered code and has program counters. SSA is easy
-to use because def-use chains tend to be very sparse (very few flow edges) and
-there is exactly one definition reaching use of each variable, which reduces
-the time needed to analyze. Mohnen's algorithm uses less memory and has better
-data locality than standard graphical constructions like Tenenbaum? Muchnick?
-etc, and furthermore avoids explicit transformations between lowered code, SA
-graphs and BB graphs. Whereas Mohnen demonstrates its use on constant
-propagation, we nevertheless use it for forward type inference, where the
-computation at a node is influenced by information from previous nodes in the
-control flow.
-
-\paragraph{Existence and termination}
-Monotonic flow functions (a.k.a.\ transfer functions or t-functions) are essential.
-Monotonicity implies flow functions preserve the ordering of approximations.
-parametric invariance makes it easy to construct monotonic flow functions since invariance means disjoint lattice structure
-complete lattice with top implies that we have descending chains, so meets exists so a lub exists done.
-It is also crucial for dataflow algorithms to converge to a fixed point
-The finite height assumption of a lattice is essential to prove termination.
-
-\paragraph{Widening for convergence acceleration}
-We also use widening as a convergence acceleration technique. Although widening
-does not guarantee converging to a minimal fixed point, the analysis
-nonetheless converges and that is good enough.  Widening also deals with
-infinite types because there are heuristic cutoffs for the traversal into the
-substructure of data types.
-
-Hard to do type inference on infinite lattice. We have infinities because of
-typevars and infinite tuples.  In practice there are heuristics built into type
-inference which trigger widening (pessimizing), such as maximum lengths of
-unions and tuples, and the maximal depths of types and tuples analyzed.
 
 \section{Applications in technical computing}
 
@@ -1005,6 +963,7 @@ for external dispatch.
 \section{Performance}
 
 
+
 \section{Related Work}
 
 Dynamic dispatch is more general than static dispatch since it covers cases
@@ -1111,7 +1070,7 @@ M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming 
 
 
 
-\section{Challenges and open problems}
+\section{Implementation challenges}
 
 \subsection{Type stability}
 New users migrating from other dynamic languages like MATLAB, Python and R are
@@ -1165,29 +1124,10 @@ is neither a subtype nor a supertype of the original type.
 
 Most static languages like C require users to explicitly reason about type
 instabilities (e.g.\ by requiring type casts); most dynamic languages allow
-type--unstable code, but at the price of degraded performance. Julia provides
-some useful language features to detect potential type instability, e.g.:
-
-\begin{enumerate}
-
-	\item The base library provides introspection functions like
-	\verb|code_typed|, which allow users to inspect generated type
-	annotations and avoid second--guessing the compiler's intentions.
-		
-	\item Variables can also be given explicit \textbf{type annotations};
-	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
-	of type \verb|Float64| within the current scope, and all assignments
-	\verb|x = _| implicitly call the type conversion function
-	\verb|convert(Float64, _)|.
-
-	\item Expressions can be given \textbf{type assertions}; changing
-	\verb|x += y| to \verb|x += y :: Int| asserts that \verb|y| must be of
-	type \verb|Int| or otherwise raise a run-time error.
-
-\end{enumerate}
-%
-External packages like \package{TypeCheck.jl} and \package{Lint.jl} provide
-further static analyses which are useful for detecting type instabilities.
+type--unstable code, but at the price of degraded performance. Julia allows
+users to inspect the results of type inference and modify their codes to
+improve performance by sharpening type annotations on variables, using language
+constructs described in Section~\ref{sec:inference}.
 
 
 \subsection{(Data) vectorization}
