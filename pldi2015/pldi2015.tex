@@ -408,7 +408,7 @@ parameter, regardless of whether the parameter corresponds to an abstract or
 concrete type. The rationale for this behavior allows for the Julia compiler to
 reason about different representations, and is perhaps best explained in the
 context of arrays. For arrays, the type parameter describes the set of possible
-element types in the array~\cite{Bezanson2014a}, so an \verb|Array{Float64}|
+element types in the array~\cite{Bezanson2014}, so an \verb|Array{Float64}|
 can only contain concrete elements of type \verb|Float64|, whereas an
 \verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
 as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
