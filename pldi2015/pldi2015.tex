@@ -33,13 +33,12 @@
 \maketitle
 
 \begin{abstract}
-The goal of scientific programs is often to create experiments rather than to
-build robust systems. Because scientific programs frequently involve operating
-over reified data values with difficult-to-predict types, it is often easier
-for scientific programmers to use dynamically typed languages. Unfortunately,
+Scientific programs are often written as software experiments operating on
+code and data that have not be formally described. Such experimental software
+is easier to write in dynamically typed languages. Unfortunately,
 dynamic types often make it difficult to execute code efficiently. In this
 paper, we describe the type system and multiple dispatch mechanism for the
-Julia programming language, specialized for scientific computing. Julia has a
+Julia programming language, which is specialized for scientific computing. Julia has a
 novel semantics based on efficient multiple dispatch. Julia combines
 programmer-specified type tags with a type inference engine to statically
 optimize method dispatch. Julia is dynamically typed in that the compiler does
