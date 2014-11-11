@@ -363,9 +363,9 @@ abstract foo{S, T<:Real, Int<:U<:Signed}
 types. \verb|T| and \verb|U| are bounded \verb|TypeVar|s, which constrain the
 set of allowed types which can be placed in their respective slots. For
 convenience, an unbound type parameter can be omitted from a parametric type
-declaration. For example, \verb|Array| is a synonym for \verb|Array{T,N}|
-for some element type \verb|T| and rank \verb|N|, and is convenient shorthand
-for writing methods that are agnostic about these type parameters.
+declaration. For example, \verb|Array| is a synonym for \verb|Array{T, N}|
+for some unspecified element type \verb|T| and rank \verb|N|, and is convenient
+shorthand for writing methods that are agnostic about these type parameters.
 
 The subtyping rules for parametric types require reasoning about variance,
 i.e.\ the relation between subtype relations of the parametric types and
