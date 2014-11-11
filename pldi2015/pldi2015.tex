@@ -350,33 +350,28 @@ number, and each concrete type only has $\bot$ as its subtype.
 
 
 \subsection{Type parameters}
+
+Julia types can also take parameters which are also
+types. 
 Parametric polymorphism like template specialization but dynamic.
 
-Type promotions are written as user-level code to compute new types.
-
-\paragraph{Types are values: Fewer language constructs for user simplicity}
-Being able to write things like \code{Array} as a synonym
-for \code{Array\{T\}}.  Such synonyms are valuable for composability when
-writing methods that are agnostic about the type parameter \code{T}.  Methods
-that cared about \code{T} can be defined with a type signature that explicitly
-mentions \code{T} and methods that did not care about \code{T} can have a type
-signature that left it out.  The ability to leave out type parameters in
-function signatures contrasts with other languages \TODO{like which} which
-require explicit specification of all type parameters, resulting in users
-having to write redundant code blocks whose sole purpose is handle the nuisance
-parameter.
-
-
-
-Julia types can also take parameters which are also types. 
-
-Parametric types are invariant.
-
+Parametric types are invariant.  
 The conventional wisdom is that type safety requires covariance if components
 are read but not written, and contravariance if they are written but not
 read~\cite{Castagna1995}. As type parameters can represent the types of mutable
 fields in a \verb|type| which can be read or written, then the only safe choice
 is invariance.
+
+An unqualified \verb|TypeVar| can be omitted from a parametric type declaration.
+For example, \verb|Array| is a synonym for \verb|Array{T,N}| for some element
+type \verb|T| and rank \verb|N|, and is convenient shorthand for writing methods
+that are agnostic about these type parameters.
+
+
+\subsection{Type promotion}
+
+Type promotions are written as user-level code to compute new types.
+
 
 \paragraph{Example of user-definable type}
 
@@ -395,23 +390,6 @@ subtype of \code{Real}, and \code{Complex} itself has a declared supertype
 which is \code{Number}.
 
 \code{Complex} comes with a default, implicitly defined inner constructor
-
-\mint{julia}|Complex{T<:Number}(re::T, y::T) = new(re, im)|
-%
-which makes use of a special intrinsic function \code{new} to allocate new
-memory for the fields \code{re} and \code{im}. Inner constructors can be
-defined by the user, in which case the default inner constructor is not
-generated.
-
-An instance of \code{Complex} can be created using the inner constructor, e.g.\
-
-\mint{julia}|z = Complex{Float64}(0.0, 1.0)|
-
-whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
-\footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
-\code{getfield} is Julia's field accessor function.}
-
-\TODO{Talk about the psychological implications of types.}
 
 \paragraph{Nonobvious consequences}
 
@@ -451,6 +429,23 @@ whether the parameter corresponds to an abstract or concrete type.
 
 \TODO{Say more about how this makes sense for arrays in terms to determining
 what types can be put in the array.}
+
+\mint{julia}|Complex{T<:Number}(re::T, y::T) = new(re, im)|
+%
+which makes use of a special intrinsic function \code{new} to allocate new
+memory for the fields \code{re} and \code{im}. Inner constructors can be
+defined by the user, in which case the default inner constructor is not
+generated.
+
+An instance of \code{Complex} can be created using the inner constructor, e.g.\
+
+\mint{julia}|z = Complex{Float64}(0.0, 1.0)|
+
+whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
+\footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
+\code{getfield} is Julia's field accessor function.}
+
+\TODO{Talk about the psychological implications of types.}
 
 A second example: the three \code{Complex} numbers
 
@@ -513,8 +508,6 @@ typevars. Currently typevars are not first-class objects in Julia; you can't
 pass them to a function. Expressions of the form \code{T<:SomeType} don't have
 an independent existence outside a function signature that also contains the
 \code{\{T...\}} construction.}
-
-\subsection{Type promotion}
 
 \subsection{Example: modular integer arithmetic with \code{lcm}}
 
