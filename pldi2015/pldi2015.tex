@@ -203,43 +203,6 @@ Julia's types allowing programs to reason about:
 Furthermore, types are first-class values, allowing programs that can compute
 on types and reason about all of the above.
 
-\TODO{Orphans}
-\begin{quote}
-	[I]t behooves the language designer to incorporate distinctions between
-	types into his language. Doing so permits an implementer of the
-	language to choose different representations for different types of
-	objects, taking advantage of the limited contexts in which they will be
-	used.
-\end{quote}
-
-the core of functional programming languages, like those in the ML family, support both parametric polymorphism and record subtyping, which can be expressed in System F<:.
-
-Static languages like Haskell have typeclasses~\cite{typeclass}, but you'll need
-to anticipate all the necessary use cases ahead of time because everything is
-resolved statically and also know all the cases you'll be in at compile time.
-Dynamic languages provide only dynamic bindings, which means that programmers
-don't have to reason about the differences between static and dynamic
-semantics, and dynamic binding is more general anyway.
-
-A key design of the Julia type system is that in enables polymorphism by having type parameters and subtyping relations.
-
-The challenge in designing such a type system are in specifying how
-tags can be computed and how the subtyping relationships work.
-
-Type promotions are written as user-level code to compute new types.
-
-\paragraph{Types are values: Fewer language constructs for user simplicity}
-Being able to write things like \code{Array} as a synonym
-for \code{Array\{T\}}.  Such synonyms are valuable for composability when
-writing methods that are agnostic about the type parameter \code{T}.  Methods
-that cared about \code{T} can be defined with a type signature that explicitly
-mentions \code{T} and methods that did not care about \code{T} can have a type
-signature that left it out.  The ability to leave out type parameters in
-function signatures contrasts with other languages \TODO{like which} which
-require explicit specification of all type parameters, resulting in users
-having to write redundant code blocks whose sole purpose is handle the nuisance
-parameter.
-
 
 \subsection{Kinds of types}
 
@@ -370,6 +333,20 @@ number, and each concrete type only has $\bot$ as its subtype.
 
 \subsection{Type parameters}
 Parametric polymorphism like template specialization but dynamic.
+
+Type promotions are written as user-level code to compute new types.
+
+\paragraph{Types are values: Fewer language constructs for user simplicity}
+Being able to write things like \code{Array} as a synonym
+for \code{Array\{T\}}.  Such synonyms are valuable for composability when
+writing methods that are agnostic about the type parameter \code{T}.  Methods
+that cared about \code{T} can be defined with a type signature that explicitly
+mentions \code{T} and methods that did not care about \code{T} can have a type
+signature that left it out.  The ability to leave out type parameters in
+function signatures contrasts with other languages \TODO{like which} which
+require explicit specification of all type parameters, resulting in users
+having to write redundant code blocks whose sole purpose is handle the nuisance
+parameter.
 
 
 
