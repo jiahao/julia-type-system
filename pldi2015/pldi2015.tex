@@ -7,7 +7,6 @@
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 \usepackage{amssymb}
 \usepackage{todonotes} %TODO Remove for final submission
-\usepackage{minted}
 
 \input{macros}
 
@@ -524,46 +523,6 @@ data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
 typeof(not-a-type) produces a DataType, which projects non-type values onto
 types. It also has the effect of lifting non-type values onto a type lattice;
 the latter is defined only for values that are DataTypes.}
-
-\subsection{Example: modular integer arithmetic with \code{lcm}}
-
-Here's an example of a type parameter computed with the \code{lcm} function:
-
-\begin{minted}[frame=lines,fontsize=\footnotesize,
-               framesep=2mm]{julia}
-import Base: convert, promote_rule, show, showcompact
-
-immutable ModInt{n} <: Integer
-    k::Int
-    ModInt(k) = new(mod(k,n))
-end
-
--{n}(a::ModInt{n}) = ModInt{n}(-a.k)
-+{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k+b.k)
--{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k-b.k)
-*{n}(a::ModInt{n}, b::ModInt{n}) = ModInt{n}(a.k*b.k)
-
-convert{n}(::Type{ModInt{n}}, k::Int) = ModInt{n}(k)
-convert{n}(::Type{ModInt{n}}, k::ModInt) = ModInt{n}(k.k)
-promote_rule{n}(::Type{ModInt{n}}, ::Type{Int}) = ModInt{n}
-promote_rule{m,n}(::Type{ModInt{m}}, ::Type{ModInt{n}}) =
-    ModInt{lcm(m,n)}
-
-show{n}(io::IO, k::ModInt{n}) = print(io, "$(k.k) mod $n")
-showcompact(io::IO, k::ModInt) = print(io, k.k)
-
-julia> a = ModInt{12}(18278176231)
-7 mod 12
-
-julia> b = ModInt{15}(2837628736423)
-13 mod 15
-
-julia> a + b
-20 mod 60
-\end{minted}
-
-The type of the result \code{a + b} depends on the types of \code{a} and
-\code{b} via \code{lcm}.
 
 
 
