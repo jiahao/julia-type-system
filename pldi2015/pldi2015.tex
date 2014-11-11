@@ -1337,18 +1337,18 @@ implement \verb|map(f, x)| efficiently, we need to know the output type of
 The implementation of \verb|map| hence speaks to the conflicting demands of
 flexibility and performance that underlie the design tradeoffs built into
 Julia's types, generic functions and type inference algorithms. The current
-implementation optimistically assumes an element type based on the output
-returned from the first element, and makes further copies into increasingly
-wider arrays as necessary if a later return type is wider than the current
-element type. The aggressive method specialization in Julia's compiler can emit
+implementation leverages empirical evidence that most applications use
+homogeneous arrays of concrete types, and most other applications have
+heterogeneity that be detected early on~\cite{Bolz2013}. Hence, \verb|map|
+optimistically assumes an element type based on the output returned from the
+first element, and makes further copies into increasingly wider arrays as
+necessary if a later return type is wider than the current element type. The
+number of such copies made is bounded by the maximal height of the type
+lattice, and the aggressive method specialization in Julia's compiler can emit
 specialized code which optimize away branch checks for widening in cases where
 the input type is completely known, e.g.\ when the input is an \verb|Array|
 with some concrete element type, and thus avoid the cost of conditional
-branches. The current design leverages empirical studies which indicate that
-most applications use homogeneous arrays of concrete types, and most other
-applications have heterogeneity that be detected early on~\cite{Bolz2013}.
-advanced static analyses which allow performant specialization by the compiler,
-yet have flexible generic fall--backs which will still work when necessary.
+branches.
 
 Julia as a language is still evolving, and there is room for further
 improvements to the compiler, such as additional static analyses for peephole
