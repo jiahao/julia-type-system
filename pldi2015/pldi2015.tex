@@ -187,7 +187,7 @@ components to the language design. An important example is arrays, which are
 special cased in some languages for performance reasons, but in Julia are
 described as a particular kind of parametric type, with the type parameter
 encoding information about memory layout.~\cite{Bezanson2014}. In general,
-Julia's types allowing programs to reason about:
+Julia's types allow programs to reason about:
 
 \begin{itemize}
 \item when code is applicable (dispatch),
@@ -330,17 +330,17 @@ Examples:
 double-precision floating point number (Float64). Nevertheless, Uint8 is not a
 subtype of Float64.
 
-- Int64 <: Real: each 64-bit signed integer (Int64) is a real number.
+- Int64  <: Real: each 64-bit signed integer (Int64) is a real number.
 
-- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e. a complex number
+- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e., a complex number
 where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
 correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
-Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| not
+Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| nor
 \verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
 of Complex.
 
 - Real is not a subtype of Complex because for each type T that is a subtype of
-Real, there is a corresponding instantiable type Complex{T}. None of these
+Real, there is a corresponding instantiable type  Complex{T}. None of these
 correspond to Real since there is no T such that Complex{T} is a one-component
 number, and each concrete type only has $\bot$ as its subtype.  
 
@@ -416,7 +416,7 @@ parameter, regardless of whether the parameter corresponds to an abstract or
 concrete type. The rationale for this behavior allows for the Julia compiler to
 reason about different representations, and is perhaps best explained in the
 context of arrays. For arrays, the type parameter describes the set of possible
-element types in the array~\cite{Bezanson2014}, so an \verb|Array{Float64}|
+element types ~\cite{Bezanson2014}, so an \verb|Array{Float64}|
 can only contain concrete elements of type \verb|Float64|, whereas an
 \verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
 as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
@@ -479,11 +479,14 @@ An instance of \code{Complex} can be created using the inner constructor, e.g.\
 z = Complex{Float64}(0.0, 1.0)
 \end{lstlisting}
 %
-whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
+
+whose fields can be accessed directly as \code{P.x} and \code{P.y} 
+\todo[color=green]{Alan: P on the line above should be z?}
+respectively~
 \footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
 \code{getfield} is Julia's field accessor function.}
 
-ype invariance has some subtle consequences: the three \code{Complex} numbers
+Type invariance has some subtle consequences: the three \code{Complex} numbers
 
 \begin{lstlisting}
 z1 = Complex{Float64}(0.0, 1.0)
