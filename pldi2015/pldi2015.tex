@@ -351,21 +351,80 @@ number, and each concrete type only has $\bot$ as its subtype.
 
 \subsection{Type parameters}
 
-Julia types can also take parameters which are also
-types. 
-Parametric polymorphism like template specialization but dynamic.
+Julia types can also take one or more parameters which are also types. Such
+parametric polymorphism is akin to a dynamic form of C++ template
+specialization.
 
-Parametric types are invariant.  
-The conventional wisdom is that type safety requires covariance if components
-are read but not written, and contravariance if they are written but not
-read~\cite{Castagna1995}. As type parameters can represent the types of mutable
-fields in a \verb|type| which can be read or written, then the only safe choice
-is invariance.
+\TODO{Something missing about typevars...}
 
-An unqualified \verb|TypeVar| can be omitted from a parametric type declaration.
-For example, \verb|Array| is a synonym for \verb|Array{T,N}| for some element
-type \verb|T| and rank \verb|N|, and is convenient shorthand for writing methods
-that are agnostic about these type parameters.
+For convenience, an unqualified type parameter can be omitted from a parametric
+type declaration. For example, \verb|Array| is a synonym for \verb|Array{T,N}|
+for some element type \verb|T| and rank \verb|N|, and is convenient shorthand
+for writing methods that are agnostic about these type parameters.
+
+The subtyping rules for parametric types require reasoning about variance,
+i.e.\ the relation between subtype relations of the parametric types and
+subtype relations of the parameters. The conventional wisdom is that type
+safety allows covariance if components are read but not written, and
+contravariance if they are written but not read~\cite{Castagna1995}. As type
+parameters can represent the types of mutable fields in a \verb|type| which can
+be read or written, then the only safe choice is invariance. Thus Julia's
+parametric types are invariant.
+
+Parametric invariance has some subtle consequences for Julia's type system.
+First, parametric types introduce many short, finite length chains into the
+type lattice. Consider the very simple type system of
+Figure~\ref{fig:lattice}a, with two leaf (instantiable types) types \textbf{1}
+and \textbf{2} representing singleton values 1 and 2 of the natural numbers,
+\verb|Nat|. A user can augment the lattice with a new parametric type
+\verb|S{T}|. If there is no restriction whatsoever on the type parameter
+\verb|T|, then there are 5 different parametric types of the form \verb|S{T}|.
+Furthermore, each \verb|S{T}| has supertype \verb|S| by construction, and by
+invariance of \verb|T| there are no values of the type parameters \verb|T| and
+\verb|U| such that \verb|S{T}| is a subtype of \verb|S{U}|. Additionally, none
+of the types \verb|S{T}| is a subtype or supertype of any of \textbf{1},
+\textbf{2} or \verb|Nat|.  Thus each \verb|S{T}| appears in exactly one finite
+poset $\bot$ \verb|<: S{T} <: S <:| $\top$, and the new type lattice has the
+structure shown in Figure~\ref{fig:lattice}b.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{fig-lattice}
+	\caption{
+		\textbf{a.} A simple lattice with bottom type $\bot$, top type
+		$\top$, singleton types \textbf{1} and \textbf{2}, and their
+		supertype \texttt{Nat}.
+		\textbf{b.} The same lattice extended with a parametric type
+		\texttt{S\{T\}} with no restriction on the type parameter
+		\texttt{T}, showing that for each \texttt{T}, invariance
+		requires that the corresponding type \texttt{S\{T\}} be a leaf
+		type (i.e.\ instantiable), even if \texttt{T} itself is not a
+		leaf type.}
+	\label{fig:lattice}
+\end{figure}
+
+Second, the example of Figure~\ref{fig:lattice} illustrates how invariance of
+type parameters requires parametric types to be instantiable with any type
+parameter, regardless of whether the parameter corresponds to an abstract or
+concrete type. The rationale for this behavior allows for the Julia compiler to
+reason about different representations, and is perhaps best explained in the
+context of arrays. For arrays, the type parameter describes the set of possible
+element types in the array~\cite{Bezanson2014a}, so an \verb|Array{Float64}|
+can only contain concrete elements of type \verb|Float64|, whereas an
+\verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
+as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
+consists of concrete immutable elements and can be reified with a single
+pointer to a contiguous memory block with the tags for each element elided,
+resulting in a memory layout which can interoperate with C or Fortran code as
+native array data structures. The latter array can store more diverse objects,
+but the element type provides no information about the mutability of each
+element. Consequently, the array must be represented in memory with pointers to
+boxed elements, so that checks from generated LLVM code can be inserted that
+call back into the Julia runtime to determine the actual type of the stored
+element at run--time. Thus describing arrays as parametric types allows
+different data structures to be used under the hood without any semantic
+changes imposed on users, thus allowing for more performance in one case and
+greater flexibility in the other.
 
 
 \subsection{Type promotion}
@@ -390,45 +449,6 @@ subtype of \code{Real}, and \code{Complex} itself has a declared supertype
 which is \code{Number}.
 
 \code{Complex} comes with a default, implicitly defined inner constructor
-
-\paragraph{Nonobvious consequences}
-
-Consider the very simple type system of Figure~\ref{fig:lattice}a, with two
-leaf (instantiable types) types \textbf{1} and \textbf{2} representing
-singleton values 1 and 2 of the natural numbers, \verb|Nat|. A user can
-augment the lattice with a new parametric type \verb|S{T}|. If there is no
-restriction whatsoever on the type parameter \verb|T|, then there are 5
-different parametric types of the form \verb|S{T}|. Furthermore, each
-\verb|S{T}| has supertype \verb|S| by construction, and by invariance of
-\verb|T| there are no values of the type parameters \verb|T| and \verb|U| such
-that \verb|S{T}| is a subtype of \verb|S{U}|. Additionally, none of the types
-\verb|S{T}| is a subtype or supertype of any of \textbf{1}, \textbf{2} or
-\verb|Nat|.  Thus each \verb|S{T}| appears in exactly one finite poset $\bot$
-\verb|<: S{T} <: S <:| $\top$, and the new type lattice has the structure shown
-in Figure~\ref{fig:lattice}b.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\columnwidth]{fig-lattice}
-	\caption{
-		\textbf{a.} A simple lattice with bottom type $\bot$, top type
-		$\top$, singleton types \textbf{1} and \textbf{2}, and their
-		supertype \texttt{Nat}.
-		\textbf{b.} The same lattice extended with a parametric type
-		\texttt{S\{T\}} with no restriction on the type parameter
-		\texttt{T}, showing that for each \texttt{T}, invariance
-		requires that the corresponding type \texttt{S\{T\}} be a leaf
-		type (i.e.\ instantiable), even if \texttt{T} itself is not a
-		leaf type.}
-	\label{fig:lattice}
-\end{figure}
-
-From this example, we can conclude that invariance of type parameters requires
-parametric types to be instantiable with any type parameter, regardless of
-whether the parameter corresponds to an abstract or concrete type.
-
-\TODO{Say more about how this makes sense for arrays in terms to determining
-what types can be put in the array.}
 
 \mint{julia}|Complex{T<:Number}(re::T, y::T) = new(re, im)|
 %
