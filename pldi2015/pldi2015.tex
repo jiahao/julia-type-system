@@ -432,17 +432,17 @@ greater flexibility in the other.
 Type promotions are written as user-level code to compute new types.
 
 
-\paragraph{Example of user-definable type}
+\subsection{Example: complex numbers}
 
 Example: the \code{Complex} type defined by
 
-\begin{minted}{julia}
+\begin{lstlisting}
 immutable Complex{T<:Real} <: Number
     re :: T
     im :: T
 end
-\end{minted}
-
+\end{lstlisting}
+%
 has two declared fields, \code{re} and \code{im}. Each of these fields has the
 type annotation \code{::T}. The type parameter \code{T} is constrained to be a
 subtype of \code{Real}, and \code{Complex} itself has a declared supertype
@@ -450,7 +450,9 @@ which is \code{Number}.
 
 \code{Complex} comes with a default, implicitly defined inner constructor
 
-\mint{julia}|Complex{T<:Number}(re::T, y::T) = new(re, im)|
+\begin{lstlisting}
+Complex{T<:Number}(re::T, y::T) = new(re, im)
+\end{lstlisting}
 %
 which makes use of a special intrinsic function \code{new} to allocate new
 memory for the fields \code{re} and \code{im}. Inner constructors can be
@@ -459,28 +461,28 @@ generated.
 
 An instance of \code{Complex} can be created using the inner constructor, e.g.\
 
-\mint{julia}|z = Complex{Float64}(0.0, 1.0)|
-
+\begin{lstlisting}
+z = Complex{Float64}(0.0, 1.0)
+\end{lstlisting}
+%
 whose fields can be accessed directly as \code{P.x} and \code{P.y} respectively~
 \footnote{\code{P.x} is desugared into the equivalent Julia code \code{getfield(P, x)}.
 \code{getfield} is Julia's field accessor function.}
 
-\TODO{Talk about the psychological implications of types.}
+ype invariance has some subtle consequences: the three \code{Complex} numbers
 
-A second example: the three \code{Complex} numbers
-
-\begin{minted}{julia}
+\begin{lstlisting}
 z1 = Complex{Float64}(0.0, 1.0)
 z2 = Complex{FloatingPoint}(0.0, 1.0)
 z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
-\end{minted}
-
+\end{lstlisting}
+%
 are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
-identical (in the \textit{egal} sense).
+identical (in the \textit{egal} sense~\cite{Baker1993}).
 
 If we inspect the variables using Julia's \code{dump} command, we get:
 
-\begin{minted}{jlcon}
+\begin{lstlisting}
 julia> dump(z1)
 Complex{Float64} 
   re: Float64 0.0
@@ -495,20 +497,20 @@ julia> dump(z3)
 Complex{Union(Integer,Float64,Rational{T<:Integer})} 
   re: Int64 0
   im: Float64 1.0
-
-\end{minted}
-
+\end{lstlisting}
+%
 We see that the \code{::T} annotation on a field does not guarantee that the
 type of a value placed in the field in any given instance of that type is
 exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
+\TODO{Talk about the psychological implications of types.}
 
 \paragraph{\code{typeof}}
 You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
 
-\begin{minted}[frame=lines,framesep=2mm]{julia}
+\begin{lstlisting}
 typeof(bits, tag) = (tag, DataType) #Returns a value
-\end{minted}
+\end{lstlisting}
 
 \code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is
 also true in other dynamic languages, e.g.\ Python (CPython). In other
@@ -522,12 +524,6 @@ data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
 typeof(not-a-type) produces a DataType, which projects non-type values onto
 types. It also has the effect of lifting non-type values onto a type lattice;
 the latter is defined only for values that are DataTypes.}
-
-\TODO{The main novelty and challenge is explaining type parameters and
-typevars. Currently typevars are not first-class objects in Julia; you can't
-pass them to a function. Expressions of the form \code{T<:SomeType} don't have
-an independent existence outside a function signature that also contains the
-\code{\{T...\}} construction.}
 
 \subsection{Example: modular integer arithmetic with \code{lcm}}
 
@@ -709,14 +705,14 @@ the human intuition of how programs work: values start at the top and move throu
 the program step by step. For example, compilers are much more user-friendly
 when they elide a possibly-uninitialized variable warning in
 
-\begin{minted}[frame=lines,framesep=2mm]{julia}
+\begin{lstlisting}
 int a;
 if (cond)
     a = 1;
 else
     a = 2;
 f(a);
-\end{minted}
+\end{lstlisting}
 
 The programmer knows that \code{a} is always initialized before use.
 
