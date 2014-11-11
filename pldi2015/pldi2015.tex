@@ -289,20 +289,38 @@ Tag ::= Data | Tuple
 
 \end{description}
 
-Julia's type system supports two mechanisms for polymorphism, namely subtyping
-and type parameters. 
+The usefulness of types is further augmented by polymorphic features like type
+parameters and subtyping, which when combined with the late binding associated
+with dynamic dispatch, facilitates code reuse and an incremental style of
+programming~\cite{Castagna1997} that is well--suited to the rapid prototyping
+of technical codes.
 
-\subsection{Subtyping}
+\paragraph{Subtyping} Julia requires every type other than $\top$ and $\bot$ to
+have exactly one declared supertype (defaulting to $\top$ if not explicitly
+declared). The consequences are threefold:
 
-Julia supports strong behavioral subtyping: objects of a given type can be
-replaced with objects of their subtype without altering desirable program
-behavior. This property is called the Liskov substitution
-principle~\cite{Liskov1974}.
+\begin{itemize}
 
-Julia requires allows user-defined types to have exactly one declared supertype.
-If no supertype is declared explicitly, the supertype is assumed to be \code{Any}.
+	\item Julia supports strong behavioral subtyping~\cite{Liskov1994}:
+		objects of a given type can be replaced with objects of their
+		subtype without altering desirable program behavior. In other
+		words, subtypes obey the Liskov substitution
+		principle~\cite{Liskov1974}.
 
-\TODO{No multiple inheritance}
+	\item The subtype relation \verb|<:| defines a partial ordering on types,
+		which together with the meet operation ($\wedge$) constructing
+		type intersections and the join operation ($\vee$) constructing
+		type unions, provide the mathematical structure needed to
+		define a lattice of types~\cite{Scott1976}. Furthermore, the 
+		presence of the top ($\top$, \verb|Any|) and bottom ($\bot$,
+		\verb|Union()|) types means that the lattice is complete, which
+		has important consequences for the ability to define data flow
+		type inference algorithms~\cite{Kam1977,Khedker2009}.
+
+	\item Julia does not support multiple inheritance, which thus far has
+		not significantly decreased the usefulness of the type system.
+
+\end{itemize}
 
 \paragraph{Subtyping is not set embedding!}
 Another aspect of the type system that can be confusing to new users is that
@@ -470,23 +488,7 @@ type of a value placed in the field in any given instance of that type is
 exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 
-\paragraph{Subtyping relations and the type lattice}
-
-The existence of the subtyping relation \verb|<:| imbues Julia types with
-lattice structure~\cite{Scott1976}, with a meet operator $\wedge$ computing the
-type intersection (\verb|typeintersect|), and a join operator $\vee$ which
-creates union types. Furthermore, the lattice is complete, as it is live on a
-complete lattice bounded below by the bottom type $\bot$ or
-\verb|Union()|, and bounded above by the top type $\top$ or \verb|Any|. As we
-shall see later, the existence of type lattice allows for sophisticated type
-inference algorithms to be used.  
-
-In practice, joins are easy to construct by forming unions.  Meets are more
-difficult as Julia does not natively support intersection types.
-
-
 \paragraph{\code{typeof}}
-
 You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
 
 \begin{minted}[frame=lines,framesep=2mm]{julia}
