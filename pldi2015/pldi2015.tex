@@ -1262,9 +1262,10 @@ methods with function types
 %
 and others, and writing a function \verb|i(x)| that composes properly with
 \verb|h1| must account for all possible outputs of the latter, be they scalars
-or arrays. Thus \verb|i(x)| must also be vectorized. Vectorized functions in
-However, user functions are not constrained to use these macros and are allowed
-to define any behavior the user desires.
+or arrays. Thus \verb|i(x)| must also be vectorized, but the dynamic nature of
+Julia precludes any restrictions on the methods that must be defined for
+\verb|i|, placing the burden of correct implementation on users and library
+writers.
 
 The example of \verb|h1| suggests that what users really want is not vectorized
 functions, but rather convenient syntax for vectorized \textit{expressions}.
