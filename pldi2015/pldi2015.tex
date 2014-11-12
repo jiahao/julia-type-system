@@ -836,9 +836,8 @@ that specialized algorithms for symmetric matrices exist.
 \end{figure}
 
 
-\subsection{Application: statistical library routines}
+\subsection{Generic functions for statistical library routines}
 
-\paragraph{User interpretation of generic functions}
 Generic functions express a common action or computation, which may in
 practice be performed in many different ways depending on the inputs. For
 example, one may wish to compute the mean of a given statistical distribution.
@@ -847,7 +846,7 @@ In Julia, the computation can be expressed simply as dispatch onto the method
 defined for different \code{Distribution}s. In contrast, much scientific code
 is written in languages that lack generic functions, resulting in users having
 to keep track of a large family of very closely related functions which
-together can be thought of as specialized mthods for a polymorphic function.
+together can be thought of as specialized methods for a polymorphic function.
 Table~\ref{statsfunctions} shows a family of closely related functions in the R
 programming language and their Julia counterparts in the
 \package{Distributions.jl} package. Julia provides a common functional interface
