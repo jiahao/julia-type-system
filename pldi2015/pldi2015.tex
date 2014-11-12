@@ -317,31 +317,29 @@ declared). The consequences are threefold:
 
 \end{itemize}
 
-\paragraph{Subtyping is not set embedding!}
-Another aspect of the type system that can be confusing to new users is that
-subtyping can express some, but not all, mathematical embeddings between sets
-of allowed values.
+The notion of subtyping is analogous to subset relations, but the subset
+relation is not just over sets of permitted values, but also the interface,
+i.e.\ set of functions allowed to compute over the types being
+compares~\cite{Scott1976,Liskov1974,Liskov1992}. Furthermore, a mathematical
+quantity can have more than one encoding as a compiler value. For example, each
+integer in the set {0, 1, \dots, 255} has a 1:1 correspondence with an 8-bit
+unsigned integer (\verb|Uint8|), and also a 1:1 correspondence as a
+double-precision floating point number (\verb|Float64|). Nevertheless,
+\verb|Uint8| is \textit{not} a subtype of \verb|Float64| since not all
+operations on the former behave identically to operations on the latter. One
+example is subtraction, which returns different values for the different types:
 
-Examples:
+\begin{lstlisting}
+julia> uint(5)-uint(253)
+0xffffffffffffff08
 
-- Each 8-bit unsigned integer (Uint8) represents an integer in the set {0, 1,
-\dots, 255}. Each of these in turn has an exact representation as a
-double-precision floating point number (Float64). Nevertheless, Uint8 is not a
-subtype of Float64.
-
-- Int64  <: Real: each 64-bit signed integer (Int64) is a real number.
-
-- Each value of \verb|Complex{Int64}| is a Gaussian integer, i.e., a complex number
-where each component is an integer, and so each \verb|Complex{Int64}| is in 1:1
-correspondence with a value in \verb|Complex{Integer}| and also in \verb|Complex{Real}|.
-Nevertheless, \verb|Complex{Int64}| is a subtype of neither \verb|Complex{Integer}| nor
-\verb|Complex{Real}| due to parametric invariance. However, all of these are subtypes
-of Complex.
-
-- Real is not a subtype of Complex because for each type T that is a subtype of
-Real, there is a corresponding instantiable type  Complex{T}. None of these
-correspond to Real since there is no T such that Complex{T} is a one-component
-number, and each concrete type only has $\bot$ as its subtype.  
+julia> 5.0 - 253.0
+-248.0
+\end{lstlisting}
+%
+In contrast, \verb|Union(Uint8, Float64)| is a subtype of \verb|Real| by
+transitivity of the declared supertype relations, which allow \verb|Real|
+to abstractly represent disjoint sets of values and their interfaces.
 
 
 \subsection{Type parameters}
@@ -431,6 +429,24 @@ element at run--time. Thus describing arrays as parametric types allows
 different data structures to be used under the hood without any semantic
 changes imposed on users, thus allowing for more performance in one case and
 greater flexibility in the other.
+
+Subtyping and type parameters combine to provide powerful expressions of
+polymorphism, as formalized by $\lambda$--calculi such as
+System~F$_\le$~\cite{Cardelli1985}. However, the interaction of these two
+Julia languages features can be subtle and confusing. For example, \verb|Real|
+is not a subtype of \verb|Complex| because for each type \verb|T| that is a
+subtype of \verb|Real|, there is a corresponding instantiable type
+\verb|Complex{T}|. None of these correspond to \verb|Real| since there is no
+\verb|T| such that \verb|Complex{T}| is a one-component number, and each
+concrete type only has $\bot$ as its subtype.
+
+Another more subtle situation arises from parametric invariance: each value of
+\verb|Complex{Int64}| is a Gaussian integer, i.e., a complex number where each
+component is an integer, and so each \verb|Complex{Int64}| is in 1:1
+correspondence with a value in \verb|Complex{Integer}| and also in
+\verb|Complex{Real}|. Nevertheless, \verb|Complex{Int64}| is a subtype of
+neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
+invariance. However, all of these are subtypes of \verb|Complex|.
 
 
 \subsection{Type conversion}
