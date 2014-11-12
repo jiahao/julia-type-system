@@ -625,19 +625,7 @@ reusable code that still retains most of the benefits of static analyses
 enabled by types. More generally, data flow analysis, particularly in the
 forward direction, captures the human intuition of how programs work: the human
 intuition of how programs work: values start at the top and move through the
-program step by step. For example, a C compiler is much more user-friendly when
-it elides a possibly-uninitialized variable warning in
-
-\begin{lstlisting}
-int a;
-if (cond)
-    a = 1;
-else
-    a = 2;
-f(a);
-\end{lstlisting}
-%
-The programmer knows that \code{a} is always initialized before use.
+program step by step.
 
 Type inference in Julia occurs after code is parsed, macro--expanded, and
 lowered into a static single assignment (SSA) intermediate representation
