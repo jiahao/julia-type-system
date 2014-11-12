@@ -141,13 +141,12 @@ performs extensive static optimizations such as:
 
 \begin{itemize}
 	\item Automatic type inference, which minimizes the overhead of dynamic
-		multiple dispatch and largely eliminates the need for explicit
-		type annotations in function bodies,
-
-	\item Tuple elimination,
-	\item Function inlining, and
-	\item Other compiler optimizations such as dead code elimination that
-		are provided by the LLVM library~\cite{Lattner2004}.
+	      multiple dispatch and largely eliminates the need for explicit
+	      type annotations in function bodies.
+	\item Tuple elimination
+	\item Function inlining
+	\item A raft of compiler optimizations such as dead code elimination that
+	      are provided by the LLVM library~\cite{Lattner2004}.
 \end{itemize}
 
 This paper aims to explain how Julia's language constructs and compiler
