@@ -520,26 +520,6 @@ exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 \TODO{Talk about the psychological implications of types.}
 
-\paragraph{\code{typeof}}
-You can define \code{typeof} axiomatically as having the following behavior on a \code{value=(bits, tag)} pair:
-
-\begin{lstlisting}
-typeof(bits, tag) = (tag, DataType) #Returns a value
-\end{lstlisting}
-
-\code{typeof} has a fixed point, namely \code{(DataType, DataType)}. This is
-also true in other dynamic languages, e.g.\ Python (CPython). In other
-languages like Haskell, \code{typeof(DataType) = Kind}, etc. Static languages
-can just truncate the tower of metatypes and also refuse to type-check code
-that reasons about types and kinds too far up the hierarchy. In fact, early
-versions of Haskell did not allow for programs to reason about kinds at the
-data type level due to the lack of kind polymorphism~\cite{haskellkindtypes}.
-
-\TODO{There is a subtlety about typeof's behavior. typeof is a projection;
-typeof(not-a-type) produces a DataType, which projects non-type values onto
-types. It also has the effect of lifting non-type values onto a type lattice;
-the latter is defined only for values that are DataTypes.}
-
 
 
 \section{Generic functions and multimethods}
