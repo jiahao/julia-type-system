@@ -491,16 +491,24 @@ In this way, Julia allows for a meaningful compromise being flexibility and
 performance.
 
 
-\subsection{Type conversion}
-
-\TODO{Explain type conversion}
-
-
 \subsection{Type promotion}
 
-Type promotions are written as user-level code to compute new types.
+Another Type promotions are written as user-level code to compute new types.
 
 \TODO{Explain type promotion}
+
+
+\subsection{Type conversion}
+
+The examples presented above show that while Julia code can be written without
+explicitly reasoning about types, the ability to do so is necessary for
+understanding code performance issues. Julia provides the \verb|convert(T, x)|
+function which converts a value \verb|x| to its corresponding representation in
+the type \verb|T|. \verb|convert|ing a type emulates explicit type casting in
+static languages while retaining the semantic advantages of dynamic typing such
+as late binding. Later, we will see how the ability to perform explicit type
+conversions on demand provide mechanisms for limiting polymorphism in codes
+where performance considerations are important.
 
 
 \section{Generic functions and multimethods}
