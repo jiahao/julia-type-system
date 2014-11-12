@@ -204,15 +204,13 @@ on types and reason about all of the above.
 Julia has different kinds of types which can be formally summarized as:
 
 \begin{lstlisting}
-Type ::= Abstract | Data | Tuple | ForAll | Union | Singleton
-Abstract ::= Name (P) Super }
-Data ::= Name (P) Super Repr } invariant, nominative
-Tuple ::= (T1, T2, ...) | (T1, T2, ..., Tn, ...) } covariant
-ForAll ::= $\forall$ (lb <: T <: ub) . Type
-Union ::= U (T1, T2, ...)
-Singleton ::= Lift Value
-TypeVar ::= lb <: Name <: ub
-
+Type ::= Abstract | Data | Tuple | Union | UnionAll
+Abstract ::= Name (Type...) Abstract }
+Data ::= Name (Type...) Abstract } invariant, nominative
+Tuple ::= (Type$_1$, Type$_2$...) |
+          (Type$_1$, Type$_2$, ..., Type$_n$) } covariant
+Union ::= Union(Type$_1$, Type$_2$, ...)
+UnionAll ::= UnionAll T<:Type . Type
 Tag ::= Data | Tuple
 \end{lstlisting}
 
@@ -236,7 +234,6 @@ Tag ::= Data | Tuple
 
 	\end{description}
 
-
 \item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
 	product of zero or more existing types \code{T1}, \code{T2},
 	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
@@ -244,10 +241,6 @@ Tag ::= Data | Tuple
 \item[Abstract types] define an uninstantiable type with no declared
 	representation. They are used as declared supertypes of leaf types
 	(which are concrete and instantiable).
-
-\item[Singleton types] are constructed with the \code{::Type\{T\}} syntax and
-	are used  primarily for computations on types themselves, such as
-	type promotions, and for dispatch.
 
 \item[Union types] declared as \code{Union(T1, T2,...)} are the join of zero,
 	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
@@ -274,24 +267,33 @@ Tag ::= Data | Tuple
 			\code{T}.
 	\end{itemize}
 
-\item[\code{TypeVar}s] are not types, but are quantifications over sets of
-	types. They are used to define constraints on type parameters in type
-	constructors, and also
-	
-\item[\code{ForAll} types] which quantify over all types between a lower bound
-	and upper bound.
+\item[UnionAll types], which are type unions that are implicitly quantified over
+	all types \verb|S| satisfying a subtype relation \verb|S <: T|.
 
 \end{description}
 
-The usefulness of types is further augmented by polymorphic features like type
-parameters and subtyping, which when combined with the late binding associated
-with dynamic dispatch, facilitates code reuse and an incremental style of
+\verb|Abstract| and \verb|Data| types have two additional features:
+
+\begin{enumerate}
+	\item They each have one declared supertype, allowing for subtype
+	relations to be defined as described in Section~\ref{sec:subtyping}.
+
+	\item They can be defined with zero or more types as parameters as
+	described in Section~\ref{sec:typeparameters}.
+\end{enumerate}
+
+Type parameters and subtyping, when combined with late binding semantics
+associated with dynamic dispatch, provides Julia with rich polymorphic
+expressiveness, facilitating code reuse and an incremental style of
 programming~\cite{Castagna1997} that is well--suited to the rapid prototyping
 of technical codes.
 
-\paragraph{Subtyping} Julia requires every type other than $\top$ and $\bot$ to
-have exactly one declared supertype (defaulting to $\top$ if not explicitly
-declared). The consequences are threefold:
+\subsection{Subtyping}
+\label{sec:subtyping}
+
+Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
+declared supertype (defaulting to $\top$ if not explicitly declared). The
+consequences are threefold:
 
 \begin{itemize}
 
@@ -319,7 +321,7 @@ declared). The consequences are threefold:
 The notion of subtyping is analogous to subset relations, but the subset
 relation is not just over sets of permitted values, but also the interface,
 i.e.\ set of functions allowed to compute over the types being
-compares~\cite{Scott1976,Liskov1974,Liskov1992}. Furthermore, a mathematical
+compares~\cite{Scott1976,Liskov1974,Liskov1994}. Furthermore, a mathematical
 quantity can have more than one encoding as a compiler value. For example, each
 integer in the set {0, 1, \dots, 255} has a 1:1 correspondence with an 8-bit
 unsigned integer (\verb|Uint8|), and also a 1:1 correspondence as a
@@ -342,13 +344,12 @@ to abstractly represent disjoint sets of values and their interfaces.
 
 
 \subsection{Type parameters}
+\label{sec:typeparameters}
 
-Julia types can also take one or more parameters which are also types. Such
-parametric polymorphism is akin to a dynamic form of C++ template
-specialization.
+\verb|Abstract| and \verb|Data| types can also take one or more parameters which
+are also types, allowing parametrically polymorphic types to be defined.
 
-A parametric type is defined as a type with additional parameters specified
-within braces, e.g.:
+An example of parametric type is:
 
 \begin{lstlisting}
 abstract foo{S, T<:Real, Int<:U<:Signed}
