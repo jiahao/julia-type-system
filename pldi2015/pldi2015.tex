@@ -448,6 +448,48 @@ correspondence with a value in \verb|Complex{Integer}| and also in
 neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
 invariance. However, all of these are subtypes of \verb|Complex|.
 
+The instatiability of parametric types with non-leaf type parameters can lead
+to subtle performance bottlenecks and reasoning pitfalls. Consider the three
+\code{Complex} numbers
+
+\begin{lstlisting}
+z1 = Complex{Float64}(0.0, 1.0)
+z2 = Complex{FloatingPoint}(0.0, 1.0)
+z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
+\end{lstlisting}
+%
+which are all numerically equivalent (i.e.\ \verb|z1 == z2 == z3|), but not
+identical in the \textit{egal} sense~\cite{Baker1993} (\verb|===| in Julia).
+If we inspect the variables using Julia's \verb|dump| command, we get:
+
+\begin{lstlisting}
+julia> dump(z1)
+Complex{Float64}
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z2)
+Complex{FloatingPoint}
+  re: Float64 0.0
+  im: Float64 1.0
+
+julia> dump(z3)
+Complex{Union(Integer,Float64,Rational{T<:Integer})}
+  re: Int64 0
+  im: Float64 1.0
+\end{lstlisting}
+%
+We see that the \verb|::T| tag annotation on a field does not guarantee that
+the type of a value placed in the field in any given instance of that type is
+exactly of type \verb|T|, merely that it is a subtype of \verb|T|. Only for
+\verb|z1| can the compiler elide the run--time type checks and hence represent
+\verb|z1| with the fields contiguous in memory without indirection, which
+increases the performance of code working on \verb|z1| relative to \verb|z2|
+and \verb|z3|. Nevertheless, all three are fully--fledged \verb|Complex|
+numbers and support all the semantics associated with the \verb|Complex| type.
+In this way, Julia allows for a meaningful compromise being flexibility and
+performance.
+
 
 \subsection{Type conversion}
 
@@ -500,39 +542,6 @@ respectively~
 \footnote{\code{z.im} is desugared into the equivalent Julia code \code{getfield(z, :im)}.
 \code{getfield} is Julia's field accessor function.}
 
-Type invariance has some subtle consequences: the three \code{Complex} numbers
-
-\begin{lstlisting}
-z1 = Complex{Float64}(0.0, 1.0)
-z2 = Complex{FloatingPoint}(0.0, 1.0)
-z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
-\end{lstlisting}
-%
-are all numerically equivalent (i.e.\ \code{z1 == z2 == z3}), but they are not
-identical (in the \textit{egal} sense~\cite{Baker1993}).
-
-If we inspect the variables using Julia's \code{dump} command, we get:
-
-\begin{lstlisting}
-julia> dump(z1)
-Complex{Float64} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z2)
-Complex{FloatingPoint} 
-  re: Float64 0.0
-  im: Float64 1.0
-
-julia> dump(z3)
-Complex{Union(Integer,Float64,Rational{T<:Integer})} 
-  re: Int64 0
-  im: Float64 1.0
-\end{lstlisting}
-%
-We see that the \code{::T} annotation on a field does not guarantee that the
-type of a value placed in the field in any given instance of that type is
-exactly of type \code{T}, merely that it is a subtype of \code{T}.
 
 \TODO{Talk about the psychological implications of types.}
 
