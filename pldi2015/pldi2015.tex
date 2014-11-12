@@ -536,44 +536,29 @@ In contrast, there is no abstraction leak associated with allowing a generic
 function \verb|*| knowledge about the internal representations of the types it
 works on.
 
-Julia's generic function system can be extended with user-defined methods, thus
-allowing for users to define new generic functions and extend existing
+Julia's generic function system can be extended with user--defined methods,
+thus allowing for users to define new generic functions and extend existing
 functions with new methods, or even overwrite existing methods to suit their
 needs. Thus multiplications represented by \verb|*| can be extended, for
-example, to multiplication between quaternions, or even to $N$-ary
+example, to multiplication between quaternions, or even to $N$--ary
 matrix-matrix products, where associativity\footnote{Neglecting the lack of
 exact associativity in some fields such as floating-point numbers.} allows
 matrix-matrix products to be regrouped so as to minimize the total memory
 footprint and operation count~\cite{Hu1984}.
 
-\paragraph{Multiple dispatch allows dispatch on new types and new functions at the same time}
-The needs of technical computing can exceed the abilities of most dispatch
-systems.  In particular, it is usually not possible to have new behaviors that
-intermix new types and new functions.  One group of languages allows you to
-have new types but their dispatch upon existing functions cannot be defined.
-Subtyping is the usual paradigm here, but it is closed because it assumes
-you've covered all the cases explicitly.  Object oriented programming can be
-seen as a solution around this problem, but in pure OO, objects have only
-identity and have no interface protocol.  Classes are a mechanism for
-implementing message sends, defining actions \textit{upon} an object.  The
-other group of languages allows you to have new functions but not for existing
-types.  Haskell typeclasses~\cite{typeclass} are a fixed collection of
-interfaces; while additional functions can be defined, only the functions that
-form part of the existing interface can interact with an existing type.
+The user extensibility of Julia's generic functions and types allow users to
+define new behaviors that intermix new type and new functions. The price we pay
+for such flexibility, of course, is that dynamic function dispatch incurs
+greater overhead: unlike in a single dispatch language, multiple lookups in
+method tables may be necessary to determine which method is most appropriate
+for dispatch~\cite{Bruce1995}. Later, we argue that automatic type inference is
+a static optimization that is useful for minimizing or even eliminating the
+overhead associated with multiple dispatch.
 
-\TODO{Orphans/to flesh out}
-The prices we pay for such flexibility:
-- No encapsulation guarantees.  programs may at any point be able to peer into
-the internal representation of types. As a result, type safety requires
-stringent criteria on the allowed variances of types.
-- Increased overhead of dynamic lookups for function dispatch: unlike in a single dispatch language, multiple lookups in method tables may be necessary to determine which method is most appropriate for dispatch~\cite{Bruce1995}.
-
-\TODO{Is method table caching algorithm related to existing literature?}
-
-\paragraph{Method sorting and dispatch mechanism}
-\TODO{Describe}
-Method tables are a sorted list of these types.
-Implemented as \code{jl\_methtable\_t}
+Another, subtler point is that unlike other object models, generic functions
+provide no encapsulation guarantees, since they are allowed to peer into the
+internal representation of types. Consequently, type safety requires stringent
+criteria on the allowed variances of types~\cite{Allen2011}.
 
 \subsection{Diagonal dispatch}
 
@@ -1288,6 +1273,12 @@ rich semantics which are useful for technical computing applications.
 Furthermore, the design and interaction between these language components allow
 users to design their own Pareto--optimal tradeoffs between performant
 specialization and flexible generality within a single programming language.
+
+
+\subsection{Method ambiguities}
+\TODO{Method sorting and ambiguities}
+\cite{Bezanson2012}
+
 
 \acks{We thank the many Julia users and developers for their contributions to
 the Julia language.}
