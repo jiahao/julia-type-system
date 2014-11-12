@@ -205,18 +205,19 @@ Julia has different kinds of types which can be formally summarized as:
 
 \begin{lstlisting}
 Type ::= Abstract | Data | Tuple | Union | UnionAll
-Abstract ::= Name (Type...) Abstract }
+Tag ::= Data | Tuple
+
 Data ::= Name (Type...) Abstract } invariant, nominative
+Abstract ::= Name (Type...) Abstract }
 Tuple ::= (Type$_1$, Type$_2$...) |
           (Type$_1$, Type$_2$, ..., Type$_n$) } covariant
 Union ::= Union(Type$_1$, Type$_2$, ...)
 UnionAll ::= UnionAll T<:Type . Type
-Tag ::= Data | Tuple
 \end{lstlisting}
 
 \begin{description}
 
-\item[Data constructor/Tag types] are types with associated constructors. They
+\item[Data types] are types with associated constructors. They
 	are further subdivided into:
 	\begin{description}
 	
@@ -234,13 +235,13 @@ Tag ::= Data | Tuple
 
 	\end{description}
 
-\item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
-	product of zero or more existing types \code{T1}, \code{T2},
-	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
-
 \item[Abstract types] define an uninstantiable type with no declared
 	representation. They are used as declared supertypes of leaf types
 	(which are concrete and instantiable).
+
+\item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
+	product of zero or more existing types \code{T1}, \code{T2},
+	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
 
 \item[Union types] declared as \code{Union(T1, T2,...)} are the join of zero,
 	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
@@ -267,7 +268,7 @@ Tag ::= Data | Tuple
 			\code{T}.
 	\end{itemize}
 
-\item[UnionAll types], which are type unions that are implicitly quantified over
+\item[UnionAll types] which are type unions that are implicitly quantified over
 	all types \verb|S| satisfying a subtype relation \verb|S <: T|.
 
 \end{description}
