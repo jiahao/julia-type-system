@@ -491,13 +491,6 @@ In this way, Julia allows for a meaningful compromise being flexibility and
 performance.
 
 
-\subsection{Type promotion}
-
-Another Type promotions are written as user-level code to compute new types.
-
-\TODO{Explain type promotion}
-
-
 \subsection{Type conversion}
 
 The examples presented above show that while Julia code can be written without
@@ -719,6 +712,44 @@ further static analyses which are useful for detecting type instabilities.
 \section{Applications in technical computing}
 
 \TODO{A good motivating example for types is $2^{64}$}
+
+\subsection{Type promotion}
+
+The type system and generic function system allow for type promotion rules to
+be specified in the base library rather than be hard--coded into a given
+implementation. For example, simple arithmetic functions on general numeric
+types in Julia's base library contain methods of the form:
+
+\begin{lstlisting}
++(x::Number, y::Number) = +(promote(x,y)...)
+*(x::Number, y::Number) = *(promote(x,y)...)
+-(x::Number, y::Number) = -(promote(x,y)...)
+/(x::Number, y::Number) = /(promote(x,y)...)
+^(x::Number, y::Number) = ^(promote(x,y)...)
+\end{lstlisting}
+
+For example, an operation like \verb|2 * 3.4| is evaluated under the hood as follows:
+
+\begin{lstlisting}
+*(2, 3.4) = *(promote(2, 3.4)...)
+          = *(convert(promote_type(Int,Float64),2),
+	      convert(promote_type(Int,Float64),3.4))
+          = *(convert(Float64,2), convert(Float64,3.4))
+	  = *(2.0, 3.4)
+	  = 6.8
+\end{lstlisting}
+%
+where \verb|promote(x, y)| promotes the values \verb|x| and \verb|y| to
+numerically equivalent values of a common supertype, and
+\verb|promote_type(S,T)| computes a common supertype of \verb|S| and \verb|T|.
+The latter calls a custom promotion rule, if defined, and defaults otherwise to
+the join \verb|S|$\vee$\verb|T|.
+
+The implementation of type promotion leverages the type system to allow for
+greater code reuse across different methods and functions.  Furthermore, it is
+a part of the Julia language which can be built entirely from other language
+constructs.
+
 
 \subsection{Numerical linear algebra library}
 
