@@ -503,46 +503,6 @@ Type promotions are written as user-level code to compute new types.
 \TODO{Explain type promotion}
 
 
-\subsection{Example: complex numbers}
-
-Example: the \code{Complex} type defined by
-
-\begin{lstlisting}
-immutable Complex{T<:Real} <: Number
-    re :: T
-    im :: T
-end
-\end{lstlisting}
-%
-has two declared fields, \code{re} and \code{im}. Each of these fields has the
-type annotation \code{::T}. The type parameter \code{T} is constrained to be a
-subtype of \code{Real}, and \code{Complex} itself has a declared supertype
-which is \code{Number}.
-
-\code{Complex} comes with a default, implicitly defined inner constructor
-
-\begin{lstlisting}
-Complex{T<:Number}(re::T, im::T) = new(re, im)
-\end{lstlisting}
-%
-which makes use of a special intrinsic function \code{new} to allocate new
-memory for the fields \code{re} and \code{im}. Inner constructors can be
-defined by the user, in which case the default inner constructor is not
-generated.
-
-An instance of \code{Complex} can be created using the inner constructor, e.g.\
-
-\begin{lstlisting}
-z = Complex{Float64}(0.0, 1.0)
-\end{lstlisting}
-%
-
-whose fields can be accessed directly as \code{z.re} and \code{z,im} 
-respectively~
-\footnote{\code{z.im} is desugared into the equivalent Julia code \code{getfield(z, :im)}.
-\code{getfield} is Julia's field accessor function.}
-
-
 \TODO{Talk about the psychological implications of types.}
 
 
