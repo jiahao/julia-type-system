@@ -892,44 +892,6 @@ functions and \code{Distribution} types provided by the Julia package
 is simplified by generic functions and multiple dispatch.}
 \end{table}
 
-\TODO{show code examples}
-
-\TODO{Other possible examples from Distributions.jl: QQ plots, posterior function}
-
-\subsection{External dispatch with dynamic multimethods}
-
-\paragraph{writemime example}
-One thing you can do with dynamic multiple dispatch is external dispatch,
-i.e.\ to be able to add new methods to an existing type rather than
-specifying all the possible methods upfront. This is used to good effect
-in Julia packages to extend functionality of the base library. For example,
-the package \package{Color.jl} for manipulating color spaces extends the
-\code{writemime} base function, which writes an object as a specified
-MIME type\cite{mimerfc} to an I/O stream. \code{Color.jl} extends
-\code{writemime} with new methods that draw color swatches.
-
-\TODO{Here, we could put a figure showing writemime being called on a base
-Julia object, writemime(::Color), and writemime(::VectorColor) objects.
-Possibly take a screenshot in IJulia.}
-
-\paragraph{External dispatch for package interaction}
-External dispatch also facilitates interaction between Julia packages---
-colors can be rendered using the \package{Cairo.jl} package,
-which allows rendering to a Cairo backend~\cite{cairographics}.
-When using Cairo to render an object in a given color, \code{Cairo.jl}
-doesn't need to know anything about the underlying color space; it just
-needs to call \code{convert} methods provided by \code{Color.jl}.
-Julia's \code{convert} protocol is the ``narrow waist'' that allows
-packages to allow using all kinds of color spaces naturally, without
-needing to know anything specifically about them.
-
-\paragraph{External dispatch is clunky in C++}
-External dispatch can be performed in other languages like C++. However,
-C++ only allows static external dispatch, which severely limits its utility.
-Furthermore, external dispatch in C++ requires virtual methods and visitor
-patterns\cite{designpatterns} to work around the absence of explicit support
-for external dispatch.
-
 
 
 \section{Performance}
