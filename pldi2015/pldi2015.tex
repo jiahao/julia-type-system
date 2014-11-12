@@ -976,7 +976,16 @@ M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming 
 
 \section{Implementation challenges}
 
+Julia allows technical computing users to write expressive, performant code
+that makes use of advanced language constructs. However, users sometimes still
+face challenges in writing code that expresses what they want. This section
+gives some examples of problems faced by Julia users and how the language is
+still evolving to address the needs of users and improve their overall user
+experience.
+
+
 \subsection{Type stability}
+
 New users migrating from other dynamic languages like MATLAB, Python and R are
 often surprised that direct, line--for--line translations to Julia do not
 achieve claimed C--like performance. Empirical reports~\cite{julia-users}
@@ -1198,8 +1207,33 @@ specialization and flexible generality within a single programming language.
 
 
 \subsection{Method ambiguities}
-\TODO{Method sorting and ambiguities}
-\cite{Bezanson2012}
+
+What is method ambiguity
+
+What is a disambiguating method.
+
+Method ambiguity warnings were intended to reveal problems in multimethod
+definitions. However, at other times it is a major nuisance for library
+writers. The canonical example is trying to use \package{Images.jl} and
+\package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
+type with additional subclasses in mutually incompatible ways. Adding an image
+and a data frame is nonsensical and should return an error in client code that
+attempts to do so. However, the method ambiguities are detected when a package
+is loaded and compiled, throwing ambiguity warnings which may pertain to method
+definitions that are never used. In practice, most user code avoids nonsensical
+uses, but have other intentions in mind for using different functionality from
+both packages in the same code. Nevertheless, the ambiguity warnings are
+emitted even for code that avoids using the ambiguous methods in question.
+Library writers are therefore faced with the unpleasant task of defining
+disambiguating methods solely to suppress compile--time warnings, or otherwise
+avoid the issue entirely by not using subtyping features of Julia, which could
+reduce code reuse.
+
+Work is underway to turn such method ambiguity warnings into run--time errors,
+so that the responsibility of not running nonsensical methods is devolved onto
+user client code, rather than burdening library writers with the need to
+second--guess every conceivable corner case in the use of their libraries.
+
 
 
 \acks{We thank the many Julia users and developers for their contributions to
