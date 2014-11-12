@@ -607,7 +607,7 @@ Diagonal dispatch occurs only for concrete types \verb|T|. For example,
 \verb|f(1, 2)| works as the arguments are of type \verb|(Int, Int)|, but not
 \verb|f(1, 2.0)| as the arguments are of type \verb|(Int, Float64)|, even
 though that tuple type is a subtype of \verb|(T, T)| where
-\verb|T = Union(Int,| \verb|Float64)| or any larger union of \verb|Int| and
+\verb|T = Union(Int,| \verb|Float64)| or any larger common supertype of \verb|Int| and
 \verb|Float64|. Thus for diagonal dispatch to match only concrete \verb|T|s,
 the tuple of arguments is treated \textit{not} covariantly, but rather,
 \textit{invariantly}. Although this is an unusual special--casing of tuple
