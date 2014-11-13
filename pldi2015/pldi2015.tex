@@ -21,7 +21,7 @@
 %\titlebanner{banner above paper title}        % These are ignored unless
 \preprintfooter{DRAFT - do not distribute}   % 'preprint' option specified.
 
-\title{Efficient Multiple Dispatch in Julia}
+\title{Multiple Dispatch for Technical Computing}
 %\subtitle{Subtitle Text, if any}
 
 %\authorinfo{Jeff Bezanson \and Jake Bolewski \and Jiahao Chen \and Stefan Karpinski \and Jean Yang \and Alan Edelman}
@@ -31,21 +31,22 @@
 \maketitle
 
 \begin{abstract}
-Scientific programs are often written as software experiments operating on
-code and data that have not be formally described. Such experimental software
-is easier to write in dynamically typed languages. Unfortunately,
-dynamic types often make it difficult to execute code efficiently. In this
-paper, we describe the type system and multiple dispatch mechanism for the
-Julia programming language, which is specialized for scientific computing. Julia has a
-novel semantics based on efficient multiple dispatch. Julia combines
-programmer-specified type tags with a type inference engine to statically
-optimize method dispatch. Julia is dynamically typed in that the compiler does
-not statically reject ill-typed programs, but Julia is designed to optimize
-static type and dispatch inference. We describe the Julia language and type
-system and our implementation of type inference and multiple dispatch
-mechanisms for Julia. To demonstrate the relevance and potential impact of
-designing a language based around multiple dispatch, we also describe the
-manifestations of multiple dispatch in Julia's standard library.
+  Technical computing (generally, programming for applied math and the sciences) tends
+  to be a difficult application area for programming languages to address. This is
+  evinced by the unusually large number of specialized languages in the area
+  (e.g. MATLAB~\cite{matlab}, R~\cite{rlang}), and the complexity of common
+  software stacks, often involving multiple languages and custom code generators.
+  We believe this is ultimately due to key characteristics of the domain:
+  highly complex operators, a need for extensive code specialization for
+  performance, and a desire for permissive high-level programming models that
+  support experimentation.
+  The Julia language attempts to provide a more effective structure
+  for this kind of programming, by employing dynamic multiple dispatch over
+  parametric types. The forms of extension and reuse
+  permitted by this style are especially valuable for technical computing.
+  Here we report on how this paradigm can and has been used to
+  express abstractions useful to domain experts, while also providing
+  a natural path to better performance for high-level technical code.
 \end{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
