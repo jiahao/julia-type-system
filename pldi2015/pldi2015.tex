@@ -139,21 +139,24 @@ The language is built on polymorphic data and code:
 While multiple dispatch has been extensively studied as an object-oriented
 paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
 With Julia, a growing number of scientific programmers are using multiple dispatch
-extensively--we might even say gleefully. The key property of multiple
+extensively. The key property of multiple
 dispatch for this domain seems to be that it allows programs (particularly libraries)
 to be written incrementally, in small pieces, where each piece has a method signature
 specifying \emph{declaratively} how it fits into the whole.
 More sophisticated types ease this process, since they allow new
-definitions to be added in more situations.
+definitions to be added smoothly in more situations.
 
 
 \section{Type system}
 
 Julia is a dynamic language, i.e.\ it has no static semantics. As such, Julia
-does not have types in the strict sense, but rather run-time type tags used to
-describe and differentiate objects~\cite[Section 11.10, p. 142]{Pierce2002}.
-We tend to use the term ``type'' anyway, as programmers seem to be familiar
-with this use of it~\cite{Tratt2009,Kell2014}.
+does not have types in the sense that programming language theorists
+have come to use the term.
+Rather, it has run-time type tags which describe and differentiate objects by
+their representation and behavior~\cite[Section 11.10, p. 142]{Pierce2002}.
+We tend to use the term ``type'' anyway, as most programmers seem comfortable
+with this usage of the term~\cite{Tratt2009,Kell2014}. We distinguish ``dynamic
+types'' from ``static types'' when context requires.
 
 All values in a dynamically typed language have two semantic components:
 a \emph{tag} and some \emph{data}. The tag classifies the data, which are the
