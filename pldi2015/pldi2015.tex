@@ -847,16 +847,35 @@ that specialized algorithms for symmetric matrices exist.
 
 \subsection{Matrix factorization types}
 
-The \code{factorize} function in Julia is another, more extreme example of how
-dynamic multiple dispatch can be used to detect matrix symmetries and structure
-(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
-and compute appropriate matrix factorizations that best take advantage of the
-detected matrix properties. The output is a matrix factorization object whose
-specific type is only defined at runtime depending on the specific matrix
-properties that are detected at runtime.
+Julia's base linear algebra library also provides extensive support for matrix
+factorizations, which are indispensable for reasoning about the
+interdependencies between matrices with special properties and the numerical
+algorithms that they enable~\cite{Golub1996}. Many algorithms for numerical
+linear algebra involve interconversions between general matrices and similar
+matrices with special matrix symmetries. For many purposes, it is convenient to
+reason about the resulting special matrix, together with the matrix performing
+the transformation, as a single mathematical object rather than two separate
+matrices. Such an object represents a matrix factorization, and is essentially
+a different data structure that can represent the same content as a matrix
+represented as an ordinary two--dimensional array.
 
-Here is the implementation of \verb|factorize| in the base library (annotated
-for presentation):
+The exact matrix factorization object relevant for a given linear algebra
+problem depends on the symmetries of the starting matrix and also the
+underlying field of matrix elements (i.e.\ whether the matrix contains real
+numbers, complex numbers, or something else). In some use cases, these
+properties may be known by the user as part of the problem specification, and
+in other cases they may be unknown. Some properties, like whether a
+matrix is triangular, can be deduced by inspecting the matrix elements for
+$O(N^2)$ cost. Others, like whether a matrix is positive definite, require an
+$O(N^3)$ computation in the general case, and is most efficiently determined by
+attempting to compute the Cholesky factorization.
+
+The resulting algorithm for determining a useful matrix factorization has to
+capture the interplay between allowing the user to specify additional matrix
+properties and attempting to automatically detect useful properties when the
+additional cost of doing so is not prohibitive. The general case is implemented
+in Julia's base library by the \verb|factorize| function, and typifies the
+complexity associated with numerical codes: 
 
 \begin{lstlisting}
 function factorize{T}(A::Matrix{T})
@@ -950,6 +969,24 @@ typealias HermOrSym Union(Hermitian, Symmetric)
 factorize(A::HermOrSym) = bkfact(A.data, symbol(A.uplo),
     issym(A))
 \end{lstlisting}
+
+The main \verb|factorize| method first checks for the ``easy'' properties, i.e.
+those that can be computed cheaply at run--time by inspecting the matrix
+elements. The presence of one or more of these properties allow the input
+matrix \verb|A| to be classified into several special cases. For many of these
+cases (like \verb|Diagonal|), \verb|A| is explicitly converted to a special
+matrix type which allows dispatch on efficient specializations of linear
+algebraic operations that users may choose to perform later, such as matrix
+multiplication. For other special cases (like \verb|Tridiagonal|), it is useful
+to attempt a run--time check for the ``hard' properties, like positive
+definiteness, which require nontrivial computation. Computing the Cholesky
+factorization serves both as an efficient run--time check to detect positive
+definiteness, whose failure indicates lack thereof, and whose success yields
+a useful \verb|Cholesky| matrix factorization object which is useful for
+further computations such as solving linear equations or computing singular
+value decompositions (SVDs).
+
+The base case is also interesting.
 
 It is also instructive to look more carefully at the methods for \verb|bkfact|,
 which is but one of the several factorizations computed in \verb|factorize|:
