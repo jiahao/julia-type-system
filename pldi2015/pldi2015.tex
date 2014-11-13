@@ -892,43 +892,27 @@ complexity associated with numerical codes:
 \begin{lstlisting}
 function factorize{T}(A::Matrix{T})
     m, n = size(A)
-    if m ==n #Is matrix square?
-	#The factorization of a 1x1 matrix is just itself
+    if m == n  # Is matrix square?
+	# The factorization of a 1x1 matrix is just itself
         if m==1 return A[1] end
 	
-	#Is matrix upper triangular?
-	utri = istriu(A)
-	#Is matrix upper Hessenberg?
-	utri1 = ishessenbergu(A)
-	#Is matrix symmetric?
+	utri = istriu(A)          # upper triangular?
+	utri1 = ishessenbergu(A)  # upper Hessenberg?
 	sym = issym(A)
-	#Is matrix Hermitian?
 	herm = ishermitian(A)
-	#Is matrix lower triangular
-	ltri = istril(A)
-	#Is matrix lower Hessenberg?
-	ltri1 = ishessenbergl(A)
-                    
+	ltri = istril(A)          # lower triangular?
+	ltri1 = ishessenbergl(A)  # lower Hessenberg?
+
 	if ltri && utri
-	    # A is both lower and upper triangular
-	    # i.e. A is Diagonal
 	    return Diagonal(A)
 	elseif ltri && utri1
-	    # A is lower triangular and upper Hessenberg
-	    # i.e. A is upper Bidiagonal
 	    return Bidiagonal(diag(A), diag(A, -1), false)
 	elseif ltri
-	    # A is is lower Triangular
 	    return Triangular(A, :L)
 	elseif ltri1 && utri
-	    # A is lower Hessenberg and upper triangular
-	    # i.e. A is lower bidiagonal
 	    return Bidiagonal(diag(A), diag(A, 1), true)
 	elseif ltri1 && utri1
-	    # A is both lower and upper Hessenberg
-	    # i.e. A is tridiagonal
 	    if (herm && (T <: Complex)) || sym
-	        # A is symmetric tridiagonal
 		M = SymTridiagonal(diag(A), diag(A, -1))
 		# _may_ be factorizable into
 		# LDL' Cholesky form
@@ -941,10 +925,8 @@ function factorize{T}(A::Matrix{T})
 	    # Factorize into tridiagonal LU form
 	    return lufact!(M)
 	elseif utri
-	    # A is upper triangular
 	    return Triangular(A, :U)
 	elseif herm
-	    # A is Hermitian
 	    # _may_ be factorizable into Cholesky form
 	    try
 	        return cholfact(A)
@@ -973,7 +955,6 @@ function factorize{T}(A::Matrix{T})
     # otherwise compute (unpivoted) QR form
     return qrfact(A, pivot=canuseBlasFloat)
 end
-
 
 # Factorize a Hermitian or Symmetric matrix into
 # Bunch-Kaufman form as computed by bkfact
