@@ -999,6 +999,15 @@ would be to attempt to compute a matrix factorization that succeeds only on
 postiive definite matrices (such as the Cholesky decomposition), and fallback
 to returning a different type if the computation failed.
 
+In theory, it is possible to combine these structured matrix types under a
+tagged union, e.g. in an ML-family language. However this would be
+significantly less convenient. The problem is that in most contexts,
+users are happy to have these objects separated by the type system, but
+certain functions like \code{factorize} wish to combine them. It should be
+possible to pass the result of such a function directly to an existing
+routine that expects a particular matrix structure, without needing to
+interpose case analysis to handle a tagged union.
+
 
 \subsection{Generic functions for statistical library routines}
 
