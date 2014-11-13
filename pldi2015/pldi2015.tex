@@ -1033,7 +1033,7 @@ bkfact{T}(A::StridedMatrix{T}, uplo::Symbol=:U,
 # Compute Bunch-Kaufman factorization in-place
 
 # For real symmetric matrices, call LAPACK SSYTRF or
-# SSYTRF routine for T==Float32 or T==Float64 respectively
+# DSYTRF routine for T==Float32 or T==Float64 respectively
 function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
         uplo::Symbol=:U, symmetric::Bool=issym(A))
     symmetric || error("The Bunch-Kaufman decomposition
