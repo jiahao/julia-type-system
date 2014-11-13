@@ -414,23 +414,23 @@ different data structures to be used under the hood without any semantic
 changes imposed on users, thus allowing for more performance in one case and
 greater flexibility in the other.
 
-Subtyping and type parameters combine to provide powerful expressions of
-polymorphism, similar to those formalized by $\lambda$--calculi such as
-System~F$_\le$~\cite{Cardelli1985}. However, the interaction of these two
-Julia languages features can be subtle and confusing. For example, \verb|Real|
-is not a subtype of \verb|Complex| because for each type \verb|T| that is a
-subtype of \verb|Real|, there is a corresponding instantiable type
-\verb|Complex{T}|. None of these correspond to \verb|Real| since there is no
-\verb|T| such that \verb|Complex{T}| is a one-component number, and each
-concrete type only has $\bot$ as its subtype.
+%%Subtyping and type parameters combine to provide powerful expressions of
+%%polymorphism, similar to those formalized by $\lambda$--calculi such as
+%%System~F$_\le$~\cite{Cardelli1985}. However, the interaction of these two
+%%Julia languages features can be subtle and confusing. For example, \verb|Real|
+%%is not a subtype of \verb|Complex| because for each type \verb|T| that is a
+%%subtype of \verb|Real|, there is a corresponding instantiable type
+%%\verb|Complex{T}|. None of these correspond to \verb|Real| since there is no
+%%\verb|T| such that \verb|Complex{T}| is a one-component number, and each
+%%concrete type only has $\bot$ as its subtype.
 
-Another more subtle situation arises from parametric invariance: each value of
-\verb|Complex{Int64}| is a Gaussian integer, i.e., a complex number where each
-component is an integer, and so each \verb|Complex{Int64}| is in 1:1
-correspondence with a value in \verb|Complex{Integer}| and also in
-\verb|Complex{Real}|. Nevertheless, \verb|Complex{Int64}| is a subtype of
-neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
-invariance. However, all of these are subtypes of \verb|Complex|.
+%%Another more subtle situation arises from parametric invariance: each value of
+%%\verb|Complex{Int64}| is a Gaussian integer, i.e., a complex number where each
+%%component is an integer, and so each \verb|Complex{Int64}| is in 1:1
+%%correspondence with a value in \verb|Complex{Integer}| and also in
+%%\verb|Complex{Real}|. Nevertheless, \verb|Complex{Int64}| is a subtype of
+%%neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
+%%invariance. However, all of these are subtypes of \verb|Complex|.
 
 %% The instantiability of parametric types with non-leaf type parameters can lead
 %% to subtle performance bottlenecks and reasoning pitfalls. Consider the three
