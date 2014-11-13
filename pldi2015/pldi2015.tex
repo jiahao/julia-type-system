@@ -58,22 +58,22 @@
 
 \section{Dynamic languages are useful for technical computing}
 
-\begin{quote}
-	[L]a math\'ematique est l'art de donner le m\^eme nom \`a des choses
-	diff\'erentes... Quand le langage a \'et\'e bien choisi, on est tout
-	\'etonn\'e de voir que toutes les d\'emonstrations, faites pour un
-	objet connu, s'appliqu\-ent imm\'ediatement \`a beaucoup d'objets
-	nouveaux... c'est l'un des caract\`eres auxquels on reconna\^it les
-	faits \`a grand rendement, ce sont ceux qui permettent ces heureuses
-	innovations de langage. \cite{Poincare1908}
+%% \begin{quote}
+%% 	[L]a math\'ematique est l'art de donner le m\^eme nom \`a des choses
+%% 	diff\'erentes... Quand le langage a \'et\'e bien choisi, on est tout
+%% 	\'etonn\'e de voir que toutes les d\'emonstrations, faites pour un
+%% 	objet connu, s'appliqu\-ent imm\'ediatement \`a beaucoup d'objets
+%% 	nouveaux... c'est l'un des caract\`eres auxquels on reconna\^it les
+%% 	faits \`a grand rendement, ce sont ceux qui permettent ces heureuses
+%% 	innovations de langage. \cite{Poincare1908}
 	
-	\textit{Mathematics is the art of giving the same name to different
-	things... When the language has been well chosen, one is amazed to see
-	how all the statements, made for a known object, apply immediately
-	to many new objects... this is one of the characteristics by which one
-	recognizes high-yield facts, they are the facts which permit successful
-	innovations of language.}
-\end{quote}
+%% 	\textit{Mathematics is the art of giving the same name to different
+%% 	things... When the language has been well chosen, one is amazed to see
+%% 	how all the statements, made for a known object, apply immediately
+%% 	to many new objects... this is one of the characteristics by which one
+%% 	recognizes high-yield facts, they are the facts which permit successful
+%% 	innovations of language.}
+%% \end{quote}
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
@@ -99,52 +99,61 @@ it does---\emph{proving} anything about what it does would be premature, and an
 unwelcome distraction. As a result, dynamic languages like
 MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
 become popular among technical computing users.
-However, code written in these languages is difficult to execute efficiently;
+
+Code written in these languages is difficult to execute efficiently;
 the dynamic nature of these languages poses significant challenges for
-implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. Technical computing users
-thus face a dilemma known as the two-language problem: it is easier to
-prototype code in a dynamic language, but faster to run code written in a
-static language. The two-language problem can be viewed as an unavoidable
-consequence of Ousterhout's dichotomy of classifying programming languages into
-scripting vs.\ system languages~\cite{Ousterhout1998,Hoare2014}.
+implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
+to greatly accelerate dynamic languages with various techniques, for
+technical computing the problem does not quite stop there. These systems
+crucially depend on large libraries of low-level code that provide array
+computing kernels (e.g. matrix multiply). Developing these libraries is a
+significant challenge, requiring a range of techniques including templates,
+code generation scripts, and manual specialization.
 
 Julia~\footnote{Julia is free and open--source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
 the behavior of the v0.3.2 point release.} is a dynamic language designed to
-eliminate the false dichotomy between dynamism and
-speed in technical computing~\cite{Bezanson2012,Bezanson2014b}.
-The language features several
-different mechanisms for expressing polymorphism, namely:
+make it easier to express and organize this kind of functionality, while
+attempting to maintain the ease-of-use of existing high-level
+languages~\cite{Bezanson2012,Bezanson2014b}.
+
+The language is built on polymorphic data and code:
 
 \begin{itemize}
-	\item A user extensible type system featuring subtyping and parametric
-		types, and
-	\item A user extensible generic function system with dynamic multiple
-		dispatch
+	\item A type system featuring subtyping and parametric types, and
+	\item A generic function system with dynamic multiple dispatch
 \end{itemize}
 %
-which together naturally express the polymorphism inherent in technical
-computing. Julia's implementation also features a just-in-time compiler which
-performs extensive static optimizations such as:
+%% which together naturally express the polymorphism inherent in technical
+%% computing. Julia's implementation also features a just-in-time compiler which
+%% performs extensive static optimizations such as:
 
-\begin{itemize}
-	\item Automatic type inference, which minimizes the overhead of dynamic
-	      multiple dispatch and largely eliminates the need for explicit
-	      type annotations in function bodies.
-	\item Tuple elimination
-	\item Function inlining
-	\item A raft of compiler optimizations such as dead code elimination that
-	      are provided by the LLVM library~\cite{Lattner2004}.
-\end{itemize}
+%% \begin{itemize}
+%% 	\item Automatic type inference, which minimizes the overhead of dynamic
+%% 	      multiple dispatch and largely eliminates the need for explicit
+%% 	      type annotations in function bodies.
+%% 	\item Tuple elimination
+%% 	\item Function inlining
+%% 	\item A raft of compiler optimizations such as dead code elimination that
+%% 	      are provided by the LLVM library~\cite{Lattner2004}.
+%% \end{itemize}
 
-This paper aims to explain how Julia's language constructs and compiler
-optimizations conspire to provide expressiveness without compromising
-performance, by carefully designing a language that is purposely amenable to
-static analysis. When combined with an extensive base library for parallel
-execution and numerical analysis, Julia provides a convenient environment for
-rapid prototyping of new analytics which can also be deployed performantly,
-often within a factor of two of the speed of native, hand-written C code.
+%% This paper aims to explain how Julia's language constructs and compiler
+%% optimizations conspire to provide expressiveness without compromising
+%% performance, by carefully designing a language that is purposely amenable to
+%% static analysis. When combined with an extensive base library for parallel
+%% execution and numerical analysis, Julia provides a convenient environment for
+%% rapid prototyping of new analytics which can also be deployed performantly,
+%% often within a factor of two of the speed of native, hand-written C code.
 
+While multiple dispatch has been extensively studied as an object-oriented
+paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
+However in Julia, a growing number of scientific programmers are using it
+extensively---we might even say gleefully. The key property of multiple
+dispatch for this domain seems to be that it allows programs (particularly libraries)
+to be written incrementally, in small pieces, where each piece has a method signature
+specifying \emph{declaratively} how it fits into the whole. As the types one can
+dispatch on get more sophisticated, this process works better.
 
 
 \section{Type system}
