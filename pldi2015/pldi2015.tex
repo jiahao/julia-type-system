@@ -1241,12 +1241,12 @@ type--unstable under addition (\verb|+|):
 \begin{lstlisting}
 function g()
     x = Complex{FloatingPoint}(1.0, 2.0f0) #(Float64, Float32)
-    x + x #inferred type is Complex
+    x + x #inferred type is Complex{Float64}
 end
 \end{lstlisting}
 %
-Calling \verb|g()| returns a value of type \verb|Complex{Float64}| because the
-\verb|+| method called uses the external constructor
+The return type changes because the \verb|+| method called uses the external
+constructor
 
 \begin{lstlisting}
 Complex(x::Real, y::Real) = Complex(promote(x,y)...)
