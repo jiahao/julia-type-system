@@ -58,22 +58,14 @@
 
 \section{Dynamic languages are useful for technical computing}
 
-%% \begin{quote}
-%% 	[L]a math\'ematique est l'art de donner le m\^eme nom \`a des choses
-%% 	diff\'erentes... Quand le langage a \'et\'e bien choisi, on est tout
-%% 	\'etonn\'e de voir que toutes les d\'emonstrations, faites pour un
-%% 	objet connu, s'appliqu\-ent imm\'ediatement \`a beaucoup d'objets
-%% 	nouveaux... c'est l'un des caract\`eres auxquels on reconna\^it les
-%% 	faits \`a grand rendement, ce sont ceux qui permettent ces heureuses
-%% 	innovations de langage. \cite{Poincare1908}
-	
-%% 	\textit{Mathematics is the art of giving the same name to different
-%% 	things... When the language has been well chosen, one is amazed to see
-%% 	how all the statements, made for a known object, apply immediately
-%% 	to many new objects... this is one of the characteristics by which one
-%% 	recognizes high-yield facts, they are the facts which permit successful
-%% 	innovations of language.}
-%% \end{quote}
+\begin{quote}
+	\textit{Mathematics is the art of giving the same name to different
+	things... When the language has been well chosen, one is amazed to see
+	how all the statements, made for a known object, apply immediately
+	to many new objects... this is one of the characteristics by which one
+	recognizes high-yield facts, they are the facts which permit successful
+	innovations of language.} \cite{Poincare1908}
+\end{quote}
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
@@ -152,23 +144,18 @@ However in Julia, a growing number of scientific programmers are using it
 extensively---we might even say gleefully. The key property of multiple
 dispatch for this domain seems to be that it allows programs (particularly libraries)
 to be written incrementally, in small pieces, where each piece has a method signature
-specifying \emph{declaratively} how it fits into the whole. As the types one can
-dispatch on get more sophisticated, this process works better.
+specifying \emph{declaratively} how it fits into the whole.
+More sophisticated types make this process work better, since they allow new
+definitions to be added in more situations.
 
 
 \section{Type system}
 
 Julia is a dynamic language, i.e.\ it has no static semantics. As such, Julia
 does not have types in the strict sense, but rather run-time type tags used to
-differentiate heap-allocated objects~\cite[Section 11.10, p. 142]{Pierce2002}.
-Nevertheless, the formal theory of dynamic type tags is well defined as static
-promises that are coerced at run--time into 
-types~\cite{Henglein1994,Shields1998,Baars2002}, and there should be no ambiguity
-in using the terms ``type'' and ``type tag'' in this paper. This
-section aims to describe how dynamic type tags can be used, not for type
-checking to statically reject ill-typed programs, but rather to disambiguate
-objects and facilitate dispatch in ways similar to static
-types~\cite{Tratt2009,Kell2014}.
+describe and differentiate objects~\cite[Section 11.10, p. 142]{Pierce2002}.
+We tend to use the term ``type'' anyway, as programmers seem to be familiar
+with this use of it~\cite{Tratt2009,Kell2014}.
 
 All values in a dynamically typed language have two semantic components:
 a \emph{tag} and some \emph{data}. The tag classifies the data, which are the
@@ -178,12 +165,12 @@ to values, but incur overhead which increases the memory footprint of a data
 item. This overhead motivates most dynamically typed languages to simplify and
 minimize their tag systems.
 
-In contrast, Julia's types are designed for expressiveness, resulting in fewer
-components to the language design. An important example is arrays, which are
-special cased in some languages for performance reasons, but in Julia are
-described as a particular kind of parametric type, with the type parameter
-encoding information about memory layout.~\cite{Bezanson2014}. In general,
-Julia's types allow programs to reason about:
+Julia instead allows type tags with nested structure, indeed forming nearly
+arbitrary symbolic expressions. This has two immediate benefits: first,
+it expands the criteria programmers have available for dispatching, and second,
+provides more information to the compiler. Julia's type tags are designed
+to form a lattice structure, which enables effective dataflow analysis.
+In general, Julia's types allow programs to reason about:
 
 \begin{itemize}
 \item when code is applicable (dispatch),
@@ -238,9 +225,10 @@ UnionAll ::= UnionAll T<:Type . Type
 
 \item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
 	product of zero or more existing types \code{T1}, \code{T2},
-	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant.
+	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant. They may also
+        end with \code{...}, matching any number of trailing elements.
 
-\item[Union types] declared as \code{Union(T1, T2,...)} are the join of zero,
+\item[Union types] written as \code{Union(T1, T2,...)} are the join of zero,
 	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
 	15.7]{Pierce2002}
 	%
@@ -250,20 +238,20 @@ UnionAll ::= UnionAll T<:Type . Type
 	%
 	The union with zero types, \code{Union()}, is simply the bottom type.
 	%
-	Julia's \code{Union}s are untagged and disjoint, which allows for some
-	simplifications in their construction:
-	\begin{itemize}
-		\item If there are types \code{S} and \code{T} obeying the
-			subtyping relation \code{S <: T} in the union
-			constructor, then \code{S} is deleted ($\beta$-reduced)
-			from the final union type constructed. This
-			simplification includes the special case where \code{S}
-			and \code T are identical.
+	%% Julia's \code{Union}s are untagged and disjoint, which allows for some
+	%% simplifications in their construction:
+	%% \begin{itemize}
+	%% 	\item If there are types \code{S} and \code{T} obeying the
+	%% 		subtyping relation \code{S <: T} in the union
+	%% 		constructor, then \code{S} is deleted ($\beta$-reduced)
+	%% 		from the final union type constructed. This
+	%% 		simplification includes the special case where \code{S}
+	%% 		and \code T are identical.
 
-		\item A union type \code{Union(T)} with a single type parameter
-			\code{T} is identical (by $\eta$-reduction) to just
-			\code{T}.
-	\end{itemize}
+	%% 	\item A union type \code{Union(T)} with a single type parameter
+	%% 		\code{T} is identical (by $\eta$-reduction) to just
+	%% 		\code{T}.
+	%%\end{itemize}
 
 \item[UnionAll types] which are type unions that are implicitly quantified over
 	all types \verb|S| satisfying a subtype relation \verb|S <: T|.
@@ -280,86 +268,89 @@ UnionAll ::= UnionAll T<:Type . Type
 	described in Section~\ref{sec:typeparameters}.
 \end{enumerate}
 
-Type parameters and subtyping, when combined with late binding semantics
-associated with dynamic dispatch, provides Julia with rich polymorphic
-expressiveness, facilitating code reuse and an incremental style of
-programming~\cite{Castagna1997} that is well--suited to the rapid prototyping
-of technical codes.
+%% Type parameters and subtyping, when combined with late binding semantics
+%% associated with dynamic dispatch, provides Julia with rich polymorphic
+%% expressiveness, facilitating code reuse and an incremental style of
+%% programming~\cite{Castagna1997} that is well--suited to the rapid prototyping
+%% of technical codes.
 
 \subsection{Subtyping}
 \label{sec:subtyping}
 
 Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
-declared supertype (defaulting to $\top$ if not explicitly declared). The
-consequences are threefold:
+declared supertype (defaulting to $\top$ if not explicitly declared).
+We conjecture that the subtype relation \verb|<:| is well-defined and
+decidable, and that types are closed under meet ($\wedge$) and
+join ($\vee$).
 
-\begin{itemize}
+%% The notion of subtyping is analogous to subset relations, but the subset
+%% relation is not just over sets of permitted values, but also the interface,
+%% i.e.\ set of functions allowed to compute over the types being
+%% compares~\cite{Scott1976,Liskov1974,Liskov1994}. Furthermore, a mathematical
+%% quantity can have more than one encoding as a compiler value. For example, each
+%% integer in the set {0, 1, \dots, 255} has a 1:1 correspondence with an 8-bit
+%% unsigned integer (\verb|Uint8|), and also a 1:1 correspondence as a
+%% double-precision floating point number (\verb|Float64|). Nevertheless,
+%% \verb|Uint8| is \textit{not} a subtype of \verb|Float64| since not all
+%% operations on the former behave identically to operations on the latter. One
+%% example is subtraction, which returns different values for the different types:
 
-	\item Julia supports strong behavioral subtyping~\cite{Liskov1994}:
-		objects of a given type can be replaced with objects of their
-		subtype without altering desirable program behavior. In other
-		words, subtypes obey the Liskov substitution
-		principle~\cite{Liskov1974}.
+%% \begin{lstlisting}
+%% julia> uint(5)-uint(253)
+%% 0xffffffffffffff08
 
-	\item The subtype relation \verb|<:| defines a partial ordering on types,
-		which together with the meet operation ($\wedge$) constructing
-		type intersections and the join operation ($\vee$) constructing
-		type unions, provide the mathematical structure needed to
-		define a lattice of types~\cite{Scott1976}. Furthermore, the 
-		presence of the top ($\top$, \verb|Any|) and bottom ($\bot$,
-		\verb|Union()|) types means that the lattice is complete, which
-		has important consequences for the ability to define data flow
-		type inference algorithms~\cite{Kam1977,Khedker2009}.
-
-	\item Julia does not support multiple inheritance, which thus far has
-		not significantly decreased the usefulness of the type system.
-
-\end{itemize}
-
-The notion of subtyping is analogous to subset relations, but the subset
-relation is not just over sets of permitted values, but also the interface,
-i.e.\ set of functions allowed to compute over the types being
-compares~\cite{Scott1976,Liskov1974,Liskov1994}. Furthermore, a mathematical
-quantity can have more than one encoding as a compiler value. For example, each
-integer in the set {0, 1, \dots, 255} has a 1:1 correspondence with an 8-bit
-unsigned integer (\verb|Uint8|), and also a 1:1 correspondence as a
-double-precision floating point number (\verb|Float64|). Nevertheless,
-\verb|Uint8| is \textit{not} a subtype of \verb|Float64| since not all
-operations on the former behave identically to operations on the latter. One
-example is subtraction, which returns different values for the different types:
-
-\begin{lstlisting}
-julia> uint(5)-uint(253)
-0xffffffffffffff08
-
-julia> 5.0 - 253.0
--248.0
-\end{lstlisting}
-%
-In contrast, \verb|Union(Uint8, Float64)| is a subtype of \verb|Real| by
-transitivity of the declared supertype relations, which allow \verb|Real|
-to abstractly represent disjoint sets of values and their interfaces.
+%% julia> 5.0 - 253.0
+%% -248.0
+%% \end{lstlisting}
+%% %
+%% In contrast, \verb|Union(Uint8, Float64)| is a subtype of \verb|Real| by
+%% transitivity of the declared supertype relations, which allow \verb|Real|
+%% to abstractly represent disjoint sets of values and their interfaces.
 
 
 \subsection{Type parameters}
 \label{sec:typeparameters}
 
-\verb|Abstract| and \verb|Data| types can also take one or more parameters which
-are also types, allowing parametrically polymorphic types to be defined.
+\verb|Abstract| and \verb|Data| types can take one or more parameters. These
+types are superficially quite similar to parametric types in existing
+languages, but are actually intended simply for expressing information, rather
+than implementing the formal theory of parametric polymorphism.
 
-An example of parametric type is:
+The following example, from Julia's standard library, describes a \verb|SubArray|
+type that provides an indexed ``view'' into another array. It begins by
+defining a \verb|Union| of what kinds of indexes may be used, then uses this
+definition to define indexed views:
 
 \begin{lstlisting}
-abstract Foo{S, T<:Real, Int<:U<:Signed}
+  typealias RangeIndex Union(Int, Range{Int}, UnitRange{Int})
+
+  type SubArray{T,N,A<:AbstractArray,I<:(RangeIndex...,)} <: AbstractArray{T,N}
+      # definition body omitted
+  end
 \end{lstlisting}
 %
-\verb|Foo| is defined with three \verb|TypeVar|s which act as placeholders for
-types. \verb|T| and \verb|U| are bounded \verb|TypeVar|s, which constrain the
-set of allowed types which can be placed in their respective slots. For
-convenience, an unbound type parameter can be omitted from a parametric type
-declaration. For example, \verb|Array| is a synonym for \verb|Array{T, N}|
-for some unspecified element type \verb|T| and rank \verb|N|, and is convenient
-shorthand for writing methods that are agnostic about these type parameters.
+\verb|SubArray| has parameters \verb|T| for an element type, \verb|N| for the
+number of dimensions, \verb|A| for the underlying array type, and \verb|I|
+for the tuple of indexes that describe which part of the underlying array
+is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
+\verb|AbstractArray|.
+
+An unusual feature of this system is that it tries to hide type kinds from
+the user. The identifier \verb|SubArray| by itself does not refer to a
+type constructor that must be instantiated, but rather is itself a type
+that functions as a supertype of all \verb|SubArray|s. This allows
+convenient shorthand for writing methods that are agnostic about type parameters.
+It also makes it possible to add more type parameters in the future, without
+necessarily updating all client code.
+
+When implementing \verb|SubArray| and client code using it, it is useful
+to be able to dispatch on all of these parameters. For example, when
+\verb|I| matches \verb|(UnitRange, RangeIndex...)| then the \verb|SubArray|
+is contiguous in the leading dimension, and more efficient algorithms can
+generally be used. Or, linear algebra code might want to restrict the
+number of dimensions \verb|N| to 1 or 2.
+
+\subsubsection{Variance}
 
 The subtyping rules for parametric types require reasoning about variance,
 i.e.\ the relation between subtype relations of the parametric types and
@@ -429,7 +420,7 @@ changes imposed on users, thus allowing for more performance in one case and
 greater flexibility in the other.
 
 Subtyping and type parameters combine to provide powerful expressions of
-polymorphism, as formalized by $\lambda$--calculi such as
+polymorphism, similar to those formalized by $\lambda$--calculi such as
 System~F$_\le$~\cite{Cardelli1985}. However, the interaction of these two
 Julia languages features can be subtle and confusing. For example, \verb|Real|
 is not a subtype of \verb|Complex| because for each type \verb|T| that is a
@@ -446,60 +437,66 @@ correspondence with a value in \verb|Complex{Integer}| and also in
 neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
 invariance. However, all of these are subtypes of \verb|Complex|.
 
-The instantiability of parametric types with non-leaf type parameters can lead
-to subtle performance bottlenecks and reasoning pitfalls. Consider the three
-\code{Complex} numbers
+%% The instantiability of parametric types with non-leaf type parameters can lead
+%% to subtle performance bottlenecks and reasoning pitfalls. Consider the three
+%% \code{Complex} numbers
 
-\begin{lstlisting}
-z1 = Complex{Float64}(0.0, 1.0)
-z2 = Complex{FloatingPoint}(0.0, 1.0)
-z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
-\end{lstlisting}
-%
-which are all numerically equivalent (i.e.\ \verb|z1 == z2 == z3|), but not
-identical in the \textit{egal} sense~\cite{Baker1993} (\verb|===| in Julia).
-If we inspect the variables using Julia's \verb|dump| command, we get:
+%% \begin{lstlisting}
+%% z1 = Complex{Float64}(0.0, 1.0)
+%% z2 = Complex{FloatingPoint}(0.0, 1.0)
+%% z3 = Complex{Union(Rational, Integer, Float64)}(0, 1.0)
+%% \end{lstlisting}
+%% %
+%% which are all numerically equivalent (i.e.\ \verb|z1 == z2 == z3|), but not
+%% identical in the \textit{egal} sense~\cite{Baker1993} (\verb|===| in Julia).
+%% If we inspect the variables using Julia's \verb|dump| command, we get:
 
-\begin{lstlisting}
-julia> dump(z1)
-Complex{Float64}
-  re: Float64 0.0
-  im: Float64 1.0
+%% \begin{lstlisting}
+%% julia> dump(z1)
+%% Complex{Float64}
+%%   re: Float64 0.0
+%%   im: Float64 1.0
 
-julia> dump(z2)
-Complex{FloatingPoint}
-  re: Float64 0.0
-  im: Float64 1.0
+%% julia> dump(z2)
+%% Complex{FloatingPoint}
+%%   re: Float64 0.0
+%%   im: Float64 1.0
 
-julia> dump(z3)
-Complex{Union(Integer,Float64,Rational{T<:Integer})}
-  re: Int64 0
-  im: Float64 1.0
-\end{lstlisting}
-%
-We see that the \verb|::T| tag annotation on a field does not guarantee that
-the type of a value placed in the field in any given instance of that type is
-exactly of type \verb|T|, merely that it is a subtype of \verb|T|. Only for
-\verb|z1| can the compiler elide the run--time type checks and hence represent
-\verb|z1| with the fields contiguous in memory without indirection, which
-increases the performance of code working on \verb|z1| relative to \verb|z2|
-and \verb|z3|. Nevertheless, all three are fully--fledged \verb|Complex|
-numbers and support all the semantics associated with the \verb|Complex| type.
-In this way, Julia allows for a meaningful compromise being flexibility and
-performance.
+%% julia> dump(z3)
+%% Complex{Union(Integer,Float64,Rational{T<:Integer})}
+%%   re: Int64 0
+%%   im: Float64 1.0
+%% \end{lstlisting}
+%% %
+%% We see that the \verb|::T| tag annotation on a field does not guarantee that
+%% the type of a value placed in the field in any given instance of that type is
+%% exactly of type \verb|T|, merely that it is a subtype of \verb|T|. Only for
+%% \verb|z1| can the compiler elide the run--time type checks and hence represent
+%% \verb|z1| with the fields contiguous in memory without indirection, which
+%% increases the performance of code working on \verb|z1| relative to \verb|z2|
+%% and \verb|z3|. Nevertheless, all three are fully--fledged \verb|Complex|
+%% numbers and support all the semantics associated with the \verb|Complex| type.
+%% In this way, Julia allows for a meaningful compromise being flexibility and
+%% performance.
 
 
 \subsection{Type conversion}
 
-The examples presented above show that while Julia code can be written without
-explicitly reasoning about types, the ability to do so is necessary for
+While Julia code can be written without
+explicitly reasoning about types, the ability to do so is sometimes necessary for
 understanding code performance issues. Julia provides the \verb|convert(T, x)|
 function which converts a value \verb|x| to its corresponding representation in
-the type \verb|T|. \verb|convert|ing a type emulates explicit type casting in
-static languages while retaining the semantic advantages of dynamic typing such
-as late binding. Later, we will see how the ability to perform explicit type
-conversions on demand provide mechanisms for limiting polymorphism in codes
-where performance considerations are important.
+the type \verb|T|. This is a generic function like any other, but since
+\verb|T| is typically a compile-time constant this can serve as a mechanism for
+limiting polymorphism in codes where performance considerations are important.
+
+Notice that the idea of converting a value of type \verb|A| to type \verb|B|
+does not naturally belong to one type or the other, which favors multiple
+dispatch over classes. Conversion also benefits from open extension:
+mathematical objects often have embeddings in multiple domains, not all of
+which might be known or desired by the original author of some code. For
+example numbers can be embedded in matrices as diagonal matrices, but not
+all users are likely to find this correspondence helpful.
 
 
 \section{Generic functions and multimethods}
@@ -529,29 +526,25 @@ require knowing the internal representation of both objects \verb|a| and
 \verb|b|, especially for performance reasons~\cite{Bruce1995}. Such knowledge
 fundamentally corrupts the abstraction of class-based encapsulation, as the
 methods associated with \verb|a| must know implementation details of all
-possible objects \verb|b| that \verb|a| may interact with, thus further
-compounding the problem of enumerating all possible code paths at compile time.
+possible objects \verb|b| that \verb|a| may interact with.
 In contrast, there is no abstraction leak associated with allowing a generic
 function \verb|*| knowledge about the internal representations of the types it
 works on.
 
-Julia's generic function system can be extended with user--defined methods,
-thus allowing for users to define new generic functions and extend existing
-functions with new methods, or even overwrite existing methods to suit their
-needs. Thus multiplications represented by \verb|*| can be extended, for
+Multiplication represented by \verb|*| can be extended, for
 example, to multiplication between quaternions, or even to $N$--ary
 matrix-matrix products, where associativity\footnote{Neglecting the lack of
 exact associativity in some fields such as floating-point numbers.} allows
 matrix-matrix products to be regrouped so as to minimize the total memory
 footprint and operation count~\cite{Hu1984}.
 
-The user extensibility of Julia's generic functions and types allow users to
-define new behaviors that intermix new type and new functions. The price we pay
+The extensibility of Julia's generic functions and types allow users to
+define new behaviors that intermix new types and new functions. The price we pay
 for such flexibility, of course, is that dynamic function dispatch incurs
 greater overhead: unlike in a single dispatch language, multiple lookups in
-method tables may be necessary to determine which method is most appropriate
-for dispatch~\cite{Bruce1995}. Later, we argue that automatic type inference is
-a static optimization that is useful for minimizing or even eliminating the
+method tables may be necessary to determine which method is most
+appropriate~\cite{Bruce1995}. Type inference is
+useful for minimizing or even eliminating the
 overhead associated with multiple dispatch.
 
 Another, subtler point is that unlike other object models, generic functions
@@ -559,99 +552,115 @@ provide no encapsulation guarantees, since they are allowed to peer into the
 internal representation of types. Consequently, type safety requires stringent
 criteria on the allowed variances of types~\cite{Allen2011}.
 
-\subsection{Diagonal dispatch}
 
-Diagonal dispatch is a special refinement of method dispatch that occurs when a
-type parameter appears in more than position in the method signature, e.g.:
+%% NOTE: This section is actually very good but I don't think we can use it unless
+%% we show what this feature is good for. Jiahao has said he doesn't feel this is
+%% all that useful for technical computing, so better to leave it out.
 
-\begin{lstlisting}
-f{T}(x::T, y::T)
-\end{lstlisting}
-%
-Diagonal dispatch occurs only for concrete types \verb|T|. For example,
-\verb|f(1, 2)| works as the arguments are of type \verb|(Int, Int)|, but not
-\verb|f(1, 2.0)| as the arguments are of type \verb|(Int, Float64)|, even
-though that tuple type is a subtype of \verb|(T, T)| where
-\verb|T = Union(Int,| \verb|Float64)| or any larger common supertype of \verb|Int| and
-\verb|Float64|. Thus for diagonal dispatch to match only concrete \verb|T|s,
-the tuple of arguments is treated \textit{not} covariantly, but rather,
-\textit{invariantly}. Although this is an unusual special--casing of tuple
-behavior, the greater specificity allowed by invariance makes diagonal dispatch
-more useful in practice by matching only concrete types, particularly when
-\verb|T| appears multiple times in the method signature, e.g.\ 
-\verb|f{T}(x::T, y::T, z::T)| or even \verb|f{T}(xs::T...)|. 
+%% \subsection{Diagonal dispatch}
 
-The \textit{diagonal} nature of diagonal dispatch is apparent when considering
-the dispatch table for the method \verb|f{T}| \verb|(x::T, y::T)|: when written
-out as a table with all possible types of \texttt{x} and \texttt{y} along the
-rows and columns as shown in Table~\ref{tab:diagonal}, the method dispatches
-only along the diagonal of the table.
+%% Diagonal dispatch is a special refinement of method dispatch that occurs when a
+%% type parameter appears in more than position in the method signature, e.g.:
 
-\begin{table}
-\begin{tabular}{c | c c c c c}
-	& \verb|Int| & \verb|Float64| & \verb|Bool| & \verb|Real| & $\cdots$ \\ \hline
-	\verb|Int|     & \checkmark &  &  &  & \\
-	\verb|Float64| &  & \checkmark &  &  & \\
-	\verb|Bool|    &  &  & \checkmark &  & \\
-	\verb|Real|    &  &  &  &  & \\
-	$\vdots$       &  &  &  &  &
-\end{tabular}
-\caption{Dispatch table for the function \texttt{f} with method
-\texttt{f\{T\}(x::T, y::T)}, showing that dispatch occurs only along the
-diagonal with all possible types of \texttt{x} and \texttt{y} along the rows
-and columns.}
-\label{tab:diagonal}
-\end{table}
+%% \begin{lstlisting}
+%% f{T}(x::T, y::T)
+%% \end{lstlisting}
+%% %
+%% Diagonal dispatch occurs only for concrete types \verb|T|. For example,
+%% \verb|f(1, 2)| works as the arguments are of type \verb|(Int, Int)|, but not
+%% \verb|f(1, 2.0)| as the arguments are of type \verb|(Int, Float64)|, even
+%% though that tuple type is a subtype of \verb|(T, T)| where
+%% \verb|T = Union(Int,| \verb|Float64)| or any larger common supertype of \verb|Int| and
+%% \verb|Float64|. Thus for diagonal dispatch to match only concrete \verb|T|s,
+%% the tuple of arguments is treated \textit{not} covariantly, but rather,
+%% \textit{invariantly}. Although this is an unusual special--casing of tuple
+%% behavior, the greater specificity allowed by invariance makes diagonal dispatch
+%% more useful in practice by matching only concrete types, particularly when
+%% \verb|T| appears multiple times in the method signature, e.g.\ 
+%% \verb|f{T}(x::T, y::T, z::T)| or even \verb|f{T}(xs::T...)|. 
+
+%% The \textit{diagonal} nature of diagonal dispatch is apparent when considering
+%% the dispatch table for the method \verb|f{T}| \verb|(x::T, y::T)|: when written
+%% out as a table with all possible types of \texttt{x} and \texttt{y} along the
+%% rows and columns as shown in Table~\ref{tab:diagonal}, the method dispatches
+%% only along the diagonal of the table.
+
+%% \begin{table}
+%% \begin{tabular}{c | c c c c c}
+%% 	& \verb|Int| & \verb|Float64| & \verb|Bool| & \verb|Real| & $\cdots$ \\ \hline
+%% 	\verb|Int|     & \checkmark &  &  &  & \\
+%% 	\verb|Float64| &  & \checkmark &  &  & \\
+%% 	\verb|Bool|    &  &  & \checkmark &  & \\
+%% 	\verb|Real|    &  &  &  &  & \\
+%% 	$\vdots$       &  &  &  &  &
+%% \end{tabular}
+%% \caption{Dispatch table for the function \texttt{f} with method
+%% \texttt{f\{T\}(x::T, y::T)}, showing that dispatch occurs only along the
+%% diagonal with all possible types of \texttt{x} and \texttt{y} along the rows
+%% and columns.}
+%% \label{tab:diagonal}
+%% \end{table}
 
 
 \section{Type inference}
 \label{sec:inference}
 
-One key insight into the design of Julia is that static analysis can eliminate
-the overhead of dynamic dispatch and run--time type checking in many cases,
-thus allowing Julia code to run at speeds comparable to analogous code written
-in fully compiled static languages. The key static analysis technique is type
-inference, which can be thought of as a process of describing data
-automatically: programs can accept an \emph{arbitrary} value, discover its
-structure, and operate on it by examining its tag.
-
-Data flow type inference is an integral part of Julia's semantics, unlike most
-other programming languages where it is relegated to an implementation detail
-of optimizing compilers~\cite{Nielson2005,Khedker2009}. Automatic type
-inference allows code to omit type annotations, resulting in shorter and more
-reusable code that still retains most of the benefits of static analyses
-enabled by types. More generally, data flow analysis, particularly in the
+It is well known that type inference can be used to move tag manipulations
+and method lookup to compile time, thus eliminating most overhead from
+the execution of dynamically-typed code~\cite{Kaplan1977,Kaplan1980}.
+Data flow type inference~\cite{Nielson2005,Khedker2009}
+is especially useful in this context, as its
+flow-sensitivity yields good type information even if the type of a program
+variable is different at different points in the code.
+Data flow analysis, particularly in the
 forward direction, captures the human intuition of how programs work:
-values start at the top and move through the
-program step by step.
+values start at the top and move through the program step by step.
+Another advantage of this approach is that it is \emph{not} speculative:
+it yields correct deductions about types that, in the best case, allow
+overhead to be removed entirely. This property is important to technical
+users, who need languages that can match the performance of C and Fortran.
+
+Unfortunately data flow type inference is relatively easily defeated
+by dynamic language programs that are too ``type complex''. If the library
+functions used might return too many different types, or there are too
+many paths through user code, the resulting type information might not
+be useful.
+
+Julia's design was intended to help mitigate this problem. By encouraging
+code to be written in small pieces labeled with type information (for
+dispatch), it is easier for the compiler to rule out execution paths
+that do not actually occur.
 
 Type inference in Julia occurs after code is parsed, macro--expanded, and
 lowered into a static single assignment (SSA) intermediate representation
 (IR)~\cite{Alpern1988,Rosen1988} that facilitates data flow
 analysis~\cite{Cousot1977,Cousot2000,Nielson2005} and is relatively
-straightforward to map onto LLVM IR. Julia uses Mohnen's algorithm
+straightforward to map onto LLVM IR~\cite{Lattner2004}. Julia uses Mohnen's algorithm
 for abstract interpretation~\cite{Cousot1992} which works directly on the SSA
 IR~\cite{Mohnen2002}. The abstract semantics are described internally using
 transfer functions (a.k.a.\ t--functions or flow functions), which approximate
-program semantics by inferring possible output types based only on the types of
-the inputs, rather than their specific values. 
+program semantics by inferring possible output types based on the types of
+the inputs.
 
 In practice, the expressiveness of Julia's late binding semantics, combined
 with the presence of potentially infinite types such as varargs tuples
-\verb|(T...)|, complicate type inference. The combination of late binding and
-the ability to use generic functions as type parameters also means that the
-general type inference problem is undecidable, as was proved for the System F
-calculus~\cite{Wells1999}. Therefore practical type inference necessitates
+\verb|(T...)|, complicate type inference.
+%The combination of late binding and
+%the ability to use generic functions as type parameters also means that the
+%general type inference problem is undecidable, as was proved for the System F
+%calculus~\cite{Wells1999}.
+Therefore practical type inference necessitates
 widening heuristics, which reduce computational costs and guarantee termination
 in the presence of recursive types~\cite{Cousot1992a}. Examples of such
 heuristics include widening (pessimizing) type unions and tuple types which
 exceed a certain length, and limiting the maximal depths of types
-and tuples analyzed. Widening operations are not guaranteed to be monotonic,
-i.e.\ the ordering of approximations may no longer be preserved, and hence the
-fixed point computed by abstract interpretation is not guaranteed to be
-minimal even in a formally monotonic data flow framework~\cite{Cousot1992}.
-Thus the inferred types are not necessarily the least upper bounds on the
-possible values~\cite{Kaplan1977,Kaplan1980}.
+and tuples analyzed.
+%Widening operations are not guaranteed to be monotonic,
+%i.e.\ the ordering of approximations may no longer be preserved, and hence the
+%fixed point computed by abstract interpretation is not guaranteed to be
+%minimal even in a formally monotonic data flow framework~\cite{Cousot1992}.
+%Thus the inferred types are not necessarily the least upper bounds on the
+%possible values~\cite{Kaplan1977,Kaplan1980}.
 
 Julia provides language features to help users inspect the results of type
 inference and specify additional type information where necessary to sharpen
@@ -662,7 +671,7 @@ the types of variables.
 	\item The base library provides introspection functions like
 	\verb|code_typed|, which allow users to inspect generated type
 	annotations and avoid second--guessing the compiler's intentions.
-		
+
 	\item Variables can also be given explicit \textbf{type annotations};
 	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
 	of type \verb|Float64| within the current scope, and all assignments
@@ -676,8 +685,7 @@ the types of variables.
 \end{enumerate}
 %
 External packages like \package{TypeCheck.jl} and \package{Lint.jl} provide
-further static analyses which are useful for detecting type instabilities.
-
+further static analyses which are useful for detecting type-related issues.
 
 
 \section{Applications in technical computing}
