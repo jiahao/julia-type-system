@@ -2,11 +2,13 @@
 
 \usepackage{url}                  % format URLs
 \usepackage{listings}          % format code
-\usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
+\usepackage{hyperref}
+%\usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 \usepackage{amssymb}
-\usepackage{todonotes}
+%\usepackage{todonotes}
+\usepackage{graphicx}
 
 \input{macros}
 
@@ -57,15 +59,6 @@
 %Language design, run-time system
 
 \section{Dynamic languages are useful for technical computing}
-
-\begin{quote}
-	\textit{Mathematics is the art of giving the same name to different
-	things... When the language has been well chosen, one is amazed to see
-	how all the statements, made for a known object, apply immediately
-	to many new objects... this is one of the characteristics by which one
-	recognizes high-yield facts, they are the facts which permit successful
-	innovations of language.} \cite{Poincare1908}
-\end{quote}
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
@@ -503,7 +496,7 @@ all users are likely to find this correspondence helpful.
 
 \section{Generic functions and multimethods}
 
-As \cite{Poincare1908} noted in the opening quote, mathematical thought is
+Mathematical thought is
 naturally polymorphic. Multimethods are a natural mechanism for capturing such
 polymorphism~\cite{Bezanson2014b,Chen2014}. Consider an operation as
 fundamental as multiplication: an expression like \verb|a*b| can mean:
@@ -1135,17 +1128,22 @@ is simplified by generic functions and multiple dispatch.}
 \section{Impact of static analyses on performance}
 
 Figure~\ref{fig:timings} shows the relative execution times of benchmark codes
-representing a wide variety of scientific applications, when various stages of
-static analyses are successively turned off. Relative to an unmodified Julia
-distribution, first the LLVM optimization passes were turned off, followed by tuple
-optimizations, function inlining, and finally type inference. The relative
+representing a wide variety of scientific applications, when various optimizations
+and analyses are successively turned off. Relative to an unmodified Julia
+distribution, first the LLVM optimization passes were turned off, followed by
+some optimizations to elide allocation of tuples, function inlining, and finally
+type inference. The results of type inference are used directly to perform
+compile-time method lookup, while inference itself is only an analysis with
+no performance effect. Therefore
+we report on these technically-separate steps as a single item.
+The relative
 importances of each optimization pass were computed by taking ratios of
 consecutive timings with and without that particular optimization pass.
 
 On average, function inlining turned out to be the most important optimization
 for improving the speed of Julia code, speeding up code by an average factor
 19.93. Type inference came in second in importance at 6.89, followed by LLVM at
-1.53. Tuple-specific optimizations, which were thought to be important, turned
+1.53. The allocation-elision optimization measured here turned
 out to have almost no effect on execution speed, with an average contribution
 of 0.99.
 
@@ -1154,7 +1152,7 @@ of 0.99.
 	\caption{Relative contributions of various optimization passes to
 	performance of Julia code implementing a representative collection
 	of benchmarks. Bars from top to bottom represent: LLVM
-	optimizations, tuple optimizations, function inlining, and type inference.}
+	optimizations, tuple elision, function inlining, and type inference.}
 	\label{fig:timings}
 \end{figure*}
 
@@ -1248,59 +1246,62 @@ improve performance by sharpening type annotations on variables, using language
 constructs described in Section~\ref{sec:inference}.
 
 
-\subsection{(Data) vectorization}
+%% JWB: I think this section is really not interesting and not related to
+%% multiple dispatch enough.
 
-New Julia users are also often surprised that vectorized expressions in Julia
-can be slower than their devectorized counterparts. Consider the function
+%% \subsection{(Data) vectorization}
 
-\begin{lstlisting}
-h1(x) = sin(x) + im*cos(x)
-\end{lstlisting}
-%
-For scalar numbers \verb|x| of type \verb|Float64|, \verb|h1| constructs a
-complex number of type \verb|Complex{Float64}|. However, \verb|h1| also accepts
-arrays of type \verb|Array{Float64, N}| (where $N$ is the rank), returning a
-corresponding array \verb|Array{Complex| \verb|{Float64}, N}|.
+%% New Julia users are also often surprised that vectorized expressions in Julia
+%% can be slower than their devectorized counterparts. Consider the function
 
-In other dynamic languages, vectorization is an accepted mantra for
-performance~\cite{matlabuserguide,Langtangen2008}, as the vectorized functions often wrap
-kernels written in a low--level language that deliver performance over
-functionally equivalent devectorized code which use slow, directly interpreted
-scalar loops~\cite{Seljebotn2009,Walt2011}. Users have therefore learned that
-vectorized functions provide speed, and will sometimes go to great lengths to
-contort their computations into vectorized form to speed up their code, even if
-the computation cannot be expressed conveniently or naturally in vectorized
-form. Furthermore, vectorization still incurs significant overhead,
-particularly in the unwanted allocation of array temporaries. In this example,
-\verb|h1| constructs three temporary arrays on top of the new array needed to
-contain the answer, namely the arrays \verb|A|, \verb|B| and \verb|C| in the
-equivalent code: 
+%% \begin{lstlisting}
+%% h1(x) = sin(x) + im*cos(x)
+%% \end{lstlisting}
+%% %
+%% For scalar numbers \verb|x| of type \verb|Float64|, \verb|h1| constructs a
+%% complex number of type \verb|Complex{Float64}|. However, \verb|h1| also accepts
+%% arrays of type \verb|Array{Float64, N}| (where $N$ is the rank), returning a
+%% corresponding array \verb|Array{Complex| \verb|{Float64}, N}|.
 
-\begin{lstlisting}
-function h2(x)
-    A = sin(x) #Apply sin to each element of x, etc.
-    B = cos(x)
-    C = im * B
-    D = A + C
-    return D
-end
-\end{lstlisting}
-%
-In contrast, the devectorized version of the same code
+%% In other dynamic languages, vectorization is an accepted mantra for
+%% performance~\cite{matlabuserguide,Langtangen2008}, as the vectorized functions often wrap
+%% kernels written in a low--level language that deliver performance over
+%% functionally equivalent devectorized code which use slow, directly interpreted
+%% scalar loops~\cite{Seljebotn2009,Walt2011}. Users have therefore learned that
+%% vectorized functions provide speed, and will sometimes go to great lengths to
+%% contort their computations into vectorized form to speed up their code, even if
+%% the computation cannot be expressed conveniently or naturally in vectorized
+%% form. Furthermore, vectorization still incurs significant overhead,
+%% particularly in the unwanted allocation of array temporaries. In this example,
+%% \verb|h1| constructs three temporary arrays on top of the new array needed to
+%% contain the answer, namely the arrays \verb|A|, \verb|B| and \verb|C| in the
+%% equivalent code: 
 
-\begin{lstlisting}
-function h3(x)
-    z = similar(x) #Construct array with same shape as x
-    for (i, y) in enumerate(x)
-        z[i] = sin(y) + im*cos(y)
-    end
-end
-\end{lstlisting}
-%
-computes the same result but avoids allocating temporary arrays and their
-concomitant overhead costs for heap allocation, memory access and garbage
-collection. Thus devectorized code is preferred in Julia as scalar loops are
-fast with minimal overhead~\cite{Bezanson2014b}. 
+%% \begin{lstlisting}
+%% function h2(x)
+%%     A = sin(x) #Apply sin to each element of x, etc.
+%%     B = cos(x)
+%%     C = im * B
+%%     D = A + C
+%%     return D
+%% end
+%% \end{lstlisting}
+%% %
+%% In contrast, the devectorized version of the same code
+
+%% \begin{lstlisting}
+%% function h3(x)
+%%     z = similar(x) #Construct array with same shape as x
+%%     for (i, y) in enumerate(x)
+%%         z[i] = sin(y) + im*cos(y)
+%%     end
+%% end
+%% \end{lstlisting}
+%% %
+%% computes the same result but avoids allocating temporary arrays and their
+%% concomitant overhead costs for heap allocation, memory access and garbage
+%% collection. Thus devectorized code is preferred in Julia as scalar loops are
+%% fast with minimal overhead~\cite{Bezanson2014b}. 
 
 
 \subsection{Vectorization and higher--order functions}
