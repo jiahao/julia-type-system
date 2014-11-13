@@ -86,13 +86,13 @@ MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
 become popular among technical computing users.
 
 Code written in these languages is difficult to execute efficiently;
-the dynamic nature of these languages poses significant challenges for
+the dynamic nature of these languages poses challenges for
 implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
 to greatly accelerate dynamic languages with various techniques, for
 technical computing the problem does not quite stop there. These systems
 crucially depend on large libraries of low-level code that provide array
 computing kernels (e.g. matrix multiply). Developing these libraries is a
-significant challenge, requiring a range of techniques including templates,
+challenge, requiring a range of techniques including templates,
 code generation, and manual code specialization.
 
 Julia~\footnote{Julia is free and open--source software available from
@@ -358,7 +358,7 @@ parametric types are invariant.
 
 Parametric invariance has some subtle consequences for Julia's type system.
 First, parametric types introduce many short, finite length chains into the
-type lattice. Consider the very simple type system of
+type lattice. Consider the simple type system of
 Figure~\ref{fig:lattice}a, with two leaf (instantiable types) types \textbf{1}
 and \textbf{2} representing singleton values 1 and 2 of the natural numbers,
 \verb|Nat|. A user can augment the lattice with a new parametric type
@@ -761,7 +761,7 @@ machine details (4), which are then used to decide which specific algorithms
 Many systems provide optimized implementations of standard libraries for
 numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
 LAPACK (Linear Algebra PACKage). Computational routines can be customized
-for individual microarchitectures and can reach a significant fraction of
+for individual microarchitectures and can reach a large fraction of
 theoretical peak FLOPS. However, these libraries inherit archaic Fortran 77
 interfaces and hence tend to restrict routine names to six letters or shorter.
 When combined with the lack of polymorphism in Fortran, the names are terse and
@@ -1001,14 +1001,14 @@ designed to capture the highly dynamic nature of this computation:
 	subtype of \verb|BlasFloat|. The reason for this check is that there
 	are two variants of the QR factorization: one pivoted, the other not.
 	The former is generally preferred for numerical stability but is also
-	significantly more difficult to compute, and hence is not yet
+	more difficult to compute, and hence is not yet
 	implemented for all possible element types.
 
 \end{enumerate}
 
 In theory, it is possible to combine these structured matrix types under a
 tagged union, e.g. in an ML-family language. However this would be
-significantly less convenient. The problem is that in most contexts,
+less convenient. The problem is that in most contexts,
 users are happy to have these objects separated by the type system, but
 certain functions like \code{factorize} wish to combine them. It should be
 possible to pass the result of such a function directly to an existing
@@ -1058,7 +1058,7 @@ end
 The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
 which allocates new memory for the answer, and \verb|bkfact!|, which mutates
 the matrix in place to save memory. Reasoning about memory use is critical in
-numerical linear algebra applications as the matrices may be very large.
+numerical linear algebra applications as the matrices may be large.
 Reusing allocated memory for matrices also avoids unnecessary copies of data to
 be made, potentially minimizing memory accesses and reducing the need to
 trigger garbage collection. The base library thus provides the latter for users
@@ -1076,7 +1076,7 @@ In Julia, the computation can be expressed simply as dispatch onto the method
 \code{mean(D::Distribution)}, with a different method for \code{mean} being
 defined for different \code{Distribution}s. In contrast, much scientific code
 is written in languages that lack generic functions, resulting in users having
-to keep track of a large family of very closely related functions which
+to keep track of a large family of closely related functions which
 together can be thought of as specialized methods for a polymorphic function.
 Table~\ref{statsfunctions} shows a family of closely related functions in the R
 programming language and their Julia counterparts in the
