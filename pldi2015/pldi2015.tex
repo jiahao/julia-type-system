@@ -6,11 +6,9 @@
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 \usepackage{amssymb}
-\usepackage{todonotes} %TODO Remove for final submission
+\usepackage{todonotes}
 
 \input{macros}
-
-\setcounter{tocdepth}{4} %TODO Remove for final submission
 
 \begin{document}
 
@@ -56,8 +54,6 @@ manifestations of multiple dispatch in Julia's standard library.
 
 %\keywords
 %Language design, run-time system
-
-\tableofcontents %TODO remove for final submission
 
 \section{Dynamic languages are useful for technical computing}
 
@@ -1205,8 +1201,6 @@ the Julia language.}
 %DMS-1016125, VMWare Research, a DOE grant with Dr. Andrew Gelman of Columbia
 %University for petascale hierarchical modeling, a Citibank grant for High
 %Performance Banking Data Analysis, and the Levine Fellowship.}
-
-\listoftodos %TODO remove from final submission
 
 \bibliographystyle{abbrvnat}
 \bibliography{pldi2015,websites}
