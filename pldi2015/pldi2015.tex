@@ -23,7 +23,7 @@
 %\titlebanner{banner above paper title}        % These are ignored unless
 \preprintfooter{DRAFT - do not distribute}   % 'preprint' option specified.
 
-\title{Multiple Dispatch for Technical Computing}
+\title{Multiple Dispatch and Parametric Types: Abstraction and Performance in Technical Computing}
 %\subtitle{Subtitle Text, if any}
 
 %\authorinfo{Jeff Bezanson \and Jake Bolewski \and Jiahao Chen \and Stefan Karpinski \and Jean Yang \and Alan Edelman}
@@ -93,7 +93,7 @@ Code written in these languages is difficult to execute efficiently;
 the dynamic nature of these languages poses challenges for
 implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
 to greatly accelerate dynamic languages with various techniques, for
-technical computing the problem does not quite stop there. These systems
+technical computing the problem does not stop there. These systems
 crucially depend on large libraries of low-level code that provide array
 computing kernels (e.g. matrix multiplication and other linear algebraic
 operations). Developing these libraries is a challenge, requiring a range of
@@ -182,9 +182,6 @@ In general, Julia's types allow the following aspects of a program to be reasone
 %
 Furthermore, types are first-class values, allowing programs that can compute
 on types and reason about all of the above.
-Julia's type inference, for example, which analyzes and annotates Julia
-code before machine code generation, is written in Julia itself and runs as
-normal code, manipulating both code and types as values.
 
 \subsection{Kinds of types}
 
@@ -312,7 +309,7 @@ join ($\vee$).
 \label{sec:typeparameters}
 
 \verb|Abstract| and \verb|Data| types can take one or more parameters. These
-types are superficially quite similar to parametric types in existing
+types are superficially similar to parametric types in existing
 languages, but are actually intended simply for expressing information, rather
 than implementing the formal theory of parametric polymorphism.
 
@@ -1072,8 +1069,10 @@ Reusing allocated memory for matrices also avoids unnecessary copies of data to
 be made, potentially minimizing memory accesses and reducing the need to
 trigger garbage collection. The base library thus provides the latter for users
 who need to reason about memory usage, and the former for users who do not.
-Additionally, the type parameter \verb|T| describing the element type allows
-for appropriate dispatch upon external LAPACK routines.
+
+The syntax \verb|{T<:BlasReal}| in a method definition implicitly wraps the
+signature in a \verb|UnionAll| type. As a result, the method matches all
+matrices whose elements are of a type supported by BLAS.
 
 
 \subsection{Generic functions for statistical library routines}
