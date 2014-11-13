@@ -903,38 +903,31 @@ is simplified by generic functions and multiple dispatch.}
 
 \section{Related Work}
 
+Languages with multimethods
+Cecil
+CLOS
+Clojure
+Dylan
+Xtend
+and moar.
+
+Languages supporting dynamic multiple dispatch
+CLOS
+Clojure
+Dylan
+Xtend
+
+Type systems of these languages
+
+How they resolve implementation details of dynamic multiple dispatch.
+
+
 Dynamic dispatch is more general than static dispatch since it covers cases
 which cannot be determined at compile time.  Common examples involve data
 retrieval with a persistent storage, generating string representations for text
 output or data serialization.\cite{Shields1998}
 
-\paragraph{Exotypes in Lua}
-Exotypes\cite{exotypes} provide to the Lua language\cite{lua} the analogue of
-macros that generate staged functions\cite{stagedfunc} in Julia.
 
-There are some notable differences, though:
-
-Exotypes are programmed in Terra,\cite{terra} a separate layer on top of the
-Lua host language, and method specialization must be explicitly invoked from
-within Terra. The syntax incurred by having two language layers creates an
-artificial distinction between built-in methods and user-defined methods that
-doesn't exist in Julia.
-
-Exotypes implement automatic broadcasting when there is a
-\code{\_\_methodmissing} property defined. Julia does not use automatic
-broadcasting to implement the Proxy design pattern.
-
-Julia uses an eager approach to resolving circularity in method definitions.
-Exotypes use lazy evaluation, although interestingly, earlier versions of Terra
-also used eager evaluation~\cite{terra}.
-
-\TODO{Multiple dispatch paradigm may obviate the need for exotypes in some uses and make exotypes more powerful in others}
-
-In a multiple dispatch paradigm, the issues brought up in Lua/Terra in wanting
-to being able to create types with an unbounded number of behaviors becomes
-irrelevant. There is a separation of functions and objects in Julia that
-obviates the need for lazily queried properties (although it may still be a
-more efficient implementation choice).
 
 \paragraph{Dylan}
 
@@ -963,6 +956,8 @@ to duck typing.
 An extension for Dylan allows for gradual typing, allowing for type information
 to be determined at compile time~\cite{Mehnert2010}.
 
+Dynamic multiple dispatch is opt-in.
+
 \paragraph{Haskell}
 
 The main strategy in Haskell to deal with types that are not statically
@@ -973,7 +968,9 @@ Dynamic typing in polymorphic languages
 M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming / Volume 5 / Issue 01 / January 1995, pp 111 - 130 DOI: 10.1017/S095679680000126X
 }
 
+CLOS
 
+Clojure
 
 \section{Implementation challenges}
 
@@ -1212,16 +1209,18 @@ specialization and flexible generality within a single programming language.
 Julia uses symmetric multiple dispatch where all arguments have equal priority
 for dispatch. This contrasts with some other languages like
 Cecil~\cite{Chambers1992,Chambers1994} and Dylan~\cite{dylanman}, which
-prioritize the arguments from left to right. Julia instead sorts methods by
-specificity~\cite{Bezanson2012}. For example, the function \verb|f| defined by 
+prioritize the arguments from left to right~\cite{Agarwal1991}. Julia instead
+sorts methods by specificity~\cite{Bezanson2012}. For example, the function
+\verb|f| defined by 
 
 \begin{lstlisting}
 f(x::Real, y::Int) = 1
 f(x::Int, y::Real) = 2
 \end{lstlisting}
 %
-results in a method ambiguity because it is not clear which method gets
-dispatched for inputs of type \verb|(Int, Int)|. To solve this problem, Julia
+results in a method ambiguity: because of subtype polymorphism, it is not clear
+which method gets dispatched for inputs of type \verb|(Int, Int)|. To solve
+this problem, Julia
 requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
 these two methods.
 
