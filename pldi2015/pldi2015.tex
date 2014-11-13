@@ -885,7 +885,31 @@ is simplified by generic functions and multiple dispatch.}
 
 
 
-\section{Performance}
+\section{Impact of static analyses on performance}
+
+Figure~\ref{fig:timings} shows the relative execution times of benchmark codes
+representing a wide variety of scientific applications, when various stages of
+static analyses are successively turned off. Relative to an unmodified Julia
+distribution, first the LLVM optimization passes were turned off, followed by tuple
+optimizations, function inlining, and finally type inference. The relative
+importances of each optimization pass were computed by taking ratios of
+consecutive timings with and without that particular optimization pass.
+
+On average, function inlining turned out to be the most important optimization
+for improving the speed of Julia code, speeding up code by an average factor
+19.93. Type inference came in second in importance at 6.89, followed by LLVM at
+1.53. Tuple-specific optimizations, which were thought to be important, turned
+out to have almost no effect on execution speed, with an average contribution
+of 0.99.
+
+\begin{figure*}
+	\includegraphics[width=\textwidth]{fig-timings}
+	\caption{Relative contributions of various optimization passes to
+	performance of Julia code implementing a representative collection
+	of benchmarks. Bars from top to bottom represent: LLVM
+	optimizations, tuple optimizations, function inlining, and type inference.}
+	\label{fig:timings}
+\end{figure*}
 
 
 
