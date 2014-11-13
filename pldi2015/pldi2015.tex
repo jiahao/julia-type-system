@@ -1070,8 +1070,10 @@ Reusing allocated memory for matrices also avoids unnecessary copies of data to
 be made, potentially minimizing memory accesses and reducing the need to
 trigger garbage collection. The base library thus provides the latter for users
 who need to reason about memory usage, and the former for users who do not.
-Additionally, the type parameter \verb|T| describing the element type allows
-for appropriate dispatch upon external LAPACK routines.
+
+The syntax \verb|{T<:BlasReal}| in a method definition implicitly wraps the
+signature in a \verb|UnionAll| type. As a result, the method matches all
+matrices whose elements are of a type supported by BLAS.
 
 
 \subsection{Generic functions for statistical library routines}
