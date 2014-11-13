@@ -835,14 +835,153 @@ that specialized algorithms for symmetric matrices exist.
 	\label{fig:sqrtm}
 \end{figure}
 
-\paragraph{factorize}
+\subsection{Matrix factorization types}
+
 The \code{factorize} function in Julia is another, more extreme example of how
 dynamic multiple dispatch can be used to detect matrix symmetries and structure
 (e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
 and compute appropriate matrix factorizations that best take advantage of the
 detected matrix properties. The output is a matrix factorization object whose
 specific type is only defined at runtime depending on the specific matrix
-properties that are detected at runtime. For example, calling \code{factorize}
+properties that are detected at runtime.
+
+Here is the implementation of \verb|factorize| in the base library (annotated
+for presentation):
+
+\begin{lstlisting}
+function factorize{T}(A::Matrix{T})
+    m, n = size(A)
+    if m ==n #Is matrix square?
+	#The factorization of a 1x1 matrix is just itself
+        if m==1 return A[1] end
+	
+	#Is matrix upper triangular?
+	utri = istriu(A)
+	#Is matrix upper Hessenberg?
+	utri1 = ishessenbergu(A)
+	#Is matrix symmetric?
+	sym = issym(A)
+	#Is matrix Hermitian?
+	herm = ishermitian(A)
+	#Is matrix lower triangular
+	ltri = istril(A)
+	#Is matrix lower Hessenberg?
+	ltri1 = ishessenbergl(A)
+                    
+	if ltri && utri
+	    # A is both lower and upper triangular
+	    # i.e. A is Diagonal
+	    return Diagonal(A)
+	elseif ltri && utri1
+	    # A is lower triangular and upper Hessenberg
+	    # i.e. A is upper Bidiagonal
+	    return Bidiagonal(diag(A), diag(A, -1), false)
+	elseif ltri
+	    # A is is lower Triangular
+	    return Triangular(A, :L)
+	elseif ltri1 && utri
+	    # A is lower Hessenberg and upper triangular
+	    # i.e. A is lower bidiagonal
+	    return Bidiagonal(diag(A), diag(A, 1), true)
+	elseif ltri1 && utri1
+	    # A is both lower and upper Hessenberg
+	    # i.e. A is tridiagonal
+	    if (herm && (T <: Complex)) || sym
+	        # A is symmetric tridiagonal
+		M = SymTridiagonal(diag(A), diag(A, -1))
+		# _may_ be factorizable into
+		# LDL' Cholesky form
+		try
+		    return ldltfact!(M)
+                end
+	    end
+	    # A is tridiagonal
+	    M = Tridiagonal(diag(A,-1), diag(A), diag(A,1))
+	    # Factorize into tridiagonal LU form
+	    return lufact!(M)
+	elseif utri
+	    # A is upper triangular
+	    return Triangular(A, :U)
+	elseif herm
+	    # A is Hermitian
+	    # _may_ be factorizable into Cholesky form
+	    try
+	        return cholfact(A)
+	    end
+	    # else use general Hermitian factorization
+	    return factorize(Hermitian(A))
+	elseif sym
+	    # use general Symmetric factorization
+	    return factorize(Symmetric(A))
+	else # A is square but has no other symmetries
+	    # Factorize into LU form
+	    return lufact(A)
+        end
+    end #cases for square matrix A
+
+    # A is rectangular
+    
+    # Can the result of a QR factorization be represented
+    # using a floating point type supported by BLAS?
+    const BlasFloat = Union(Float32, Float64, Complex64,
+        Complex128)
+    canuseBlasFloat = typeof(zero(T)/sqrt(zero(T) +
+        zero(T)))<:BlasFloat)
+
+    # Factorize into pivoted QR form where possible,
+    # otherwise compute (unpivoted) QR form
+    return qrfact(A, pivot=canuseBlasFloat)
+end
+
+
+# Factorize a Hermitian or Symmetric matrix into
+# Bunch-Kaufman form as computed by bkfact
+typealias HermOrSym Union(Hermitian, Symmetric)
+factorize(A::HermOrSym) = bkfact(A.data, symbol(A.uplo),
+    issym(A))
+\end{lstlisting}
+
+It is also instructive to look more carefully at the methods for \verb|bkfact|,
+which is but one of the several factorizations computed in \verb|factorize|:
+
+\begin{lstlisting}
+# Compute Bunch-Kaufman factorization,
+# allocating new memory for the answer
+bkfact{T<:BlasFloat}(A::StridedMatrix{T},
+        uplo::Symbol=:U, symmetric::Bool=issym(A)) =
+    bkfact!(copy(A), uplo, symmetric)
+
+bkfact{T}(A::StridedMatrix{T}, uplo::Symbol=:U,
+        symmetric::Bool=issym(A)) = bkfact!(convert(
+    Matrix{promote_type(Float32,typeof(sqrt(one(T))))},A),
+    uplo,symmetric)
+
+# Compute Bunch-Kaufman factorization in-place
+
+# For real symmetric matrices, call LAPACK SSYTRF or
+# SSYTRF routine for T==Float32 or T==Float64 respectively
+function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
+        uplo::Symbol=:U, symmetric::Bool=issym(A))
+    symmetric || error("The Bunch-Kaufman decomposition
+is only valid for symmetric matrices")
+    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo) , A)
+
+    #Wrap answer in BunchKaufman type
+    BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
+end
+
+# For complex symmetric matrices, call LAPACK CSYTRF/ZSYTRF
+# for T==Complex64/Complex128, and for complex Hermitian
+# matrices, call the CHETRF/ZHETRF routines 
+function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
+	uplo::Symbol=:U, symmetric::Bool=issym(A))
+    LD, ipiv = (symmetric ? LAPACK.sytrf! :
+        LAPACK.hetrf!)(char_uplo(uplo) , A)
+    BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
+end
+\end{lstlisting}
+
+For example, calling \code{factorize}
 on a symmetric positive definite matrix returns a \code{Cholesky} type
 representing a Cholesky factorization, whereas a symmetric indefinite matrix
 would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
