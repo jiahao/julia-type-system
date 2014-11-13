@@ -64,22 +64,25 @@
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
-Users writing code for the purposes of discovery often by definition do not
-know what computations they need upfront, but rather discover what they want by
-iterating through several different prototypes. Consequently, technical
-computing code is often the product of an organic process of continuous
+Users writing such exploratory code do not typically
+know what computations they need to perform at the outset of their word.
+Rather, they discover what they want by iterating through several different
+prototypes -- often dozens or even hundreds of them. Consequently, technical
+computing code tends to be the product of an organic process of continuous
 experimentation.
 
-Statically--typed languages focus on proving properties of programs, and constrain
+Statically-typed languages focus on proving properties of programs, and constrain
 the set of allowed programs in order to do so~\cite{Pierce2002}.
-These restrictions can occasionally collide with the way the user would
+These restrictions can occasionally conflict with how a user would
 prefer to think about a problem. In fact this is especially likely to happen
-when an answer can be justified mathematically or by specialized domain
-knowledge in a way not anticipated by the type system.
-In contrast,
-dynamic languages embody a realist philosophy: programs are not checked for
-correctness, but are executed until termination or when a runtime error is
-thrown. The focus is to make sense out of whatever program a user may write.
+when an answer can be justified by specialized domain knowledge that
+cannot be expressed in the type system.
+In contrast, dynamic languages embody a realist philosophy:
+the representation and behavior of values flowing through programs at runtime
+take precedence over what can be proved about them in advance.
+Programs are not required to be checked for provable correctness,
+but rather they are executed until the program terminates or a runtime error occurs.
+The focus is to make sense out of whatever program a user may write.
 
 In other words, a scientist will often run a program in order to find out what
 it does---\emph{proving} anything about what it does would be premature, and an
