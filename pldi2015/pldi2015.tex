@@ -40,8 +40,8 @@
   software stacks, often involving multiple languages and custom code generators.
   We believe this is ultimately due to key characteristics of the domain:
   highly complex operators, a need for extensive code specialization for
-  performance, and a desire for permissive high-level programming styles
-  allowing highly productive experimentation.
+  performance, and a desire for permissive high--level programming styles
+  allowing productive experimentation.
 
   The Julia language attempts to provide a more effective structure
   for this kind of programming by allowing programmers to express complex
@@ -50,7 +50,7 @@
   permitted by this paradigm have proven valuable for technical computing.
   We report on how this approach has allowed domain experts to express
   useful abstractions while simultaneously providing a natural path to better
-  performance for high-level technical code.
+  performance for high--level technical code.
 \end{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
@@ -73,15 +73,14 @@ experimentation.
 
 Statically-typed languages focus on proving properties of programs, and constrain
 the set of allowed programs in order to do so~\cite{Pierce2002}.
-These restrictions can occasionally conflict with how a user would
-prefer to think about a problem. In fact this is especially likely to happen
-when an answer can be justified by specialized domain knowledge that
-cannot be expressed in the type system.
+These restrictions may run counter to how users want to reason about a problem,
+particularly when an answer can be justified by specialized domain knowledge that
+cannot readily be expressed in the type system.
 In contrast, dynamic languages embody a realist philosophy:
 the representation and behavior of values flowing through programs at runtime
 take precedence over what can be proved about them in advance.
-Programs are not required to be checked for provable correctness,
-but rather they are executed until the program terminates or a runtime error occurs.
+Programs are not checked for provable correctness,
+rather they are executed until the program terminates or a run-time error occurs.
 The focus is to make sense out of whatever program a user may write.
 
 In other words, a scientist will often run a program in order to find out what
@@ -95,16 +94,17 @@ the dynamic nature of these languages poses challenges for
 implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
 to greatly accelerate dynamic languages with various techniques, for
 technical computing the problem does not quite stop there. These systems
-crucially depend on large libraries of low-level code that provide array
-computing kernels (e.g. matrix multiply). Developing these libraries is a
-challenge, requiring a range of techniques including templates,
-code generation, and manual code specialization.
+crucially depend on large libraries of low--level code that provide array
+computing kernels (e.g. matrix multiplication and other linear algebraic
+operations). Developing these libraries is a challenge, requiring a range of
+techniques including templates, code generation, and manual code
+specialization.
 
 Julia~\footnote{Julia is free and open--source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
 the behavior of the v0.3.2 point release.} is a dynamic language designed to
-make it easier to express and organize this kind of functionality, while
-attempting to maintain the ease-of-use of existing high--level
+help users express and organize the diverse functionality required for technical computing problems, while
+attempting to maintain the ease--of--use of existing high--level
 languages~\cite{Bezanson2012,Bezanson2014b}.
 
 The language is built on polymorphic data and code:
@@ -1157,7 +1157,7 @@ consecutive timings with and without that particular optimization pass.
 On average, function inlining turned out to be the most important optimization
 for improving the speed of Julia code, speeding up code by an average factor
 19.93. Type inference came in second in importance at 6.89, followed by LLVM at
-1.53. The allocation/elision optimization measured here turned
+1.53. The allocation elision optimization measured here turned
 out to have almost no effect on execution speed, with an average contribution
 of 0.99.
 
