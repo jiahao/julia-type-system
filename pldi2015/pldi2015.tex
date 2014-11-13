@@ -322,9 +322,11 @@ defining a \verb|Union| of what kinds of indexes may be used, then uses this
 definition to define indexed views:
 
 \begin{lstlisting}
-  typealias RangeIndex Union(Int, Range{Int}, UnitRange{Int})
+  typealias RangeIndex Union(Int,Range{Int},UnitRange{Int})
 
-  type SubArray{T,N,A<:AbstractArray,I<:(RangeIndex...,)} <: AbstractArray{T,N}
+  type SubArray{T, N,
+		A<:AbstractArray,
+		I<:(RangeIndex...,)} <: AbstractArray{T,N}
       # definition body omitted
   end
 \end{lstlisting}
