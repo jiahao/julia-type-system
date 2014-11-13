@@ -1102,11 +1102,15 @@ is simplified by generic functions and multiple dispatch.}
 \section{Impact of static analyses on performance}
 
 Figure~\ref{fig:timings} shows the relative execution times of benchmark codes
-representing a wide variety of scientific applications, when various stages of
-static analyses are successively turned off. Relative to an unmodified Julia
+representing a wide variety of scientific applications, when various optimizations
+and analyses are successively turned off. Relative to an unmodified Julia
 distribution, first the LLVM optimization passes were turned off, followed by
 some optimizations to elide allocation of tuples, function inlining, and finally
-type inference. The relative
+type inference. The results of type inference are used directly to perform
+compile-time method lookup, while inference itself is only an analysis with
+no performance effect. Therefore
+we report on these technically-separate steps as a single item.
+The relative
 importances of each optimization pass were computed by taking ratios of
 consecutive timings with and without that particular optimization pass.
 
