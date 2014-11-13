@@ -826,6 +826,23 @@ that specialized algorithms for symmetric matrices exist.
 	\label{fig:sqrtm}
 \end{figure}
 
+\paragraph{factorize}
+The \code{factorize} function in Julia is another, more extreme example of how
+dynamic multiple dispatch can be used to detect matrix symmetries and structure
+(e.g.\ if a matrix is diagonal, symmetric tridiagonal, upper triangular, etc.)
+and compute appropriate matrix factorizations that best take advantage of the
+detected matrix properties. The output is a matrix factorization object whose
+specific type is only defined at runtime depending on the specific matrix
+properties that are detected at runtime. For example, calling \code{factorize}
+on a symmetric positive definite matrix returns a \code{Cholesky} type
+representing a Cholesky factorization, whereas a symmetric indefinite matrix
+would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
+instead. Positive definiteness is a good example of a matrix property that can
+be difficult to determine \textit{a priori} and the fastest way to detect it
+would be to attempt to compute a matrix factorization that succeeds only on
+postiive definite matrices (such as the Cholesky decomposition), and fallback
+to returning a different type if the computation failed.
+
 
 \subsection{Generic functions for statistical library routines}
 
