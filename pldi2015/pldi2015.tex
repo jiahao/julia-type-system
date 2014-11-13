@@ -184,10 +184,10 @@ Julia has different kinds of types which can be formally summarized as:
 Type ::= Abstract | Data | Tuple | Union | UnionAll
 Tag ::= Data | Tuple
 
-Data ::= Name (Type...) Abstract } invariant, nominative
-Abstract ::= Name (Type...) Abstract }
+Data ::= Name (Type...) Abstract # invariant, nominative
+Abstract ::= Name (Type...) Abstract
 Tuple ::= (Type$_1$, Type$_2$...) |
-          (Type$_1$, Type$_2$, ..., Type$_n$) } covariant
+          (Type$_1$, Type$_2$, ..., Type$_n$) # covariant
 Union ::= Union(Type$_1$, Type$_2$, ...)
 UnionAll ::= UnionAll T<:Type . Type
 \end{lstlisting}
