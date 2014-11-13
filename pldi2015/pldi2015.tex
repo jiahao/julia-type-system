@@ -1166,7 +1166,7 @@ of 0.99.
 
 Julia uses symmetric multiple dispatch where all arguments have equal priority
 for dispatch. This contrasts with some other languages like
-Cecil~\cite{Chambers1992,Chambers1994} and Dylan~\cite{dylanman}, which
+Dylan~\cite{dylanman}, which
 prioritize the arguments from left to right~\cite{Agrawal1991}. Julia instead
 sorts methods by specificity~\cite{Bezanson2012}. For example, the function
 \verb|f| defined by 
@@ -1270,7 +1270,7 @@ are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp with
 CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
 These languages also differ in the dispatch rules: Cecil, like Julia, employs
 symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
-arguments from leftmost to rightmost, and Clojure's dispatch rules are
+arguments from left to right, and Clojure's dispatch rules are
 customizable based on user--specifiable rules. The method dispatchers are also
 limited in their expressiveness by the type system of their host languages.
 Clojure's multimethods are not a core language construct and hence interact
