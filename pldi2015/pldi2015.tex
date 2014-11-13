@@ -1183,34 +1183,31 @@ requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
 these two methods.
 
 Method ambiguity warnings were intended to reveal problems in multimethod
-definitions. However, at other times it is a major nuisance for library
+definitions. However, at other times it is a nuisance for library
 writers. The canonical example is trying to use \package{Images.jl} and
 \package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
 type with additional subclasses in mutually incompatible ways. Adding an image
 and a data frame is nonsensical and should return an error in client code that
 attempts to do so. However, the method ambiguities are detected when a package
-is loaded and compiled, throwing ambiguity warnings which may pertain to method
-definitions that are never used. In practice, most user code avoids nonsensical
-uses, but have other intentions in mind for using different functionality from
-both packages in the same code. Nevertheless, the ambiguity warnings are
-emitted even for code that avoids using the ambiguous methods in question.
+is loaded and compiled, printing ambiguity warnings which pertain to method
+definitions that are likely never used.
 Library writers are therefore faced with the unpleasant task of defining
-disambiguating methods solely to suppress compile--time warnings, or otherwise
+disambiguating methods solely to suppress warnings, or otherwise
 avoid the issue entirely by not using subtyping features of Julia, which could
 reduce code reuse.
 
 Work is underway to turn such method ambiguity warnings into run--time errors,
-so that the responsibility of not running nonsensical methods is devolved onto
-user client code, rather than burdening library writers with the need to
-second--guess every conceivable corner case in the use of their libraries.
+so that the responsibility of not running nonsensical method calls is moved to
+user code.
 
 \subsection{Type stability}
 
 New users migrating from other dynamic languages like MATLAB, Python and R are
-often surprised that direct, line--for--line translations to Julia do not
-achieve claimed C--like performance. Empirical reports~\cite{julia-users}
-indicate that such users are unfamiliar with reasoning about types. One common
-pitfall is \textbf{type instability}, which is exemplified in the following
+sometimes surprised when direct, line--for--line translations to Julia do not
+achieve claimed C--like performance.
+%Empirical reports~\cite{julia-users}
+%indicate that such users are unfamiliar with reasoning about types.
+One common pitfall is \textbf{type instability}, which is exemplified in the following
 code:
 
 \begin{lstlisting}
@@ -1227,10 +1224,14 @@ This seemingly innocuous routine runs slowly because \verb|x| is initialized to
 \verb|y| of type \verb|Float64| and so within the inner loop undergoes type
 promotion to \verb|promote_type(Int,Float64)| \verb|== Float64|. The data flow
 analysis thus cannot deduce that \verb|x| is a concrete type, but only that it
-is of type \verb|Union(Int,| \verb|Float64)|. Thus the generated LLVM code must
-call back to the Julia runtime to determine the value's actual type, and hence
-boxes the value \verb|x|. As a result, \verb|x| cannot be mapped onto an LLVM
-register, but must instead be heap allocated.
+is of type \verb|Union(Int,| \verb|Float64)|. Thus the value's tag must be
+stored and examined at run time.
+
+This behavior results in part from a refusal to special-case type promotions
+within the language. Instead Julia pedantically tracks the tags of values to
+ensure that the correct method (based on run-time types) is always called.
+Of course, it is possible to improve the performance of such code using
+speculative optimizations, but this has not been implemented yet.
 
 Another class of type instabilities results from the subtle interaction of
 parametric invariance, the use of non-leaf type parameters and type promotion.
@@ -1255,7 +1256,7 @@ which promotes the real and imaginary components to a common supertype (in this
 case, \verb|Float64|). Since type parameters are invariant, the resulting type
 is neither a subtype nor a supertype of the original type.
 
-Most static languages like C require users to explicitly reason about type
+Most static languages require users to explicitly reason about type
 instabilities (e.g.\ by requiring type casts); most dynamic languages allow
 type--unstable code, but at the price of degraded performance. Julia allows
 users to inspect the results of type inference and modify their codes to
