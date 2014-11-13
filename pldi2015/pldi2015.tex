@@ -40,7 +40,7 @@
   software stacks, often involving multiple languages and custom code generators.
   We believe this is ultimately due to key characteristics of the domain:
   highly complex operators, a need for extensive code specialization for
-  performance, and a desire for permissive high-level programming models that
+  performance, and a desire for permissive high--level programming models that
   support experimentation.
   The Julia language attempts to provide a more effective structure
   for this kind of programming, by employing dynamic multiple dispatch over
@@ -48,7 +48,7 @@
   permitted by this style are especially valuable for technical computing.
   Here we report on how this paradigm can and has been used to
   express abstractions useful to domain experts, while also providing
-  a natural path to better performance for high-level technical code.
+  a natural path to better performance for high--level technical code.
 \end{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
@@ -68,7 +68,7 @@ iterating through several different prototypes. Consequently, technical
 computing code is often the product of an organic process of continuous
 experimentation.
 
-Statically-typed languages focus on proving properties of programs, and constrain
+Statically--typed languages focus on proving properties of programs, and constrain
 the set of allowed programs in order to do so~\cite{Pierce2002}.
 These restrictions can occasionally collide with the way the user would
 prefer to think about a problem. In fact this is especially likely to happen
@@ -99,7 +99,7 @@ Julia~\footnote{Julia is free and open--source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
 the behavior of the v0.3.2 point release.} is a dynamic language designed to
 make it easier to express and organize this kind of functionality, while
-attempting to maintain the ease-of-use of existing high-level
+attempting to maintain the ease-of-use of existing high--level
 languages~\cite{Bezanson2012,Bezanson2014b}.
 
 The language is built on polymorphic data and code:
@@ -138,7 +138,7 @@ extensively---we might even say gleefully. The key property of multiple
 dispatch for this domain seems to be that it allows programs (particularly libraries)
 to be written incrementally, in small pieces, where each piece has a method signature
 specifying \emph{declaratively} how it fits into the whole.
-More sophisticated types make this process work better, since they allow new
+More sophisticated types ease this process, since they allow new
 definitions to be added in more situations.
 
 
@@ -162,7 +162,7 @@ Julia instead allows type tags with nested structure, indeed forming nearly
 arbitrary symbolic expressions. This has two immediate benefits: first,
 it expands the criteria programmers have available for dispatching, and second,
 provides more information to the compiler. Julia's type tags are designed
-to form a lattice structure, which enables effective dataflow analysis.
+to form a lattice structure, which enables effective data flow analysis.
 In general, Julia's types allow programs to reason about:
 
 \begin{itemize}
@@ -172,7 +172,7 @@ In general, Julia's types allow programs to reason about:
 \item what can be statically known about a potential value.
 \end{itemize}
 %
-Furthermore, types are first-class values, allowing programs that can compute
+Furthermore, types are first--class values, allowing programs that can compute
 on types and reason about all of the above.
 
 
@@ -199,7 +199,7 @@ UnionAll ::= UnionAll T<:Type . Type
 	\begin{description}
 	
 	\item[Bits types] like double precision floating point numbers
-	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which can
+	(\verb|Float64|) and 32--bit signed integers (\verb|Int32|), which can
 	be stored unboxed as raw bits without tag overhead,
 
 	\item[Abstract data types] which have an internal representation
@@ -360,7 +360,7 @@ Parametric invariance has some subtle consequences for Julia's type system.
 First, parametric types introduce many short, finite length chains into the
 type lattice. Consider the simple type system of
 Figure~\ref{fig:lattice}a, with two leaf (instantiable types) types \textbf{1}
-and \textbf{2} representing singleton values 1 and 2 of the natural numbers,
+and \textbf{2} representing singleton values 1 and 2 of the natural numbers
 \verb|Nat|. A user can augment the lattice with a new parametric type
 \verb|S{T}|. If there is no restriction whatsoever on the type parameter
 \verb|T|, then there are 5 different parametric types of the form \verb|S{T}|.
@@ -482,15 +482,16 @@ explicitly reasoning about types, the ability to do so is sometimes necessary fo
 understanding code performance issues. Julia provides the \verb|convert(T, x)|
 function which converts a value \verb|x| to its corresponding representation in
 the type \verb|T|. This is a generic function like any other, but since
-\verb|T| is typically a compile-time constant this can serve as a mechanism for
-limiting polymorphism in codes where performance considerations are important.
+\verb|T| is typically a compile--time constant, \verb|convert| this can serve
+as a mechanism for limiting polymorphism in codes where performance
+considerations are important.
 
-Notice that the idea of converting a value of type \verb|A| to type \verb|B|
+The idea of converting a value of type \verb|A| to type \verb|B|
 does not naturally belong to one type or the other, which favors multiple
 dispatch over classes. Conversion also benefits from open extension:
 mathematical objects often have embeddings in multiple domains, not all of
 which might be known or desired by the original author of some code. For
-example numbers can be embedded in matrices as diagonal matrices, but not
+example, numbers can be embedded in matrices with diagonal matrices, but not
 all users are likely to find this correspondence helpful.
 
 
@@ -602,7 +603,7 @@ criteria on the allowed variances of types~\cite{Allen2011}.
 
 It is well known that type inference can be used to move tag manipulations
 and method lookup to compile time, thus eliminating most overhead from
-the execution of dynamically-typed code~\cite{Kaplan1977,Kaplan1980}.
+the execution of dynamically--typed code~\cite{Kaplan1977,Kaplan1980}.
 Data flow type inference~\cite{Nielson2005,Khedker2009}
 is especially useful in this context, as its
 flow-sensitivity yields good type information even if the type of a program
@@ -615,13 +616,13 @@ it yields correct deductions about types that, in the best case, allow
 overhead to be removed entirely. This property is important to technical
 users, who need languages that can match the performance of C and Fortran.
 
-Unfortunately data flow type inference is relatively easily defeated
+Unfortunately, data flow type inference can be defeated
 by dynamic language programs that are too ``type complex''. If the library
 functions used might return too many different types, or there are too
 many paths through user code, the resulting type information might not
 be useful.
 
-Julia's design was intended to help mitigate this problem. By encouraging
+Julia was designed to help mitigate this problem. By encouraging
 code to be written in small pieces labeled with type information (for
 dispatch), it is easier for the compiler to rule out execution paths
 that do not actually occur.
@@ -680,7 +681,7 @@ the types of variables.
 \end{enumerate}
 %
 External packages like \package{TypeCheck.jl} and \package{Lint.jl} provide
-further static analyses which are useful for detecting type-related issues.
+further static analyses which are useful for detecting type--related issues.
 
 
 \section{Applications in technical computing}
@@ -731,9 +732,9 @@ can be built entirely from other language constructs.
 
 \subsection{Numerical linear algebra library}
 
-Designing a general-purpose linear algebra library involves several different
+Designing a general--purpose linear algebra library involves several different
 layers of complexity, and has been described as implementing the following
-meta-program~\cite{Demmel2007}:
+meta=-program~\cite{Demmel2007}:
 
 {\small
 \begin{verbatim}
@@ -753,10 +754,10 @@ meta-program~\cite{Demmel2007}:
 \end{verbatim}
 }
 %
-The six-tiered hierarchy neatly delineates how the basic collection of linear
-algebra problems (1) have to be specialized by data representation (2-3) and
+The six--tiered hierarchy neatly delineates how the basic collection of linear
+algebra problems (1) have to be specialized by data representation (2---3) and
 machine details (4), which are then used to decide which specific algorithms
-(5-6) to use.
+(5---6) to use.
 
 Many systems provide optimized implementations of standard libraries for
 numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
@@ -771,12 +772,12 @@ with double precision floating point entries (\verb|D|), and furthermore takes
 eight positional arguments specifying the inputs, outputs, computation mode,
 and scratch variables. The lack of polymorphism results in redundancy due to
 lack of code reuse, which hinders the implementation of new algorithms (which
-have to be reimplemented for each level of floating-point precision) and new
-routines for such as mixed-precision and quad precision routines (which must
+have to be reimplemented for each level of floating--point precision) and new
+routines for such as mixed--precision and quad precision routines (which must
 implement all the existing algorithms).
 
 The code redundancy problem is largely ameliorated with the combination of type
-polymorphism and dynamic multiple dispatch. The six-tiered hierarchy above maps
+polymorphism and dynamic multiple dispatch. The six--tiered hierarchy above maps
 naturally onto different language constructs in Julia as follows:
 
 \vspace{12pt}
@@ -793,7 +794,7 @@ naturally onto different language constructs in Julia as follows:
 \vspace{12pt}
 
 The generic function system allows for fast specializations and generic
-fall-backs to coexist, thus allowing for speed when possible and flexibility
+fall--backs to coexist, thus allowing for speed when possible and flexibility
 otherwise. For example, Julia provides generic fall-back routines to do matrix
 computations over arbitrary fields of element types, providing the ability to
 compute on numeric types which are not mappable to hardware floating point
@@ -1007,7 +1008,7 @@ designed to capture the highly dynamic nature of this computation:
 \end{enumerate}
 
 In theory, it is possible to combine these structured matrix types under a
-tagged union, e.g. in an ML-family language. However this would be
+tagged union, e.g.\ in an ML--family language. However this would be
 less convenient. The problem is that in most contexts,
 users are happy to have these objects separated by the type system, but
 certain functions like \code{factorize} wish to combine them. It should be
@@ -1055,7 +1056,7 @@ function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
 end
 \end{lstlisting}
 
-The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
+The Bunch--Kaufman routines are implemented in two functions: \verb|bkfact|,
 which allocates new memory for the answer, and \verb|bkfact!|, which mutates
 the matrix in place to save memory. Reasoning about memory use is critical in
 numerical linear algebra applications as the matrices may be large.
@@ -1138,9 +1139,9 @@ and analyses are successively turned off. Relative to an unmodified Julia
 distribution, first the LLVM optimization passes were turned off, followed by
 some optimizations to elide allocation of tuples, function inlining, and finally
 type inference. The results of type inference are used directly to perform
-compile-time method lookup, while inference itself is only an analysis with
+compile--time method lookup, while inference itself is only an analysis with
 no performance effect. Therefore
-we report on these technically-separate steps as a single item.
+we report on these technically separate steps as a single item.
 The relative
 importances of each optimization pass were computed by taking ratios of
 consecutive timings with and without that particular optimization pass.
@@ -1148,7 +1149,7 @@ consecutive timings with and without that particular optimization pass.
 On average, function inlining turned out to be the most important optimization
 for improving the speed of Julia code, speeding up code by an average factor
 19.93. Type inference came in second in importance at 6.89, followed by LLVM at
-1.53. The allocation-elision optimization measured here turned
+1.53. The allocation/elision optimization measured here turned
 out to have almost no effect on execution speed, with an average contribution
 of 0.99.
 
