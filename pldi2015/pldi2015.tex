@@ -863,208 +863,148 @@ $O(N^2)$ cost. Others, like whether a matrix is positive definite, require an
 $O(N^3)$ computation in the general case, and is most efficiently determined by
 attempting to compute the Cholesky factorization.
 
-The resulting algorithm for determining a useful matrix factorization has to
+The resulting algorithm for determining a useful matrix factorization for solving a
+set of linear equations, $Ax=b$, has to
 capture the interplay between allowing the user to specify additional matrix
 properties and attempting to automatically detect useful properties when the
-additional cost of doing so is not prohibitive. The general case is implemented
-in Julia's base library by the \verb|factorize| function, and typifies the
-complexity associated with numerical codes: 
+additional cost of doing so is not prohibitive. This can be illustrated by Julia's
+\texttt{\textbackslash} function. The user has the option of choosing a specific
+interpretation for the left hand side matrix $A$ and use that information for dispatch.
+In case the matrix is positive definite by \texttt{cholfact(A)\textbackslash b} or if 
+triangular simply by \texttt{Triangular(A)\textbackslash b}
+
+When no information is provided, i.e. \texttt{A\textbackslash b}, the left hand side is
+analyzed for structure. The code takes the following form:
+
+% The general case is implemented
+% in Julia's base library by the \verb|factorize| function, and typifies the
+% complexity associated with numerical codes:
 
 \begin{lstlisting}
-function factorize{T}(A::Matrix{T})
+function (\)(A::StridedMatrix, B::StridedVecOrMat)
     m, n = size(A)
-    if m ==n #Is matrix square?
-	#The factorization of a 1x1 matrix is just itself
-        if m==1 return A[1] end
-	
-	#Is matrix upper triangular?
-	utri = istriu(A)
-	#Is matrix upper Hessenberg?
-	utri1 = ishessenbergu(A)
-	#Is matrix symmetric?
-	sym = issym(A)
-	#Is matrix Hermitian?
-	herm = ishermitian(A)
-	#Is matrix lower triangular
-	ltri = istril(A)
-	#Is matrix lower Hessenberg?
-	ltri1 = ishessenbergl(A)
-                    
-	if ltri && utri
-	    # A is both lower and upper triangular
-	    # i.e. A is Diagonal
-	    return Diagonal(A)
-	elseif ltri && utri1
-	    # A is lower triangular and upper Hessenberg
-	    # i.e. A is upper Bidiagonal
-	    return Bidiagonal(diag(A), diag(A, -1), false)
-	elseif ltri
-	    # A is is lower Triangular
-	    return Triangular(A, :L)
-	elseif ltri1 && utri
-	    # A is lower Hessenberg and upper triangular
-	    # i.e. A is lower bidiagonal
-	    return Bidiagonal(diag(A), diag(A, 1), true)
-	elseif ltri1 && utri1
-	    # A is both lower and upper Hessenberg
-	    # i.e. A is tridiagonal
-	    if (herm && (T <: Complex)) || sym
-	        # A is symmetric tridiagonal
-		M = SymTridiagonal(diag(A), diag(A, -1))
-		# _may_ be factorizable into
-		# LDL' Cholesky form
-		try
-		    return ldltfact!(M)
-                end
-	    end
-	    # A is tridiagonal
-	    M = Tridiagonal(diag(A,-1), diag(A), diag(A,1))
-	    # Factorize into tridiagonal LU form
-	    return lufact!(M)
-	elseif utri
-	    # A is upper triangular
-	    return Triangular(A, :U)
-	elseif herm
-	    # A is Hermitian
-	    # _may_ be factorizable into Cholesky form
-	    try
-	        return cholfact(A)
-	    end
-	    # else use general Hermitian factorization
-	    return factorize(Hermitian(A))
-	elseif sym
-	    # use general Symmetric factorization
-	    return factorize(Symmetric(A))
-	else # A is square but has no other symmetries
-	    # Factorize into LU form
-	    return lufact(A)
+    if m == n
+        if istril(A)
+            return istriu(A) ?
+                \(Diagonal(A),B) : \(Triangular(A, :L),B)
         end
-    end #cases for square matrix A
+        istriu(A) && return \(Triangular(A, :U),B)
+        return \(lufact(A),B)
+    end
+    return qrfact(A)\B
+end\end{lstlisting}
 
-    # A is rectangular
-    
-    # Can the result of a QR factorization be represented
-    # using a floating point type supported by BLAS?
-    const BlasFloat = Union(Float32, Float64, Complex64,
-        Complex128)
-    canuseBlasFloat = typeof(zero(T)/sqrt(zero(T) +
-        zero(T)))<:BlasFloat)
+The matrix is initially checked for being square and, if not, the matrix \texttt{A}
+is QR factorized and the least squares problem $\min_x\|b-Ax\|$ is solved. When
+the matrix \texttt{A} is square, it is checked for being triangular and the if is
+found to be so, the structure is exploited to solve $Ax=b$. If the matrix is not found to be
+triangular, it is LU factorized and the method dispatches to solver specialized for LU factorizations.
+It is possible to check for symmetry and positive definiteness, but these checks are considered too
+expensive to be worthwhile.
 
-    # Factorize into pivoted QR form where possible,
-    # otherwise compute (unpivoted) QR form
-    return qrfact(A, pivot=canuseBlasFloat)
-end
+% The \verb|factorize| function contains a few interesting features
+% designed to capture the highly dynamic nature of this computation:
 
-
-# Factorize a Hermitian or Symmetric matrix into
-# Bunch-Kaufman form as computed by bkfact
-typealias HermOrSym Union(Hermitian, Symmetric)
-factorize(A::HermOrSym) = bkfact(A.data, symbol(A.uplo),
-    issym(A))
-\end{lstlisting}
-
-The \verb|factorize| function contains a few interesting features
-designed to capture the highly dynamic nature of this computation:
-
-\begin{enumerate}
-\item The beginning checks for the ``easy'' properties, i.e.  those that can be
-	computed cheaply at run--time by inspecting the matrix elements. The
-	presence of one or more of these properties allow the input matrix
-	\verb|A| to be classified into several special cases.
-
-\item For many of these special cases (like \verb|Diagonal|), \verb|A| is
-	explicitly converted to a special matrix type which allows dispatch on
-	efficient specializations of linear algebraic operations that users may
-	choose to perform later, such as matrix multiplication.
-	
-\item For other special cases (like \verb|Tridiagonal|), it is useful to
-	attempt a run--time check for the ``hard'' properties, like positive
-	definiteness, which require nontrivial computation. Computing the
-	Cholesky factorization serves both as an efficient run--time check to
-	detect positive definiteness, whose failure indicates lack thereof, and
-	whose success yields a useful \verb|Cholesky| matrix factorization
-	object which is useful for further computations such as solving linear
-	equations or computing singular value decompositions (SVDs).
-
-\item The \verb|Symmetric| and \verb|Hermitian| cases use control flow
-	enabled by dynamic multimethods, as it is common for users to know
-	whether the matrices they are working with have these properties.
-	Using multimethods allows users to elide all the run--time checks
-	in the generic method, skipping directly to the appropriate specialized
-	method.
-
-\item The base case contains a nontrivial runtime check to determine if the
-	element type of \verb|A{T}| can be represented as a
-	hardware--representable real or complex floating point number. The
-	\verb|canuseBlasFloat| variable computes the type resulting from
-	computations of the form $x / \sqrt{x + x}$, and checks that it is a
-	subtype of \verb|BlasFloat|. The reason for this check is that there
-	are two variants of the QR factorization: one pivoted, the other not.
-	The former is generally preferred for numerical stability but is also
-	significantly more difficult to compute, and hence is not yet
-	implemented for all possible element types.
-
-\end{enumerate}
+%\begin{enumerate}
+%\item The beginning checks for the ``easy'' properties, i.e.  those that can be
+%	computed cheaply at run--time by inspecting the matrix elements. The
+%	presence of one or more of these properties allow the input matrix
+%	\verb|A| to be classified into several special cases.
+%
+%\item For many of these special cases (like \verb|Diagonal|), \verb|A| is
+%	explicitly converted to a special matrix type which allows dispatch on
+%	efficient specializations of linear algebraic operations that users may
+%	choose to perform later, such as matrix multiplication.
+%
+%\item For other special cases (like \verb|Tridiagonal|), it is useful to
+%	attempt a run--time check for the ``hard'' properties, like positive
+%	definiteness, which require nontrivial computation. Computing the
+%	Cholesky factorization serves both as an efficient run--time check to
+%	detect positive definiteness, whose failure indicates lack thereof, and
+%	whose success yields a useful \verb|Cholesky| matrix factorization
+%	object which is useful for further computations such as solving linear
+%	equations or computing singular value decompositions (SVDs).
+%
+%\item The \verb|Symmetric| and \verb|Hermitian| cases use control flow
+%	enabled by dynamic multimethods, as it is common for users to know
+%	whether the matrices they are working with have these properties.
+%	Using multimethods allows users to elide all the run--time checks
+%	in the generic method, skipping directly to the appropriate specialized
+%	method.
+%
+%\item The base case contains a nontrivial runtime check to determine if the
+%	element type of \verb|A{T}| can be represented as a
+%	hardware--representable real or complex floating point number. The
+%	\verb|canuseBlasFloat| variable computes the type resulting from
+%	computations of the form $x / \sqrt{x + x}$, and checks that it is a
+%	subtype of \verb|BlasFloat|. The reason for this check is that there
+%	are two variants of the QR factorization: one pivoted, the other not.
+%	The former is generally preferred for numerical stability but is also
+%	significantly more difficult to compute, and hence is not yet
+%	implemented for all possible element types.
+%
+%\end{enumerate}
 
 In theory, it is possible to combine these structured matrix types under a
 tagged union, e.g. in an ML-family language. However this would be
 significantly less convenient. The problem is that in most contexts,
 users are happy to have these objects separated by the type system, but
-certain functions like \code{factorize} wish to combine them. It should be
-possible to pass the result of such a function directly to an existing
-routine that expects a particular matrix structure, without needing to
-interpose case analysis to handle a tagged union.
+certain functions like \code{\textbackslash} wish to combine them.
+% It should be
+% possible to pass the result of such a function directly to an existing
+% routine that expects a particular matrix structure, without needing to
+% interpose case analysis to handle a tagged union.
 
-It is also instructive to look more carefully at the methods for \verb|bkfact|,
-which is but one of the several factorizations computed in \verb|factorize|:
+% It is also instructive to look more carefully at the methods for \verb|bkfact|,
+% which is but one of the several factorizations computed in \verb|factorize|:
 
-\begin{lstlisting}
-# Compute Bunch-Kaufman factorization,
-# allocating new memory for the answer
-bkfact{T<:BlasFloat}(A::StridedMatrix{T},
-        uplo::Symbol=:U, symmetric::Bool=issym(A)) =
-    bkfact!(copy(A), uplo, symmetric)
+% \begin{lstlisting}
+% # Compute Bunch-Kaufman factorization,
+% # allocating new memory for the answer
+% bkfact{T<:BlasFloat}(A::StridedMatrix{T},
+%         uplo::Symbol=:U, symmetric::Bool=issym(A)) =
+%     bkfact!(copy(A), uplo, symmetric)
 
-bkfact{T}(A::StridedMatrix{T}, uplo::Symbol=:U,
-        symmetric::Bool=issym(A)) = bkfact!(convert(
-    Matrix{promote_type(Float32,typeof(sqrt(one(T))))},A),
-    uplo,symmetric)
+% bkfact{T}(A::StridedMatrix{T}, uplo::Symbol=:U,
+%         symmetric::Bool=issym(A)) = bkfact!(convert(
+%     Matrix{promote_type(Float32,typeof(sqrt(one(T))))},A),
+%     uplo,symmetric)
 
-# Compute Bunch-Kaufman factorization in-place
+% # Compute Bunch-Kaufman factorization in-place
 
-# For real symmetric matrices, call LAPACK SSYTRF or
-# SSYTRF routine for T==Float32 or T==Float64 respectively
-function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
-        uplo::Symbol=:U, symmetric::Bool=issym(A))
-    symmetric || error("The Bunch-Kaufman decomposition
-is only valid for symmetric matrices")
-    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo) , A)
+% # For real symmetric matrices, call LAPACK SSYTRF or
+% # SSYTRF routine for T==Float32 or T==Float64 respectively
+% function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
+%         uplo::Symbol=:U, symmetric::Bool=issym(A))
+%     symmetric || error("The Bunch-Kaufman decomposition
+% is only valid for symmetric matrices")
+%     LD, ipiv = LAPACK.sytrf!(char_uplo(uplo) , A)
 
-    #Wrap answer in BunchKaufman type
-    BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
-end
+%     #Wrap answer in BunchKaufman type
+%     BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
+% end
 
-# For complex symmetric matrices, call LAPACK CSYTRF/ZSYTRF
-# for T==Complex64/Complex128, and for complex Hermitian
-# matrices, call the CHETRF/ZHETRF routines 
-function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
-	uplo::Symbol=:U, symmetric::Bool=issym(A))
-    LD, ipiv = (symmetric ? LAPACK.sytrf! :
-        LAPACK.hetrf!)(char_uplo(uplo) , A)
-    BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
-end
-\end{lstlisting}
+% # For complex symmetric matrices, call LAPACK CSYTRF/ZSYTRF
+% # for T==Complex64/Complex128, and for complex Hermitian
+% # matrices, call the CHETRF/ZHETRF routines 
+% function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
+% 	uplo::Symbol=:U, symmetric::Bool=issym(A))
+%     LD, ipiv = (symmetric ? LAPACK.sytrf! :
+%         LAPACK.hetrf!)(char_uplo(uplo) , A)
+%     BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
+% end
+% \end{lstlisting}
 
-The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
-which allocates new memory for the answer, and \verb|bkfact!|, which mutates
-the matrix in place to save memory. Reasoning about memory use is critical in
-numerical linear algebra applications as the matrices may be very large.
-Reusing allocated memory for matrices also avoids unnecessary copies of data to
-be made, potentially minimizing memory accesses and reducing the need to
-trigger garbage collection. The base library thus provides the latter for users
-who need to reason about memory usage, and the former for users who do not.
-Additionally, the type parameter \verb|T| describing the element type allows
-for appropriate dispatch upon external LAPACK routines.
+% The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
+% which allocates new memory for the answer, and \verb|bkfact!|, which mutates
+% the matrix in place to save memory. Reasoning about memory use is critical in
+% numerical linear algebra applications as the matrices may be very large.
+% Reusing allocated memory for matrices also avoids unnecessary copies of data to
+% be made, potentially minimizing memory accesses and reducing the need to
+% trigger garbage collection. The base library thus provides the latter for users
+% who need to reason about memory usage, and the former for users who do not.
+% Additionally, the type parameter \verb|T| describing the element type allows
+% for appropriate dispatch upon external LAPACK routines.
 
 
 \subsection{Generic functions for statistical library routines}
