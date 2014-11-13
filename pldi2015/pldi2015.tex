@@ -65,7 +65,7 @@
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
 Users writing such exploratory code do not typically
-know what computations they need to perform at the outset of their word.
+know what computations they need to perform at the outset of their work.
 Rather, they discover what they want by iterating through several different
 prototypes---often dozens or even hundreds of them. Consequently, technical
 computing code tends to be the product of an organic process of continuous
@@ -344,7 +344,7 @@ is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
 Unusually, Julia's type system tries to hide type kinds from
 the user. The identifier \verb|SubArray| by itself does not refer to a
 type constructor that must be instantiated. Rather, it is itself a type
-that functions as the supertype of all \verb|SubArray|s. This allows
+that functions as the supertype of all \verb|SubArray| types. This allows
 convenient shorthand for writing methods that are agnostic about type parameters.
 It also makes it possible to add more type parameters in the future, without
 necessarily updating all client code.
@@ -554,10 +554,20 @@ appropriate~\cite{Bruce1995}. Type inference is
 useful for minimizing or even eliminating the
 overhead associated with multiple dispatch.
 
-Another, subtler point is that unlike other object models, generic functions
-provide no encapsulation guarantees, since they are allowed to peer into the
-internal representation of types. Consequently, type safety requires stringent
-criteria on the allowed variances of types~\cite{Allen2011}.
+Many of the use cases for multiple dispatch could potentially be addressed
+by operator overloading as in C++. However C++ forces programmers to choose
+which operations will use dynamic dispatch (via virtual methods), which will
+use templates, and which will use function overloading. We conjecture that
+this choice can be an unwelcome productivity drain. For example, the
+syntactic difference between function calls and method calls could require
+code to be rewritten when requirements change, or could lead to APIs that
+are not consistent about when method calls are used.
+
+
+%Another, subtler point is that unlike other object models, generic functions
+%provide no encapsulation guarantees, since they are allowed to peer into the
+%internal representation of types. Consequently, type safety requires stringent
+%criteria on the allowed variances of types~\cite{Allen2011}.
 
 
 %% NOTE: This section is actually very good but I don't think we can use it unless
@@ -1034,25 +1044,31 @@ which is but one of the several factorizations computed in \verb|factorize|:
 # Compute Bunch-Kaufman factorization,
 # allocating new memory for the answer
 bkfact{T<:BlasFloat}(A::StridedMatrix{T},
-        uplo::Symbol=:U, symmetric::Bool=issym(A)) =
-    bkfact!(copy(A), uplo, symmetric)
+                     uplo::Symbol=:U,
+		     symmetric::Bool=issym(A)) =
+    bkfact!(copy(A),
+	    uplo, symmetric)
 
-bkfact{T}(A::StridedMatrix{T}, uplo::Symbol=:U,
-        symmetric::Bool=issym(A)) = bkfact!(convert(
-    Matrix{promote_type(Float32,typeof(sqrt(one(T))))},A),
-    uplo,symmetric)
+bkfact{T}(A::StridedMatrix{T},
+          uplo::Symbol=:U,
+          symmetric::Bool=issym(A)) = begin
+    Typ = promote_type(Float32, typeof(sqrt(one(T))))
+    bkfact!(convert(Matrix{Typ}, A),
+            uplo, symmetric)
+end
 
 # Compute Bunch-Kaufman factorization in-place
 
 # For real symmetric matrices, call LAPACK SSYTRF or
 # DSYTRF routine for T==Float32 or T==Float64 respectively
 function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
-        uplo::Symbol=:U, symmetric::Bool=issym(A))
-    symmetric || error("The Bunch-Kaufman decomposition
-is only valid for symmetric matrices")
-    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo) , A)
-
-    #Wrap answer in BunchKaufman type
+		              uplo::Symbol=:U,
+			      symmetric::Bool=issym(A)) 
+    if symmetric
+        error("The Bunch-Kaufman decomposition ",
+	      "is only valid for symmetric matrices")
+    end
+    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo), A)
     BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
 end
 
@@ -1060,9 +1076,10 @@ end
 # for T==Complex64/Complex128, and for complex Hermitian
 # matrices, call the CHETRF/ZHETRF routines 
 function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
-	uplo::Symbol=:U, symmetric::Bool=issym(A))
+	    			 uplo::Symbol=:U,
+				 symmetric::Bool=issym(A))
     LD, ipiv = (symmetric ? LAPACK.sytrf! :
-        LAPACK.hetrf!)(char_uplo(uplo) , A)
+    			    LAPACK.hetrf!)(char_uplo(uplo), A)
     BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
 end
 \end{lstlisting}
