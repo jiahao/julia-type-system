@@ -1125,8 +1125,12 @@ is simplified by generic functions and multiple dispatch.}
 \end{table}
 
 
+\section{Evaluation}
 
-\section{Impact of static analyses on performance}
+Here we discuss the potential for performance in Julia's design,
+as well as some shortcomings and challenges we have observed.
+
+\subsection{Impact of static analyses on performance}
 
 Figure~\ref{fig:timings} shows the relative execution times of benchmark codes
 representing a wide variety of scientific applications, when various optimizations
@@ -1158,35 +1162,47 @@ of 0.99.
 \end{figure*}
 
 
+\subsection{Method ambiguities}
 
-\section{Related Work}
+Julia uses symmetric multiple dispatch where all arguments have equal priority
+for dispatch. This contrasts with some other languages like
+Dylan~\cite{dylanman}, which
+prioritize the arguments from left to right~\cite{Agrawal1991}. Julia instead
+sorts methods by specificity~\cite{Bezanson2012}. For example, the function
+\verb|f| defined by 
 
-The more common programming languages that support dynamic multiple dispatch
-are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp with
-CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
-These languages also differ in the dispatch rules: Cecil, like Julia, employs
-symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
-arguments from leftmost to rightmost, and Clojure's dispatch rules are
-customizable based on user--specifiable rules. The method dispatchers are also
-limited in their expressiveness by the type system of their host languages.
-Clojure's multimethods are not a core language construct and hence interact
-only weakly with built--in types. Dispatch in CLOS is class--based and excludes
-parametric types. Cecil's type system supports subtype polymorphism but not
-type parameters. Dylan supports CLOS--style class--based dispatch, and also
-let--polymorphism in limited types, which is a restricted form of parametric
-polymorphism. However, Dylan does allows for multiple inheritance.
+\begin{lstlisting}
+f(x::Real, y::Int) = 1
+f(x::Int, y::Real) = 2
+\end{lstlisting}
+%
+results in a method ambiguity: because of subtype polymorphism, it is not clear
+which method gets dispatched for inputs of type \verb|(Int, Int)|. To solve
+this problem, Julia
+requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
+these two methods.
 
+Method ambiguity warnings were intended to reveal problems in multimethod
+definitions. However, at other times it is a major nuisance for library
+writers. The canonical example is trying to use \package{Images.jl} and
+\package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
+type with additional subclasses in mutually incompatible ways. Adding an image
+and a data frame is nonsensical and should return an error in client code that
+attempts to do so. However, the method ambiguities are detected when a package
+is loaded and compiled, throwing ambiguity warnings which may pertain to method
+definitions that are never used. In practice, most user code avoids nonsensical
+uses, but have other intentions in mind for using different functionality from
+both packages in the same code. Nevertheless, the ambiguity warnings are
+emitted even for code that avoids using the ambiguous methods in question.
+Library writers are therefore faced with the unpleasant task of defining
+disambiguating methods solely to suppress compile--time warnings, or otherwise
+avoid the issue entirely by not using subtyping features of Julia, which could
+reduce code reuse.
 
-
-\section{Implementation challenges}
-
-Julia allows technical computing users to write expressive, performant code
-that makes use of advanced language constructs. However, users sometimes still
-face challenges in writing code that expresses what they want. This section
-gives some examples of problems faced by Julia users and how the language is
-still evolving to address the needs of users and improve their overall user
-experience.
-
+Work is underway to turn such method ambiguity warnings into run--time errors,
+so that the responsibility of not running nonsensical methods is devolved onto
+user client code, rather than burdening library writers with the need to
+second--guess every conceivable corner case in the use of their libraries.
 
 \subsection{Type stability}
 
@@ -1247,6 +1263,34 @@ improve performance by sharpening type annotations on variables, using language
 constructs described in Section~\ref{sec:inference}.
 
 
+\section{Related Work}
+
+The more common programming languages that support dynamic multiple dispatch
+are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp with
+CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
+These languages also differ in the dispatch rules: Cecil, like Julia, employs
+symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
+arguments from left to right, and Clojure's dispatch rules are
+customizable based on user--specifiable rules. The method dispatchers are also
+limited in their expressiveness by the type system of their host languages.
+Clojure's multimethods are not a core language construct and hence interact
+only weakly with built--in types. Dispatch in CLOS is class--based and excludes
+parametric types. Cecil's type system supports subtype polymorphism but not
+type parameters. Dylan supports CLOS--style class--based dispatch, and also
+let--polymorphism in limited types, which is a restricted form of parametric
+polymorphism. However, Dylan does allows for multiple inheritance.
+
+
+
+%% \section{Implementation challenges}
+
+%% Julia allows technical computing users to write expressive, performant code
+%% that makes use of advanced language constructs. However, users sometimes still
+%% face challenges in writing code that expresses what they want. This section
+%% gives some examples of problems faced by Julia users and how the language is
+%% still evolving to address the needs of users and improve their overall user
+%% experience.
+
 %% JWB: I think this section is really not interesting and not related to
 %% multiple dispatch enough.
 
@@ -1304,107 +1348,108 @@ constructs described in Section~\ref{sec:inference}.
 %% collection. Thus devectorized code is preferred in Julia as scalar loops are
 %% fast with minimal overhead~\cite{Bezanson2014b}. 
 
+%% \subsection{Vectorization and higher--order functions}
 
-\subsection{Vectorization and higher--order functions}
+%% Users familiar with other dynamic languages for technical computing are used to
+%% working with vectorized functions~\cite{matlabuserguide,Langtangen2008}:
+%% \verb|sin(x)| should work on both scalar and vector arguments \verb|x|. However,
+%% vectorized functions have limited
+%% extensibility and composability. Implementations can only bless some
+%% functions to be vectorized; vectorized functions which wrap external low--level
+%% kernels lack code reuse and cannot be extended easily. In contrast, the Julia
+%% standard library implements vectorized functions consistently using using code
+%% generated by the macros \verb|@vectorize_1arg|, \\
+%% \verb|@vectorize_2arg|, etc.
 
-Users familiar with other dynamic languages for technical computing are used to
-working with vectorized functions~\cite{matlabuserguide,Langtangen2008}:
-\verb|sin(x)| should work on both scalar and vector arguments \verb|x|. However,
-vectorized functions have limited
-extensibility and composability. Implementations can only bless some
-functions to be vectorized; vectorized functions which wrap external low--level
-kernels lack code reuse and cannot be extended easily. In contrast, the Julia
-standard library implements vectorized functions consistently using using code
-generated by the macros \verb|@vectorize_1arg|,\\
-\verb|@vectorize_2arg|, etc.
+%% The composability problem is more subtle. The generic function \verb|h1| has
+%% methods with function types
 
-The composability problem is more subtle. The generic function \verb|h1| has
-methods with function types
+%% \begin{itemize}
+%% 	\item \verb|Float64| $\rightarrow$ \verb|Complex{Float64}|,
+%% 	\item \verb|Vector{Float64}| $\rightarrow$ \verb|Vector{Complex{Float64}}|,
+%% \end{itemize}
+%% %
+%% and others, and writing a function \verb|i(x)| that composes properly with
+%% \verb|h1| must account for all possible outputs of the latter, be they scalars
+%% or arrays. Thus \verb|i(x)| must also be vectorized, but the dynamic nature of
+%% Julia precludes any restrictions on the methods that must be defined for
+%% \verb|i|, placing the burden of correct implementation on users and library
+%% writers.
 
-\begin{itemize}
-	\item \verb|Float64| $\rightarrow$ \verb|Complex{Float64}|,
-	\item \verb|Vector{Float64}| $\rightarrow$ \verb|Vector{Complex{Float64}}|,
-\end{itemize}
-%
-and others, and writing a function \verb|i(x)| that composes properly with
-\verb|h1| must account for all possible outputs of the latter, be they scalars
-or arrays. Thus \verb|i(x)| must also be vectorized, but the dynamic nature of
-Julia precludes any restrictions on the methods that must be defined for
-\verb|i|, placing the burden of correct implementation on users and library
-writers.
+%% The example of \verb|h1| suggests that what users really want is not vectorized
+%% functions, but rather convenient syntax for vectorized \textit{expressions}.
+%% The \package{Devectorize.jl} package uses code generation techniques to marry
+%% the convenient syntax for vectorized functions with the speed of devectorized
+%% code with explicit loops. The restructuring for vectorization is often
+%% unnatural, and at times not possible. Alternatively, a more general approach is
+%% to use higher order functions like \verb|map| to compute an entire vectorized
+%% expression, like so:
 
-The example of \verb|h1| suggests that what users really want is not vectorized
-functions, but rather convenient syntax for vectorized \textit{expressions}.
-The \package{Devectorize.jl} package uses code generation techniques to marry
-the convenient syntax for vectorized functions with the speed of devectorized
-code with explicit loops. The restructuring for vectorization is often
-unnatural, and at times not possible. Alternatively, a more general approach is
-to use higher order functions like \verb|map| to compute an entire vectorized
-expression, like so:
+%% \begin{lstlisting}
+%% h3(x) = map(_ -> sin(_) + im*cos(_), x)
+%% \end{lstlisting}
+%% %
+%% \verb|map| provides an elegant solution to mapping a computation over a
+%% collection of input data. However, implementing \verb|map| efficiently in Julia
+%% touches upon all the aspects of the type system, generic function system,
+%% dispatch, and type inference that have been discussed above:
 
-\begin{lstlisting}
-h3(x) = map(_ -> sin(_) + im*cos(_), x)
-\end{lstlisting}
-%
-\verb|map| provides an elegant solution to mapping a computation over a
-collection of input data. However, implementing \verb|map| efficiently in Julia
-touches upon all the aspects of the type system, generic function system,
-dispatch, and type inference that have been discussed above:
+%% \begin{enumerate}
 
-\begin{enumerate}
+%% 	\item The output type of \verb|f| must be an \verb|Array{T}| with
+%% 	element type \verb|T| wide enough to describe all the possible output
+%% 	elements. \verb|T = Any| is the widest possible array, but provides no
+%% 	information about the mutability of each element. Consequently the
+%% 	array must be represented in memory with pointers to boxed elements. In
+%% 	contrast, being able to infer a concrete immutable element type like
+%% 	\verb|T = Float64| allows the indirection to array elements and the
+%% 	overhead of tagging to be eliminated, allowing the resulting array data
+%% 	to stored contiguously like a C or Fortran array.
 
-	\item The output type of \verb|f| must be an \verb|Array{T}| with
-	element type \verb|T| wide enough to describe all the possible output
-	elements. \verb|T = Any| is the widest possible array, but provides no
-	information about the mutability of each element. Consequently the
-	array must be represented in memory with pointers to boxed elements. In
-	contrast, being able to infer a concrete immutable element type like
-	\verb|T = Float64| allows the indirection to array elements and the
-	overhead of tagging to be eliminated, allowing the resulting array data
-	to stored contiguously like a C or Fortran array.
+%% 	\item To know the output type of \verb|f(y)| for some element \verb|y|
+%% 	of \verb|x|, the type of \verb|y| must be known so that the actual
+%% 	method being dispatched for the generic function \verb|f| can be looked
+%% 	up in the dispatch table. This means that the data \verb|x| must be
+%% 	fully typed within the type environment where \verb|map| is invoked.
+%% 	Furthermore the type environment must yield enough information about
+%% 	\verb|y| so that the method dispatcher is able to pick out a
+%% 	specialized method over the generic fall--back for \verb|f|.
 
-	\item To know the output type of \verb|f(y)| for some element \verb|y|
-	of \verb|x|, the type of \verb|y| must be known so that the actual
-	method being dispatched for the generic function \verb|f| can be looked
-	up in the dispatch table. This means that the data \verb|x| must be
-	fully typed within the type environment where \verb|map| is invoked.
-	Furthermore the type environment must yield enough information about
-	\verb|y| so that the method dispatcher is able to pick out a
-	specialized method over the generic fall--back for \verb|f|.
+%% 	\item Since Julia lacks true function types, the output type of
+%% 	\verb|f(y)| must be inferred from data flow analysis, and the inferred
+%% 	type must be sufficiently sharp to determine the type of the output of
+%% 	\verb|map|.
 
-	\item Since Julia lacks true function types, the output type of
-	\verb|f(y)| must be inferred from data flow analysis, and the inferred
-	type must be sufficiently sharp to determine the type of the output of
-	\verb|map|.
+%% 	\item For performance, the scalar operation \verb|f(y)| must be
+%% 	inlined, and hence the inlining code transformation pass must deem the
+%% 	inlining to be viable.
 
-	\item For performance, the scalar operation \verb|f(y)| must be
-	inlined, and hence the inlining code transformation pass must deem the
-	inlining to be viable.
+%% 	\item Implementing \verb|map| over an arbitrary iterable \verb|x| is
+%% 	harder than implementing vectorized functions, since the former lacks
+%% 	the guarantee provided by \verb|Array| inputs types that every element
+%% 	has the same type. In the worst case, the method dispatcher must be
+%% 	called for each element \verb|y| just to find out which method is
+%% 	dispatched for \verb|f(y)|.
 
-	\item Implementing \verb|map| over an arbitrary iterable \verb|x| is
-	harder than implementing vectorized functions, since the former lacks
-	the guarantee provided by \verb|Array| inputs types that every element
-	has the same type. In the worst case, the method dispatcher must be
-	called for each element \verb|y| just to find out which method is
-	dispatched for \verb|f(y)|.
+%% \end{enumerate}
 
-\end{enumerate}
+%% The implementation of \verb|map| hence speaks to the conflicting demands of
+%% flexibility and performance that underlie the design tradeoffs built into
+%% Julia's types, generic functions and type inference algorithms. The current
+%% implementation leverages empirical evidence that most applications use
+%% homogeneous arrays of concrete types, and most other applications have
+%% heterogeneity that be detected early on~\cite{Bolz2013}. Hence, \verb|map|
+%% optimistically assumes an element type based on the output returned from the
+%% first element, and makes further copies into increasingly wider arrays as
+%% necessary if a later return type is wider than the current element type. The
+%% number of such copies made is bounded by the maximal height of the type
+%% lattice, and the aggressive method specialization in Julia's compiler can emit
+%% specialized code which optimize away branch checks for widening in cases where
+%% the input type is completely known, e.g.\ when the input is an \verb|Array|
+%% with some concrete element type, and thus avoid the cost of conditional
+%% branches.
 
-The implementation of \verb|map| hence speaks to the conflicting demands of
-flexibility and performance that underlie the design tradeoffs built into
-Julia's types, generic functions and type inference algorithms. The current
-implementation leverages empirical evidence that most applications use
-homogeneous arrays of concrete types, and most other applications have
-heterogeneity that be detected early on~\cite{Bolz2013}. Hence, \verb|map|
-optimistically assumes an element type based on the output returned from the
-first element, and makes further copies into increasingly wider arrays as
-necessary if a later return type is wider than the current element type. The
-number of such copies made is bounded by the maximal height of the type
-lattice, and the aggressive method specialization in Julia's compiler can emit
-specialized code which optimize away branch checks for widening in cases where
-the input type is completely known, e.g.\ when the input is an \verb|Array|
-with some concrete element type, and thus avoid the cost of conditional
-branches.
+\section{Conclusion}
 
 Julia as a language is still evolving, and there is room for further
 improvements to the compiler, such as additional static analyses for peephole
@@ -1416,48 +1461,6 @@ Furthermore, the design and interaction between these language components allow
 users to design their own Pareto--optimal tradeoffs between performant
 specialization and flexible generality within a single programming language.
 
-
-\subsection{Method ambiguities}
-
-Julia uses symmetric multiple dispatch where all arguments have equal priority
-for dispatch. This contrasts with some other languages like
-Cecil~\cite{Chambers1992,Chambers1994} and Dylan~\cite{dylanman}, which
-prioritize the arguments from left to right~\cite{Agrawal1991}. Julia instead
-sorts methods by specificity~\cite{Bezanson2012}. For example, the function
-\verb|f| defined by 
-
-\begin{lstlisting}
-f(x::Real, y::Int) = 1
-f(x::Int, y::Real) = 2
-\end{lstlisting}
-%
-results in a method ambiguity: because of subtype polymorphism, it is not clear
-which method gets dispatched for inputs of type \verb|(Int, Int)|. To solve
-this problem, Julia
-requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
-these two methods.
-
-Method ambiguity warnings were intended to reveal problems in multimethod
-definitions. However, at other times it is a major nuisance for library
-writers. The canonical example is trying to use \package{Images.jl} and
-\package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
-type with additional subclasses in mutually incompatible ways. Adding an image
-and a data frame is nonsensical and should return an error in client code that
-attempts to do so. However, the method ambiguities are detected when a package
-is loaded and compiled, throwing ambiguity warnings which may pertain to method
-definitions that are never used. In practice, most user code avoids nonsensical
-uses, but have other intentions in mind for using different functionality from
-both packages in the same code. Nevertheless, the ambiguity warnings are
-emitted even for code that avoids using the ambiguous methods in question.
-Library writers are therefore faced with the unpleasant task of defining
-disambiguating methods solely to suppress compile--time warnings, or otherwise
-avoid the issue entirely by not using subtyping features of Julia, which could
-reduce code reuse.
-
-Work is underway to turn such method ambiguity warnings into run--time errors,
-so that the responsibility of not running nonsensical methods is devolved onto
-user client code, rather than burdening library writers with the need to
-second--guess every conceivable corner case in the use of their libraries.
 
 
 
