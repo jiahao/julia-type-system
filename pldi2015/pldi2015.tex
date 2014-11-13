@@ -333,7 +333,7 @@ for the tuple of indexes that describe which part of the underlying array
 is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
 \verb|AbstractArray|.
 
-An unusual feature of this system is that it tries to hide type kinds from
+Unusually, Julia's type system tries to hide type kinds from
 the user. The identifier \verb|SubArray| by itself does not refer to a
 type constructor that must be instantiated. Rather, it is itself a type
 that functions as the supertype of all \verb|SubArray|s. This allows
