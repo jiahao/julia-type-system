@@ -278,7 +278,7 @@ UnionAll ::= UnionAll T<:Type . Type
 \label{sec:subtyping}
 
 Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
-declared supertype (defaulting to $\top$ if not explicitly declared).
+declared supertype, defaulting to \verb|Any| (i.e. $\top$) if not explicitly declared.
 We conjecture that the subtype relation \verb|<:| is well-defined and
 decidable, and that types are closed under meet ($\wedge$) and
 join ($\vee$).
@@ -340,13 +340,13 @@ for the tuple of indexes that describe which part of the underlying array
 is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
 \verb|AbstractArray|.
 
-Unusually, Julia's type system tries to hide type kinds from
+Julia's type system tries to hide type kinds from
 the user. The identifier \verb|SubArray| by itself does not refer to a
-type constructor that must be instantiated. Rather, it is itself a type
-that functions as the supertype of all \verb|SubArray| types. This allows
-convenient shorthand for writing methods that are agnostic about type parameters.
+type constructor that must be instantiated. Rather, it is a type
+that serves as the supertype of all the \verb|SubArray| types. This allows
+convenient shorthand for method signatures that are agnostic about type parameters.
 It also makes it possible to add more type parameters in the future, without
-necessarily updating all client code.
+being forced to update all code that uses that type.
 
 When implementing \verb|SubArray| and client code using it, it is useful
 to be able to dispatch on all of these parameters. For example, when
