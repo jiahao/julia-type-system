@@ -209,16 +209,13 @@ UnionAll ::= UnionAll T<:Type . Type
 	\begin{description}
 	
 	\item[Bits types] like double precision floating point numbers
-	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which can
-	be stored unboxed as raw bits without tag overhead,
+	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which
+        are just bit strings and have no further structure,
 
-	\item[Abstract data types] which have an internal representation
-		declared with the \verb|type| keyword, and
-		
-	\item[Immutable types] which are similar to abstract data types
-		declared with the \verb|immutable| keyword, but whose internal
-		variables are immutable, thus potentially allowing for unboxed
-		representations.
+	\item[Composite types] which have mutable named fields,
+
+	\item[Immutable types] which are similar to composite types but
+          whose fields are immutable.
 
 	\end{description}
 
