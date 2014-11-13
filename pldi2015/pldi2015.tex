@@ -131,7 +131,7 @@ The language is built on polymorphic data and code:
 %% rapid prototyping of new analytics which can also be deployed performantly,
 %% often within a factor of two of the speed of native, hand-written C code.
 
-While multiple dispatch has been extensively studied as an object-oriented
+While multiple dispatch has been extensively studied as an object--oriented
 paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
 With Julia, a growing number of scientific programmers are using multiple dispatch
 extensively---we might even say gleefully. The key property of multiple
@@ -272,7 +272,7 @@ UnionAll ::= UnionAll T<:Type . Type
 
 Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
 declared supertype (defaulting to $\top$ if not explicitly declared).
-We conjecture that the subtype relation \verb|<:| is well-defined and
+We conjecture that the subtype relation \verb|<:| is well--defined and
 decidable, and that types are closed under meet ($\wedge$) and
 join ($\vee$).
 
@@ -310,8 +310,11 @@ languages, but are actually intended simply for expressing information, rather
 than implementing the formal theory of parametric polymorphism.
 
 The following example, from Julia's standard library, describes a \verb|SubArray|
-type that provides an indexed ``view'' into another array. It begins by
-defining a \verb|Union| of what kinds of indexes may be used, then uses this
+type that provides an indexed ``view'' into another array. Such array views
+enable different indexing semantics to be overlaid upon an existing array,
+which facilitates abstraction for applications with semantics that do not
+require explicit memory copies. The \verb|SubArray| type
+defines a \verb|Union| of what kinds of indexes may be used, then uses this
 definition to define indexed views:
 
 \begin{lstlisting}
