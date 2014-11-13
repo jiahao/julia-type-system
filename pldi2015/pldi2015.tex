@@ -2,11 +2,13 @@
 
 \usepackage{url}                  % format URLs
 \usepackage{listings}          % format code
-\usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
+\usepackage{hyperref}
+%\usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
 \newcommand{\doi}[1]{doi:~\href{http://dx.doi.org/#1}{\Hurl{#1}}}   % print a hyperlinked DOI
 \usepackage{amssymb}
-\usepackage{todonotes}
+%\usepackage{todonotes}
+\usepackage{graphicx}
 
 \input{macros}
 
@@ -57,15 +59,6 @@
 %Language design, run-time system
 
 \section{Dynamic languages are useful for technical computing}
-
-\begin{quote}
-	\textit{Mathematics is the art of giving the same name to different
-	things... When the language has been well chosen, one is amazed to see
-	how all the statements, made for a known object, apply immediately
-	to many new objects... this is one of the characteristics by which one
-	recognizes high-yield facts, they are the facts which permit successful
-	innovations of language.} \cite{Poincare1908}
-\end{quote}
 
 Engineers, mathematicians and scientists routinely write software for
 computational simulations and data analysis to discover new insights.
@@ -503,7 +496,7 @@ all users are likely to find this correspondence helpful.
 
 \section{Generic functions and multimethods}
 
-As \cite{Poincare1908} noted in the opening quote, mathematical thought is
+Mathematical thought is
 naturally polymorphic. Multimethods are a natural mechanism for capturing such
 polymorphism~\cite{Bezanson2014b,Chen2014}. Consider an operation as
 fundamental as multiplication: an expression like \verb|a*b| can mean:
