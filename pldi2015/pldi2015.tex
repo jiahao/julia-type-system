@@ -40,15 +40,17 @@
   software stacks, often involving multiple languages and custom code generators.
   We believe this is ultimately due to key characteristics of the domain:
   highly complex operators, a need for extensive code specialization for
-  performance, and a desire for permissive high--level programming models that
-  support experimentation.
+  performance, and a desire for permissive high-level programming styles
+  allowing highly productive experimentation.
+
   The Julia language attempts to provide a more effective structure
-  for this kind of programming, by employing dynamic multiple dispatch over
+  for this kind of programming by allowing programmers to express complex
+  polymorphic behviors using dynamic multiple dispatch over
   parametric types. The forms of extension and reuse
-  permitted by this style are especially valuable for technical computing.
-  Here we report on how this paradigm can and has been used to
-  express abstractions useful to domain experts, while also providing
-  a natural path to better performance for high--level technical code.
+  permitted by this paradigm have proven valuable for technical computing.
+  We report on how this approach has allowed domain experts to express
+  useful abstractions while simultaneously providing a natural path to better
+  performance for high-level technical code.
 \end{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
@@ -131,7 +133,7 @@ The language is built on polymorphic data and code:
 %% rapid prototyping of new analytics which can also be deployed performantly,
 %% often within a factor of two of the speed of native, hand-written C code.
 
-While multiple dispatch has been extensively studied as an object-oriented
+While multiple dispatch has been extensively studied as an object--oriented
 paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
 With Julia, a growing number of scientific programmers are using multiple dispatch
 extensively---we might even say gleefully. The key property of multiple
@@ -184,10 +186,10 @@ Julia has different kinds of types which can be formally summarized as:
 Type ::= Abstract | Data | Tuple | Union | UnionAll
 Tag ::= Data | Tuple
 
-Data ::= Name (Type...) Abstract } invariant, nominative
-Abstract ::= Name (Type...) Abstract }
+Data ::= Name (Type...) Abstract # invariant, nominative
+Abstract ::= Name (Type...) Abstract
 Tuple ::= (Type$_1$, Type$_2$...) |
-          (Type$_1$, Type$_2$, ..., Type$_n$) } covariant
+          (Type$_1$, Type$_2$, ..., Type$_n$) # covariant
 Union ::= Union(Type$_1$, Type$_2$, ...)
 UnionAll ::= UnionAll T<:Type . Type
 \end{lstlisting}
@@ -272,7 +274,7 @@ UnionAll ::= UnionAll T<:Type . Type
 
 Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
 declared supertype (defaulting to $\top$ if not explicitly declared).
-We conjecture that the subtype relation \verb|<:| is well-defined and
+We conjecture that the subtype relation \verb|<:| is well--defined and
 decidable, and that types are closed under meet ($\wedge$) and
 join ($\vee$).
 
@@ -310,8 +312,11 @@ languages, but are actually intended simply for expressing information, rather
 than implementing the formal theory of parametric polymorphism.
 
 The following example, from Julia's standard library, describes a \verb|SubArray|
-type that provides an indexed ``view'' into another array. It begins by
-defining a \verb|Union| of what kinds of indexes may be used, then uses this
+type that provides an indexed ``view'' into another array. Such array views
+enable different indexing semantics to be overlaid upon an existing array,
+which facilitates abstraction for applications with semantics that do not
+require explicit memory copies. The \verb|SubArray| type
+defines a \verb|Union| of what kinds of indexes may be used, then uses this
 definition to define indexed views:
 
 \begin{lstlisting}
@@ -330,7 +335,7 @@ for the tuple of indexes that describe which part of the underlying array
 is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
 \verb|AbstractArray|.
 
-An unusual feature of this system is that it tries to hide type kinds from
+Unusually, Julia's type system tries to hide type kinds from
 the user. The identifier \verb|SubArray| by itself does not refer to a
 type constructor that must be instantiated. Rather, it is itself a type
 that functions as the supertype of all \verb|SubArray|s. This allows
@@ -397,12 +402,12 @@ parameter, regardless of whether the parameter corresponds to an abstract or
 concrete type. The rationale for this behavior allows for the Julia compiler to
 reason about different representations, and is perhaps best explained in the
 context of arrays. For arrays, the type parameter describes the set of possible
-element types ~\cite{Bezanson2014}.  An \verb|Array{Float64}|
+element types~\cite{Bezanson2014}. An \verb|Array{Float64}|
 can only contain concrete elements of type \verb|Float64|, whereas an
 \verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
 as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
 consists of concrete immutable elements and can be reified with a single
-pointer to a contiguous memory block.  This allows the tags for each element to be elided,
+pointer to a contiguous memory block. This representation allows the tags for each element to be elided,
 resulting in a memory layout which can interoperate with C or Fortran code.
 The latter array can store more diverse objects,
 but the element type provides no information about the mutability of each
