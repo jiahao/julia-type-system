@@ -80,48 +80,39 @@ Users writing code for the purposes of discovery often by definition do not
 know what computations they need upfront, but rather discover what they want by
 iterating through several different prototypes. Consequently, technical
 computing code is often the product of an organic process of continuous
-experimentation, rather than derived from formal software engineering
-specifications.
+experimentation.
 
-Static languages focus on being able to prove correctness of programs, and
-compilers usually contain features like type checkers which constrain the set
-of allowed programs in favor of provable correctness~\cite{Pierce2002}. Code written in static
-languages must be able to account for all possible behaviors of the algorithms
-implemented for all possible input values. All these possible code paths must
-be stated at compile time, posing challenges for authors of technical codes which
-often work on enormous inputs and may fail in subtle ways that require further
-investigation and mitigation. Furthermore, these static analyses for
-correctness tend to concern themselves with only the interface to data types,
-not with their internal representation. Consequently, the formal logic of
-program correctness does nothing for user concerns about performance, since
-they abstract away memory layout details which are crucial for understanding the
-impact of hardware factors such as bus latency and bandwidth. In contrast,
+Statically-typed languages focus on proving properties of programs, and constrain
+the set of allowed programs in order to do so~\cite{Pierce2002}.
+These restrictions can occasionally collide with the way the user would
+prefer to think about a problem. In fact this is especially likely to happen
+when an answer can be justified mathematically or by specialzed domain
+knowledge in a way not anticipated by the type system.
+In contrast,
 dynamic languages embody a realist philosophy: programs are not checked for
 correctness, but are executed until termination or when a runtime error is
 thrown. The focus is to make sense out of whatever program a user may write.
-Thus dynamic languages are more permissive and expressive in ways that are more
-naturally suited for rapid prototyping and experimentation.
 
 In other words, a scientist will often run a program in order to find out what
 it does---\emph{proving} anything about what it does would be premature, and an
 unwelcome distraction. As a result, dynamic languages like
 MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
-become popular amongst technical computing users for writing prototype codes.
-However, code written in these languages are difficult to execute performantly;
-the dynamic nature of these languages pose significant challenges for
-implementers to transform code into efficiently executable
-forms~\cite{Joisha2001,Joisha2006,Seljebotn2009}. Technical computing users
+become popular among technical computing users.
+However, code written in these languages is difficult to execute efficiently;
+the dynamic nature of these languages poses significant challenges for
+implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. Technical computing users
 thus face a dilemma known as the two-language problem: it is easier to
 prototype code in a dynamic language, but faster to run code written in a
 static language. The two-language problem can be viewed as an unavoidable
 consequence of Ousterhout's dichotomy of classifying programming languages into
-scripting vs.\ system languages~\cite{Ousterhout1998,Hoare2014}. 
+scripting vs.\ system languages~\cite{Ousterhout1998,Hoare2014}.
 
 Julia~\footnote{Julia is free and open--source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
-the behavior of the v0.3.2 point release.} is a dynamic language designed with
-the ambitious goal of eliminating the false dichotomy between dynamism and
-speed~\cite{Bezanson2012,Bezanson2014b}. The language features several
+the behavior of the v0.3.2 point release.} is a dynamic language designed to
+eliminate the false dichotomy between dynamism and
+speed in technical computing~\cite{Bezanson2012,Bezanson2014b}.
+The language features several
 different mechanisms for expressing polymorphism, namely:
 
 \begin{itemize}
