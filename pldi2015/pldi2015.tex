@@ -16,7 +16,7 @@
 
 \lstset{basicstyle=\footnotesize\ttfamily,mathescape=true,basewidth=0.5em}
 
-\conferenceinfo{PLDI '15}{June 12---20, 2015, Portland, OR, USA.}
+\conferenceinfo{PLDI '15}{June 12--20, 2015, Portland, OR, USA.}
 \copyrightyear{2015}
 %\copyrightdata{}
 
@@ -40,7 +40,7 @@
   software stacks, often involving multiple languages and custom code generators.
   We believe this is ultimately due to key characteristics of the domain:
   highly complex operators, a need for extensive code specialization for
-  performance, and a desire for permissive high--level programming styles
+  performance, and a desire for permissive high-level programming styles
   allowing productive experimentation.
 
   The Julia language attempts to provide a more effective structure
@@ -50,7 +50,7 @@
   permitted by this paradigm have proven valuable for technical computing.
   We report on how this approach has allowed domain experts to express
   useful abstractions while simultaneously providing a natural path to better
-  performance for high--level technical code.
+  performance for high-level technical code.
 \end{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
@@ -70,7 +70,7 @@ iterating through several different prototypes. Consequently, technical
 computing code is often the product of an organic process of continuous
 experimentation.
 
-Statically--typed languages focus on proving properties of programs, and constrain
+Statically-typed languages focus on proving properties of programs, and constrain
 the set of allowed programs in order to do so~\cite{Pierce2002}.
 These restrictions may run counter to how users want to reason about a problem,
 particularly
@@ -78,11 +78,11 @@ when an answer can be justified mathematically or by specialized domain
 knowledge in a way not anticipated or expressible by the type system.
 In contrast,
 dynamic languages embody a realist philosophy: programs are not checked for
-correctness, but are executed until termination or when a run--time error is
+correctness, but are executed until termination or when a run-time error is
 thrown. The focus is to make sense out of whatever program a user may write.
 
 In other words, a scientist will often run a program in order to find out what
-it does---\emph{proving} anything about what it does would be premature, and an
+it does--\emph{proving} anything about what it does would be premature, and an
 unwelcome distraction. As a result, dynamic languages like
 MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
 become popular among technical computing users.
@@ -92,17 +92,17 @@ the dynamic nature of these languages poses challenges for
 implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
 to greatly accelerate dynamic languages with various techniques, for
 technical computing the problem does not quite stop there. These systems
-crucially depend on large libraries of low--level code that provide array
+crucially depend on large libraries of low-level code that provide array
 computing kernels (e.g. matrix multiplication and other linear algebraic
 operations). Developing these libraries is a challenge, requiring a range of
 techniques including templates, code generation, and manual code
 specialization.
 
-Julia~\footnote{Julia is free and open--source software available from
+Julia~\footnote{Julia is free and open-source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
 the behavior of the v0.3.2 point release.} is a dynamic language designed to
 help users express and organize the diverse functionality required for technical computing problems, while
-attempting to maintain the ease--of--use of existing high--level
+attempting to maintain the ease-of-use of existing high-level
 languages~\cite{Bezanson2012,Bezanson2014b}.
 
 The language is built on polymorphic data and code:
@@ -134,10 +134,10 @@ The language is built on polymorphic data and code:
 %% rapid prototyping of new analytics which can also be deployed performantly,
 %% often within a factor of two of the speed of native, hand-written C code.
 
-While multiple dispatch has been extensively studied as an object--oriented
+While multiple dispatch has been extensively studied as an object-oriented
 paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
 With Julia, a growing number of scientific programmers are using multiple dispatch
-extensively---we might even say gleefully. The key property of multiple
+extensively--we might even say gleefully. The key property of multiple
 dispatch for this domain seems to be that it allows programs (particularly libraries)
 to be written incrementally, in small pieces, where each piece has a method signature
 specifying \emph{declaratively} how it fits into the whole.
@@ -175,7 +175,7 @@ In general, Julia's types allow programs to reason about:
 \item what can be statically known about a potential value.
 \end{itemize}
 %
-Furthermore, types are first--class values, allowing programs that can compute
+Furthermore, types are first-class values, allowing programs that can compute
 on types and reason about all of the above.
 
 
@@ -202,7 +202,7 @@ UnionAll ::= UnionAll T<:Type . Type
 	\begin{description}
 	
 	\item[Bits types] like double precision floating point numbers
-	(\verb|Float64|) and 32--bit signed integers (\verb|Int32|), which can
+	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which can
 	be stored unboxed as raw bits without tag overhead,
 
 	\item[Abstract data types] which have an internal representation
@@ -267,7 +267,7 @@ UnionAll ::= UnionAll T<:Type . Type
 %% Type parameters and subtyping, when combined with late binding semantics
 %% associated with dynamic dispatch, provides Julia with rich polymorphic
 %% expressiveness, facilitating code reuse and an incremental style of
-%% programming~\cite{Castagna1997} that is well--suited to the rapid prototyping
+%% programming~\cite{Castagna1997} that is well-suited to the rapid prototyping
 %% of technical codes.
 
 \subsection{Subtyping}
@@ -275,7 +275,7 @@ UnionAll ::= UnionAll T<:Type . Type
 
 Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
 declared supertype (defaulting to $\top$ if not explicitly declared).
-We conjecture that the subtype relation \verb|<:| is well--defined and
+We conjecture that the subtype relation \verb|<:| is well-defined and
 decidable, and that types are closed under meet ($\wedge$) and
 join ($\vee$).
 
@@ -415,13 +415,13 @@ but the element type provides no information about the mutability of each
 element. Consequently, the array must be represented in memory with pointers to
 boxed elements, so that checks from generated LLVM code can be inserted that
 call back into the Julia runtime to determine the actual type of the stored
-element at run--time. Thus describing arrays as parametric types allows
+element at run-time. Thus describing arrays as parametric types allows
 different data structures to be used under the hood without any semantic
 changes imposed on users, thus allowing for more performance in one case and
 greater flexibility in the other.
 
 %%Subtyping and type parameters combine to provide powerful expressions of
-%%polymorphism, similar to those formalized by $\lambda$--calculi such as
+%%polymorphism, similar to those formalized by $\lambda$-calculi such as
 %%System~F$_\le$~\cite{Cardelli1985}. However, the interaction of these two
 %%Julia languages features can be subtle and confusing. For example, \verb|Real|
 %%is not a subtype of \verb|Complex| because for each type \verb|T| that is a
@@ -472,10 +472,10 @@ greater flexibility in the other.
 %% We see that the \verb|::T| tag annotation on a field does not guarantee that
 %% the type of a value placed in the field in any given instance of that type is
 %% exactly of type \verb|T|, merely that it is a subtype of \verb|T|. Only for
-%% \verb|z1| can the compiler elide the run--time type checks and hence represent
+%% \verb|z1| can the compiler elide the run-time type checks and hence represent
 %% \verb|z1| with the fields contiguous in memory without indirection, which
 %% increases the performance of code working on \verb|z1| relative to \verb|z2|
-%% and \verb|z3|. Nevertheless, all three are fully--fledged \verb|Complex|
+%% and \verb|z3|. Nevertheless, all three are fully-fledged \verb|Complex|
 %% numbers and support all the semantics associated with the \verb|Complex| type.
 %% In this way, Julia allows for a meaningful compromise being flexibility and
 %% performance.
@@ -488,7 +488,7 @@ explicitly reasoning about types, the ability to do so is sometimes necessary fo
 understanding code performance issues. Julia provides the \verb|convert(T, x)|
 function which converts a value \verb|x| to its corresponding representation in
 the type \verb|T|. This is a generic function like any other, but since
-\verb|T| is typically a compile--time constant, \verb|convert| this can serve
+\verb|T| is typically a compile-time constant, \verb|convert| this can serve
 as a mechanism for limiting polymorphism in codes where performance
 considerations are important.
 
@@ -509,9 +509,9 @@ polymorphism~\cite{Bezanson2014b,Chen2014}. Consider an operation as
 fundamental as multiplication: an expression like \verb|a*b| can mean:
 
 \begin{itemize}
-	\item a matrix--matrix product,
-	\item a matrix--vector product, or
-	\item a scalar--vector product,
+	\item a matrix-matrix product,
+	\item a matrix-vector product, or
+	\item a scalar-vector product,
 \end{itemize}
 %
 to name just a few possibilities. A generic function system supporting
@@ -534,7 +534,7 @@ function \verb|*| knowledge about the internal representations of the types it
 works on.
 
 Multiplication represented by \verb|*| can be extended, for
-example, to multiplication between quaternions, or even to $N$--ary
+example, to multiplication between quaternions, or even to $N$-ary
 matrix-matrix products, where associativity\footnote{Neglecting the lack of
 exact associativity in some fields such as floating-point numbers.} allows
 matrix-matrix products to be regrouped so as to minimize the total memory
@@ -575,7 +575,7 @@ criteria on the allowed variances of types~\cite{Allen2011}.
 %% \verb|T = Union(Int,| \verb|Float64)| or any larger common supertype of \verb|Int| and
 %% \verb|Float64|. Thus for diagonal dispatch to match only concrete \verb|T|s,
 %% the tuple of arguments is treated \textit{not} covariantly, but rather,
-%% \textit{invariantly}. Although this is an unusual special--casing of tuple
+%% \textit{invariantly}. Although this is an unusual special-casing of tuple
 %% behavior, the greater specificity allowed by invariance makes diagonal dispatch
 %% more useful in practice by matching only concrete types, particularly when
 %% \verb|T| appears multiple times in the method signature, e.g.\ 
@@ -609,7 +609,7 @@ criteria on the allowed variances of types~\cite{Allen2011}.
 
 It is well known that type inference can be used to move tag manipulations
 and method lookup to compile time, thus eliminating most overhead from
-the execution of dynamically--typed code~\cite{Kaplan1977,Kaplan1980}.
+the execution of dynamically-typed code~\cite{Kaplan1977,Kaplan1980}.
 Data flow type inference~\cite{Nielson2005,Khedker2009}
 is especially useful in this context, as its
 flow-sensitivity yields good type information even if the type of a program
@@ -633,14 +633,14 @@ code to be written in small pieces labeled with type information (for
 dispatch), it is easier for the compiler to rule out execution paths
 that do not actually occur.
 
-Type inference in Julia occurs after code is parsed, macro--expanded, and
+Type inference in Julia occurs after code is parsed, macro-expanded, and
 lowered into a static single assignment (SSA) intermediate representation
 (IR)~\cite{Alpern1988,Rosen1988} that facilitates data flow
 analysis~\cite{Cousot1977,Cousot2000,Nielson2005} and is relatively
 straightforward to map onto LLVM IR~\cite{Lattner2004}. Julia uses Mohnen's algorithm
 for abstract interpretation~\cite{Cousot1992} which works directly on the SSA
 IR~\cite{Mohnen2002}. The abstract semantics are described internally using
-transfer functions (a.k.a.\ t--functions or flow functions), which approximate
+transfer functions (a.k.a.\ t-functions or flow functions), which approximate
 program semantics by inferring possible output types based on the types of
 the inputs.
 
@@ -672,7 +672,7 @@ the types of variables.
 
 	\item The base library provides introspection functions like
 	\verb|code_typed|, which allow users to inspect generated type
-	annotations and avoid second--guessing the compiler's intentions.
+	annotations and avoid second-guessing the compiler's intentions.
 
 	\item Variables can also be given explicit \textbf{type annotations};
 	changing \verb|x = 0| to \verb|x::Float64 = 0| declares \verb|x| to be
@@ -687,7 +687,7 @@ the types of variables.
 \end{enumerate}
 %
 External packages like \package{TypeCheck.jl} and \package{Lint.jl} provide
-further static analyses which are useful for detecting type--related issues.
+further static analyses which are useful for detecting type-related issues.
 
 
 \section{Applications in technical computing}
@@ -699,7 +699,7 @@ code as well as registered packages.
 \subsection{Type promotion}
 
 The type system and generic function system allow for type promotion rules to
-be specified in the base library rather than be hard--coded into a given
+be specified in the base library rather than be hard-coded into a given
 implementation~\cite{Bezanson2012a}. For example, simple arithmetic functions
 on general numeric types in Julia's base library contain methods of the form:
 
@@ -738,7 +738,7 @@ can be built entirely from other language constructs.
 
 \subsection{Numerical linear algebra library}
 
-Designing a general--purpose linear algebra library involves several different
+Designing a general-purpose linear algebra library involves several different
 layers of complexity, and has been described as implementing the following
 meta=-program~\cite{Demmel2007}:
 
@@ -760,10 +760,10 @@ meta=-program~\cite{Demmel2007}:
 \end{verbatim}
 }
 %
-The six--tiered hierarchy neatly delineates how the basic collection of linear
-algebra problems (1) have to be specialized by data representation (2---3) and
+The six-tiered hierarchy neatly delineates how the basic collection of linear
+algebra problems (1) have to be specialized by data representation (2--3) and
 machine details (4), which are then used to decide which specific algorithms
-(5---6) to use.
+(5--6) to use.
 
 Many systems provide optimized implementations of standard libraries for
 numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
@@ -778,12 +778,12 @@ with double precision floating point entries (\verb|D|), and furthermore takes
 eight positional arguments specifying the inputs, outputs, computation mode,
 and scratch variables. The lack of polymorphism results in redundancy due to
 lack of code reuse, which hinders the implementation of new algorithms (which
-have to be reimplemented for each level of floating--point precision) and new
-routines for such as mixed--precision and quad precision routines (which must
+have to be reimplemented for each level of floating-point precision) and new
+routines for such as mixed-precision and quad precision routines (which must
 implement all the existing algorithms).
 
 The code redundancy problem is largely ameliorated with the combination of type
-polymorphism and dynamic multiple dispatch. The six--tiered hierarchy above maps
+polymorphism and dynamic multiple dispatch. The six-tiered hierarchy above maps
 naturally onto different language constructs in Julia as follows:
 
 \vspace{12pt}
@@ -800,12 +800,12 @@ naturally onto different language constructs in Julia as follows:
 \vspace{12pt}
 
 The generic function system allows for fast specializations and generic
-fall--backs to coexist, thus allowing for speed when possible and flexibility
+fall-backs to coexist, thus allowing for speed when possible and flexibility
 otherwise. For example, Julia provides generic fall-back routines to do matrix
 computations over arbitrary fields of element types, providing the ability to
 compute on numeric types which are not mappable to hardware floating point
 types. This can be useful to perform matrix computations in exact rational
-arithmetic or software--emulated higher precision floating point arithmetic to
+arithmetic or software-emulated higher precision floating point arithmetic to
 verify the implementations of algorithms or to detect the possibility of
 numerical instability associated with roundoff errors. These general purpose
 routines coexist with BLAS and LAPACK wrappers, thus allowing dispatch onto
@@ -841,7 +841,7 @@ that specialized algorithms for symmetric matrices exist.
 		function \texttt{sqrtm}, showing that the specialized algorithm
 		can be run either from a static decision from the method
 		dispatcher based on the input type, or a dynamic decision from
-		a run--time check based on the value.}
+		a run-time check based on the value.}
 	\label{fig:sqrtm}
 \end{figure}
 
@@ -857,7 +857,7 @@ reason about the resulting special matrix, together with the matrix performing
 the transformation, as a single mathematical object rather than two separate
 matrices. Such an object represents a matrix factorization, and is essentially
 a different data structure that can represent the same content as a matrix
-represented as an ordinary two--dimensional array.
+represented as an ordinary two-dimensional array.
 
 The exact matrix factorization object relevant for a given linear algebra
 problem depends on the symmetries of the starting matrix and also the
@@ -975,7 +975,7 @@ designed to capture the highly dynamic nature of this computation:
 
 \begin{enumerate}
 \item The beginning checks for the ``easy'' properties, i.e.  those that can be
-	computed cheaply at run--time by inspecting the matrix elements. The
+	computed cheaply at run-time by inspecting the matrix elements. The
 	presence of one or more of these properties allow the input matrix
 	\verb|A| to be classified into several special cases.
 
@@ -985,9 +985,9 @@ designed to capture the highly dynamic nature of this computation:
 	choose to perform later, such as matrix multiplication.
 	
 \item For other special cases (like \verb|Tridiagonal|), it is useful to
-	attempt a run--time check for the ``hard'' properties, like positive
+	attempt a run-time check for the ``hard'' properties, like positive
 	definiteness, which require nontrivial computation. Computing the
-	Cholesky factorization serves both as an efficient run--time check to
+	Cholesky factorization serves both as an efficient run-time check to
 	detect positive definiteness, whose failure indicates lack thereof, and
 	whose success yields a useful \verb|Cholesky| matrix factorization
 	object which is useful for further computations such as solving linear
@@ -996,13 +996,13 @@ designed to capture the highly dynamic nature of this computation:
 \item The \verb|Symmetric| and \verb|Hermitian| cases use control flow
 	enabled by dynamic multimethods, as it is common for users to know
 	whether the matrices they are working with have these properties.
-	Using multimethods allows users to elide all the run--time checks
+	Using multimethods allows users to elide all the run-time checks
 	in the generic method, skipping directly to the appropriate specialized
 	method.
 
 \item The base case contains a nontrivial runtime check to determine if the
 	element type of \verb|A{T}| can be represented as a
-	hardware--representable real or complex floating point number. The
+	hardware-representable real or complex floating point number. The
 	\verb|canuseBlasFloat| variable computes the type resulting from
 	computations of the form $x / \sqrt{x + x}$, and checks that it is a
 	subtype of \verb|BlasFloat|. The reason for this check is that there
@@ -1014,7 +1014,7 @@ designed to capture the highly dynamic nature of this computation:
 \end{enumerate}
 
 In theory, it is possible to combine these structured matrix types under a
-tagged union, e.g.\ in an ML--family language. However this would be
+tagged union, e.g.\ in an ML-family language. However this would be
 less convenient. The problem is that in most contexts,
 users are happy to have these objects separated by the type system, but
 certain functions like \code{factorize} wish to combine them. It should be
@@ -1062,7 +1062,7 @@ function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
 end
 \end{lstlisting}
 
-The Bunch--Kaufman routines are implemented in two functions: \verb|bkfact|,
+The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
 which allocates new memory for the answer, and \verb|bkfact!|, which mutates
 the matrix in place to save memory. Reasoning about memory use is critical in
 numerical linear algebra applications as the matrices may be large.
@@ -1145,7 +1145,7 @@ and analyses are successively turned off. Relative to an unmodified Julia
 distribution, first the LLVM optimization passes were turned off, followed by
 some optimizations to elide allocation of tuples, function inlining, and finally
 type inference. The results of type inference are used directly to perform
-compile--time method lookup, while inference itself is only an analysis with
+compile-time method lookup, while inference itself is only an analysis with
 no performance effect. Therefore
 we report on these technically separate steps as a single item.
 The relative
@@ -1203,15 +1203,15 @@ disambiguating methods solely to suppress warnings, or otherwise
 avoid the issue entirely by not using subtyping features of Julia, which could
 reduce code reuse.
 
-Work is underway to turn such method ambiguity warnings into run--time errors,
+Work is underway to turn such method ambiguity warnings into run-time errors,
 so that the responsibility of not running nonsensical method calls is moved to
 user code.
 
 \subsection{Type stability}
 
 New users migrating from other dynamic languages like MATLAB, Python and R are
-sometimes surprised when direct, line--for--line translations to Julia do not
-achieve claimed C--like performance.
+sometimes surprised when direct, line-for-line translations to Julia do not
+achieve claimed C-like performance.
 %Empirical reports~\cite{julia-users}
 %indicate that such users are unfamiliar with reasoning about types.
 One common pitfall is \textbf{type instability}, which is exemplified in the following
@@ -1243,7 +1243,7 @@ speculative optimizations, but this has not been implemented yet.
 Another class of type instabilities results from the subtle interaction of
 parametric invariance, the use of non-leaf type parameters and type promotion.
 For example, the parametric type \verb|Complex{FloatingPoint}| is
-type--unstable under addition (\verb|+|):
+type-unstable under addition (\verb|+|):
 
 \begin{lstlisting}
 function g()
@@ -1265,7 +1265,7 @@ is neither a subtype nor a supertype of the original type.
 
 Most static languages require users to explicitly reason about type
 instabilities (e.g.\ by requiring type casts); most dynamic languages allow
-type--unstable code, but at the price of degraded performance. Julia allows
+type-unstable code, but at the price of degraded performance. Julia allows
 users to inspect the results of type inference and modify their codes to
 improve performance by sharpening type annotations on variables, using language
 constructs described in Section~\ref{sec:inference}.
@@ -1279,13 +1279,13 @@ CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
 These languages also differ in the dispatch rules: Cecil, like Julia, employs
 symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
 arguments from left to right, and Clojure's dispatch rules are
-customizable based on user--specifiable rules. The method dispatchers are also
+customizable based on user-specifiable rules. The method dispatchers are also
 limited in their expressiveness by the type system of their host languages.
 Clojure's multimethods are not a core language construct and hence interact
-only weakly with built--in types. Dispatch in CLOS is class--based and excludes
+only weakly with built-in types. Dispatch in CLOS is class-based and excludes
 parametric types. Cecil's type system supports subtype polymorphism but not
-type parameters. Dylan supports CLOS--style class--based dispatch, and also
-let--polymorphism in limited types, which is a restricted form of parametric
+type parameters. Dylan supports CLOS-style class-based dispatch, and also
+let-polymorphism in limited types, which is a restricted form of parametric
 polymorphism. However, Dylan does allows for multiple inheritance.
 
 
@@ -1318,7 +1318,7 @@ polymorphism. However, Dylan does allows for multiple inheritance.
 
 %% In other dynamic languages, vectorization is an accepted mantra for
 %% performance~\cite{matlabuserguide,Langtangen2008}, as the vectorized functions often wrap
-%% kernels written in a low--level language that deliver performance over
+%% kernels written in a low-level language that deliver performance over
 %% functionally equivalent devectorized code which use slow, directly interpreted
 %% scalar loops~\cite{Seljebotn2009,Walt2011}. Users have therefore learned that
 %% vectorized functions provide speed, and will sometimes go to great lengths to
@@ -1356,14 +1356,14 @@ polymorphism. However, Dylan does allows for multiple inheritance.
 %% collection. Thus devectorized code is preferred in Julia as scalar loops are
 %% fast with minimal overhead~\cite{Bezanson2014b}. 
 
-%% \subsection{Vectorization and higher--order functions}
+%% \subsection{Vectorization and higher-order functions}
 
 %% Users familiar with other dynamic languages for technical computing are used to
 %% working with vectorized functions~\cite{matlabuserguide,Langtangen2008}:
 %% \verb|sin(x)| should work on both scalar and vector arguments \verb|x|. However,
 %% vectorized functions have limited
 %% extensibility and composability. Implementations can only bless some
-%% functions to be vectorized; vectorized functions which wrap external low--level
+%% functions to be vectorized; vectorized functions which wrap external low-level
 %% kernels lack code reuse and cannot be extended easily. In contrast, the Julia
 %% standard library implements vectorized functions consistently using using code
 %% generated by the macros \verb|@vectorize_1arg|, \\
@@ -1421,7 +1421,7 @@ polymorphism. However, Dylan does allows for multiple inheritance.
 %% 	fully typed within the type environment where \verb|map| is invoked.
 %% 	Furthermore the type environment must yield enough information about
 %% 	\verb|y| so that the method dispatcher is able to pick out a
-%% 	specialized method over the generic fall--back for \verb|f|.
+%% 	specialized method over the generic fall-back for \verb|f|.
 
 %% 	\item Since Julia lacks true function types, the output type of
 %% 	\verb|f(y)| must be inferred from data flow analysis, and the inferred
@@ -1466,7 +1466,7 @@ Nevertheless, the current type system, generic function system with
 multimethods and type inference with aggressive method specialization afford
 rich semantics which are useful for technical computing applications.
 Furthermore, the design and interaction between these language components allow
-users to design their own Pareto--optimal tradeoffs between performant
+users to design their own Pareto-optimal tradeoffs between performant
 specialization and flexible generality within a single programming language.
 
 
@@ -1477,7 +1477,7 @@ the Julia language.}
 
 %The authors gratefully acknowledge support from the MIT Deshpande center for
 %technical innovation, the Intel Technology Science Center for Big Data, the
-%DARPA XDATA program, the Singapore--MIT Alliance, NSF Awards CCF-0832997 and
+%DARPA XDATA program, the Singapore-MIT Alliance, NSF Awards CCF-0832997 and
 %DMS-1016125, VMWare Research, a DOE grant with Dr. Andrew Gelman of Columbia
 %University for petascale hierarchical modeling, a Citibank grant for High
 %Performance Banking Data Analysis, and the Levine Fellowship.}
