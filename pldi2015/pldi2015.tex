@@ -946,10 +946,10 @@ function factorize{T}(A::Matrix{T})
     
     # Can the result of a QR factorization be represented
     # using a floating point type supported by BLAS?
-    const BlasFloat = Union(Float32, Float64, Complex64,
-        Complex128)
-    canuseBlasFloat = typeof(zero(T)/sqrt(zero(T) +
-        zero(T)))<:BlasFloat)
+    BlasFloat =
+    	Union(Float32, Float64, Complex64, Complex128)
+    canuseBlasFloat = 
+    	typeof(zero(T)/sqrt(zero(T) + zero(T)))<:BlasFloat)
 
     # Factorize into pivoted QR form where possible,
     # otherwise compute (unpivoted) QR form
@@ -959,8 +959,9 @@ end
 # Factorize a Hermitian or Symmetric matrix into
 # Bunch-Kaufman form as computed by bkfact
 typealias HermOrSym Union(Hermitian, Symmetric)
-factorize(A::HermOrSym) = bkfact(A.data, symbol(A.uplo),
-    issym(A))
+
+factorize(A::HermOrSym) = 
+	bkfact(A.data, symbol(A.uplo), issym(A))
 \end{lstlisting}
 
 The \verb|factorize| function contains a few interesting features
