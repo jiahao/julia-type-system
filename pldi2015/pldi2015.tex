@@ -400,12 +400,12 @@ parameter, regardless of whether the parameter corresponds to an abstract or
 concrete type. The rationale for this behavior allows for the Julia compiler to
 reason about different representations, and is perhaps best explained in the
 context of arrays. For arrays, the type parameter describes the set of possible
-element types ~\cite{Bezanson2014}.  An \verb|Array{Float64}|
+element types~\cite{Bezanson2014}. An \verb|Array{Float64}|
 can only contain concrete elements of type \verb|Float64|, whereas an
 \verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
 as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
 consists of concrete immutable elements and can be reified with a single
-pointer to a contiguous memory block.  This allows the tags for each element to be elided,
+pointer to a contiguous memory block. This representation allows the tags for each element to be elided,
 resulting in a memory layout which can interoperate with C or Fortran code.
 The latter array can store more diverse objects,
 but the element type provides no information about the mutability of each
