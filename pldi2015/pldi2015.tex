@@ -1307,7 +1307,10 @@ constructs described in Section~\ref{sec:inference}.
 
 \subsection{Vectorization and higher--order functions}
 
-Another more subtle issue with vectorized functions is their limited
+Users familiar with other dynamic languages for technical computing are used to
+working with vectorized functions~\cite{matlabuserguide,Langtangen2008}:
+\verb|sin(x)| should work on both scalar and vector arguments \verb|x|. However,
+vectorized functions have limited
 extensibility and composability. Implementations can only bless some
 functions to be vectorized; vectorized functions which wrap external low--level
 kernels lack code reuse and cannot be extended easily. In contrast, the Julia
