@@ -903,74 +903,22 @@ is simplified by generic functions and multiple dispatch.}
 
 \section{Related Work}
 
-Languages with multimethods
-Cecil
-CLOS
-Clojure
-Dylan
-Xtend
-and moar.
-
-Languages supporting dynamic multiple dispatch
-CLOS
-Clojure
-Dylan
-Xtend
-
-Type systems of these languages
-
-How they resolve implementation details of dynamic multiple dispatch.
+The more common programming languages that support dynamic multiple dispatch
+are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp with
+CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
+These languages also differ in the dispatch rules: Cecil, like Julia, employs
+symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
+arguments from leftmost to rightmost, and Clojure's dispatch rules are
+customizable based on user--specifiable rules. The method dispatchers are also
+limited in their expressiveness by the type system of their host languages.
+Clojure's multimethods are not a core language construct and hence interact
+only weakly with built--in types. Dispatch in CLOS is class--based and excludes
+parametric types. Cecil's type system supports subtype polymorphism but not
+type parameters. Dylan supports CLOS--style class--based dispatch, and also
+let--polymorphism in limited types, which is a restricted form of parametric
+polymorphism. However, Dylan does allows for multiple inheritance.
 
 
-Dynamic dispatch is more general than static dispatch since it covers cases
-which cannot be determined at compile time.  Common examples involve data
-retrieval with a persistent storage, generating string representations for text
-output or data serialization.\cite{Shields1998}
-
-
-
-\paragraph{Dylan}
-
-Like Julia, dispatch is dynamic, except where the compiler has determined
-(possibly with sealing optimizations) that it can be optimized into a static
-dispatch.
-
-Dylan is object-oriented in the style of Common Lisp, but unlike Common Lisp,
-also integrates the object system into the language.
-
-Dylan supports a limited form of parametric types, which are called limited
-types.\cite{dylanman} This allows for some modicum of generic programming.
-
-Dylan allows structural inheritance from concrete types by structural
-inheritance, i.e.\ by adding fields on top of those in the parent type. In
-Julia all concrete types are final: inheritance is only allowed from abstract
-types which are essentially what OO researchers call traits. Dylan lacks
-traits, which are a useful mechanism for expressing generic programs.
-
-Julia's focus is not on objects, but rather on generic and functional
-programming.
-
-Dylan supports multiple inheritance, while Julia does not and instead resorts
-to duck typing.
-
-An extension for Dylan allows for gradual typing, allowing for type information
-to be determined at compile time~\cite{Mehnert2010}.
-
-Dynamic multiple dispatch is opt-in.
-
-\paragraph{Haskell}
-
-The main strategy in Haskell to deal with types that are not statically
-decidable is to use staged type inference.~\cite{Shields1998}
-
-\TODO{
-Dynamic typing in polymorphic languages
-M. Abadi, L. Cardelli, B. Pierce and D. Rémy Journal of Functional Programming / Volume 5 / Issue 01 / January 1995, pp 111 - 130 DOI: 10.1017/S095679680000126X
-}
-
-CLOS
-
-Clojure
 
 \section{Implementation challenges}
 
