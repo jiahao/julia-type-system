@@ -970,23 +970,57 @@ factorize(A::HermOrSym) = bkfact(A.data, symbol(A.uplo),
     issym(A))
 \end{lstlisting}
 
-The main \verb|factorize| method first checks for the ``easy'' properties, i.e.
-those that can be computed cheaply at run--time by inspecting the matrix
-elements. The presence of one or more of these properties allow the input
-matrix \verb|A| to be classified into several special cases. For many of these
-cases (like \verb|Diagonal|), \verb|A| is explicitly converted to a special
-matrix type which allows dispatch on efficient specializations of linear
-algebraic operations that users may choose to perform later, such as matrix
-multiplication. For other special cases (like \verb|Tridiagonal|), it is useful
-to attempt a run--time check for the ``hard' properties, like positive
-definiteness, which require nontrivial computation. Computing the Cholesky
-factorization serves both as an efficient run--time check to detect positive
-definiteness, whose failure indicates lack thereof, and whose success yields
-a useful \verb|Cholesky| matrix factorization object which is useful for
-further computations such as solving linear equations or computing singular
-value decompositions (SVDs).
+The \verb|factorize| function contains a few interesting features
+designed to capture the highly dynamic nature of this computation:
 
-The base case is also interesting.
+\begin{enumerate}
+\item The beginning checks for the ``easy'' properties, i.e.  those that can be
+	computed cheaply at run--time by inspecting the matrix elements. The
+	presence of one or more of these properties allow the input matrix
+	\verb|A| to be classified into several special cases.
+
+\item For many of these special cases (like \verb|Diagonal|), \verb|A| is
+	explicitly converted to a special matrix type which allows dispatch on
+	efficient specializations of linear algebraic operations that users may
+	choose to perform later, such as matrix multiplication.
+	
+\item For other special cases (like \verb|Tridiagonal|), it is useful to
+	attempt a run--time check for the ``hard' properties, like positive
+	definiteness, which require nontrivial computation. Computing the
+	Cholesky factorization serves both as an efficient run--time check to
+	detect positive definiteness, whose failure indicates lack thereof, and
+	whose success yields a useful \verb|Cholesky| matrix factorization
+	object which is useful for further computations such as solving linear
+	equations or computing singular value decompositions (SVDs).
+
+\item The \verb|Symmetric| and \verb|Hermitian| cases use control flow
+	enabled by dynamic multimethods, as it is common for users to know
+	whether the matrices they are working with have these properties.
+	Using multimethods allows users to elide all the run--time checks
+	in the generic method, skipping directly to the appropriate specialized
+	method.
+
+\item The base case contains a nontrivial runtime check to determine if the
+	element type of \verb|A{T}| can be represented as a
+	hardware--representable real or complex floating point number. The
+	\verb|canuseBlasFloat| variable computes the type resulting from
+	computations of the form $x / \sqrt{x + x}$, and checks that it is a
+	subtype of \verb|BlasFloat|. The reason for this check is that there
+	are two variants of the QR factorization: one pivoted, the other not.
+	The former is generally preferred for numerical stability but is also
+	significantly more difficult to compute, and hence is not yet
+	implemented for all possible element types.
+
+\end{enumerate}
+
+In theory, it is possible to combine these structured matrix types under a
+tagged union, e.g. in an ML-family language. However this would be
+significantly less convenient. The problem is that in most contexts,
+users are happy to have these objects separated by the type system, but
+certain functions like \code{factorize} wish to combine them. It should be
+possible to pass the result of such a function directly to an existing
+routine that expects a particular matrix structure, without needing to
+interpose case analysis to handle a tagged union.
 
 It is also instructive to look more carefully at the methods for \verb|bkfact|,
 which is but one of the several factorizations computed in \verb|factorize|:
@@ -1028,24 +1062,16 @@ function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
 end
 \end{lstlisting}
 
-For example, calling \code{factorize}
-on a symmetric positive definite matrix returns a \code{Cholesky} type
-representing a Cholesky factorization, whereas a symmetric indefinite matrix
-would yield a \code{BunchKaufman} type encoding a Bunch--Kaufman factorization
-instead. Positive definiteness is a good example of a matrix property that can
-be difficult to determine \textit{a priori} and the fastest way to detect it
-would be to attempt to compute a matrix factorization that succeeds only on
-postiive definite matrices (such as the Cholesky decomposition), and fallback
-to returning a different type if the computation failed.
-
-In theory, it is possible to combine these structured matrix types under a
-tagged union, e.g. in an ML-family language. However this would be
-significantly less convenient. The problem is that in most contexts,
-users are happy to have these objects separated by the type system, but
-certain functions like \code{factorize} wish to combine them. It should be
-possible to pass the result of such a function directly to an existing
-routine that expects a particular matrix structure, without needing to
-interpose case analysis to handle a tagged union.
+The Bunch-Kaufman routines are implemented in two functions: \verb|bkfact|,
+which allocates new memory for the answer, and \verb|bkfact!|, which mutates
+the matrix in place to save memory. Reasoning about memory use is critical in
+numerical linear algebra applications as the matrices may be very large.
+Reusing allocated memory for matrices also avoids unnecessary copies of data to
+be made, potentially minimizing memory accesses and reducing the need to
+trigger garbage collection. The base library thus provides the latter for users
+who need to reason about memory usage, and the former for users who do not.
+Additionally, the type parameter \verb|T| describing the element type allows
+for appropriate dispatch upon external LAPACK routines.
 
 
 \subsection{Generic functions for statistical library routines}
