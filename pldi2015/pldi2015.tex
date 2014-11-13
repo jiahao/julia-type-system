@@ -166,12 +166,12 @@ to values, but incur overhead which increases the memory footprint of a data
 item. This overhead motivates most dynamically typed languages to simplify and
 minimize their tag systems.
 
-Julia instead allows type tags with nested structure, indeed forming nearly
+Julia is unusal in allowing type tags with nested structure, forming nearly
 arbitrary symbolic expressions. This has two immediate benefits: first,
 it expands the criteria programmers have available for dispatching, and second,
-provides more information to the compiler. Julia's type tags are designed
-to form a lattice structure, which enables effective data flow analysis.
-In general, Julia's types allow programs to reason about:
+provides much richer information to the compiler. Julia's type tags are designed
+to form a lattice, which facilitates data flow analysis.
+In general, Julia's types allow the following aspects of a program to be reasoned about:
 
 \begin{itemize}
 \item when code is applicable (dispatch),
@@ -182,7 +182,9 @@ In general, Julia's types allow programs to reason about:
 %
 Furthermore, types are first-class values, allowing programs that can compute
 on types and reason about all of the above.
-
+Julia's type inference, for example, which analyzes and annotates Julia
+code before machine code generation, is written in Julia itself and runs as
+normal code, manipulating both code and types as values.
 
 \subsection{Kinds of types}
 
