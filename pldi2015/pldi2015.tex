@@ -449,7 +449,7 @@ correspondence with a value in \verb|Complex{Integer}| and also in
 neither \verb|Complex{Integer}| nor \verb|Complex{Real}| due to parametric
 invariance. However, all of these are subtypes of \verb|Complex|.
 
-The instatiability of parametric types with non-leaf type parameters can lead
+The instantiability of parametric types with non-leaf type parameters can lead
 to subtle performance bottlenecks and reasoning pitfalls. Consider the three
 \code{Complex} numbers
 
@@ -693,8 +693,8 @@ code as well as registered packages.
 
 The type system and generic function system allow for type promotion rules to
 be specified in the base library rather than be hard--coded into a given
-implementation. For example, simple arithmetic functions on general numeric
-types in Julia's base library contain methods of the form:
+implementation~\cite{Bezanson2012a}. For example, simple arithmetic functions
+on general numeric types in Julia's base library contain methods of the form:
 
 \begin{lstlisting}
 +(x::Number, y::Number) = +(promote(x,y)...)
@@ -1209,9 +1209,21 @@ specialization and flexible generality within a single programming language.
 
 \subsection{Method ambiguities}
 
-What is method ambiguity
+Julia uses symmetric multiple dispatch where all arguments have equal priority
+for dispatch. This contrasts with some other languages like
+Cecil~\cite{Chambers1992,Chambers1994} and Dylan~\cite{dylanman}, which
+prioritize the arguments from left to right. Julia instead sorts methods by
+specificity~\cite{Bezanson2012}. For example, the function \verb|f| defined by 
 
-What is a disambiguating method.
+\begin{lstlisting}
+f(x::Real, y::Int) = 1
+f(x::Int, y::Real) = 2
+\end{lstlisting}
+%
+results in a method ambiguity because it is not clear which method gets
+dispatched for inputs of type \verb|(Int, Int)|. To solve this problem, Julia
+requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
+these two methods.
 
 Method ambiguity warnings were intended to reveal problems in multimethod
 definitions. However, at other times it is a major nuisance for library
