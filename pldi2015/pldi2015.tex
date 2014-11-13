@@ -340,10 +340,10 @@ are also types, allowing parametrically polymorphic types to be defined.
 An example of parametric type is:
 
 \begin{lstlisting}
-abstract foo{S, T<:Real, Int<:U<:Signed}
+abstract Foo{S, T<:Real, Int<:U<:Signed}
 \end{lstlisting}
 %
-\verb|foo| is defined with three \verb|TypeVar|s which act as placeholders for
+\verb|Foo| is defined with three \verb|TypeVar|s which act as placeholders for
 types. \verb|T| and \verb|U| are bounded \verb|TypeVar|s, which constrain the
 set of allowed types which can be placed in their respective slots. For
 convenience, an unbound type parameter can be omitted from a parametric type
