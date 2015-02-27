@@ -23,8 +23,9 @@
 %\titlebanner{banner above paper title}        % These are ignored unless
 \preprintfooter{DRAFT - do not distribute}   % 'preprint' option specified.
 
-\title{Multiple Dispatch and Parametric Types for \vspace{0.25em}\\
-Abstraction and Performance in Technical Computing}
+\title{Fast Flexible Multiple Dispatch in Julia}
+%\title{Multiple Dispatch and Parametric Types for \vspace{0.25em}\\
+%Abstraction and Performance in Technical Computing}
 %\subtitle{Subtitle Text, if any}
 \authorinfo{}{}{}
 %\authorinfo{Jeff Bezanson \and Jake Bolewski \and Jiahao Chen \and Stefan Karpinski \and Jean Yang \and Alan Edelman}
@@ -33,26 +34,7 @@ Abstraction and Performance in Technical Computing}
 
 \maketitle
 
-\begin{abstract}
-  Technical computing (generally, programming for applied math and the sciences) tends
-  to be a difficult application area for programming languages to address. This is
-  evinced by the unusually large number of specialized languages in the area
-  (e.g. MATLAB~\cite{matlab}, R~\cite{rlang}), and the complexity of common
-  software stacks, often involving multiple languages and custom code generators.
-  We believe this is ultimately due to key characteristics of the domain:
-  highly complex operators, a need for extensive code specialization for
-  performance, and a desire for permissive high-level programming styles
-  allowing productive experimentation.
-
-  The Julia language attempts to provide a more effective structure
-  for this kind of programming by allowing programmers to express complex
-  polymorphic behaviors using dynamic multiple dispatch over
-  parametric types. The forms of extension and reuse
-  permitted by this paradigm have proven valuable for technical computing.
-  We report on how this approach has allowed domain experts to express
-  useful abstractions while simultaneously providing a natural path to better
-  performance for high-level technical code.
-\end{abstract}
+\input{abstract}
 
 \category{D.3.3}{PROGRAMMING LANGUAGES}{Language Constructs and Features}
 
