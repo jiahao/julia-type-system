@@ -1,6 +1,7 @@
 x ↔ y = for i=1:length(x) #Define swap function
   x[i], y[i] = y[i], x[i]
 end
+
 function lucompletepiv!(A)
   n=size(A, 1)
   rowpiv=zeros(Int, n-1)
