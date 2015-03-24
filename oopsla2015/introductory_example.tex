@@ -1,15 +1,126 @@
 \section{Introductory Example}
-In this section, we demonstrate some of the challenges involved in reasoning about types for scientific programs and then describe how Julia's type system addresses these issues.
 
-\TODO{Find an example that works both for demonstrating what's hard about scientific programs and showing off the Julia type system.}
+Code for technical computing often sacrifices abstraction for performance,
+and is less expressive as a result. In contrast, mathematical ideas are
+inherently polymorphic and amenable to abstraction. Consider a simple example
+like multiplication, represented in Julia by the \lstinline|*| operator.
+\lstinline|*| is a generic function in Julia, and has specialized methods for
+many different multiplications, such as scalar--scalar products, scalar--vector
+products, and matrix--vector products. Expressing all these operations using
+the same generic function captures the common metaphor of multiplication.
 
-\subsection{The Difficulty of Assigning Types to Scientific Programs}
-\TODO{Explain the example.}
+\subsection{Bilinear forms}
 
-\TODO{Explain how static types would be a nightmare.}
+Julia allows user code to extend the \lstinline|*| operator, which can be
+useful for more specialized products. One such example is bilinear forms, which
+are vector--matrix--vector products of the form
 
-\subsection{Using Julia}
-\TODO{Explain how Julia makes things nice, first in terms of the code. Use the example to give a mini Julia tutorial here.}
+\begin{equation}
+\gamma = v^\prime M w = \sum_{ij} v_i M_{ij} w_j
+\end{equation}
 
-\subsection{Dispatch in Julia}
-\TODO{Now explain how Julia is dispatching on this example and allude to all the speedup stuff that is going to be explained later.}
+This bilinear form can be expressed in Julia code of the form
+%
+\begin{lstlisting}
+function *{T}(v::AbstractVector{T}, M::AbstractMatrix{T},
+        w::AbstractVector{T})
+
+    if !(size(M, 1) == length(v) &&
+            size(M, 2) == length(w))
+
+        throw(BoundsError())
+    end
+    $\gamma$ = zero(T)
+    for i = 1:size(M, 1), j = 1:size(M, 2)
+        $\gamma$ += v[i] * M[i, j] * w[j]
+    end
+    return $\gamma$
+end
+\end{lstlisting}
+%
+The newly defined method can be called in an expression like
+\lstinline|v * M * w|, which is parsed and desugared into an ordinary function
+call \lstinline|*(v, M, w)|. This method takes advantage of the result being a
+scalar to avoid allocating intermediate vector quantities, which would be
+necessary if the products were evaluated pairwise like in $v^\prime(Mw)$ and
+$(v^\prime M) w$. Avoiding memory allocation reduces the number of
+heap-allocated objects and produces less garbage, both of which are important
+for performance considerations.
+
+TODO describe use of parametric polymorphism and container polymorphism
+
+\subsection{Matrix equivalences}
+
+Matrix equivalences are another example of specialized product that users may
+want. Two $n\times n$ matrices $A$ and $B$ are considered equivalent if there
+exist invertible matrices $V$ and $W$ such that $B = V * A * W^\prime$.
+Oftentimes, equivalence relations are considered between a given matrix $B$ and
+another matrix $A$ with special structure. Matrices with special structure are
+ubiquitous in numerical linear algebra. An example would be rank-$k$ matrices,
+which can be written in the outer product form $A = X Y^\prime$ where $X$ and
+$Y$ each have $k$ columns. Rank-$k$ matrices may be reified as dense
+two-dimensional arrays, but the matrix--matrix--matrix product $V * A *
+W^\prime$ would take $O(n^3)$ time to compute. Instead, when $k \ll n$, the
+product be computed more efficiently in $O(kn^2)$ time, since
+%
+\begin{equation}
+V A W^\prime = V (X Y^\prime) W^\prime = (V X) (W Y)^\prime
+\end{equation}
+%
+and the result is again a rank-$k$ matrix. Furthermore, we can avoid
+constructing $W^\prime$, the transpose of $W$, explicitly. Therefore in some
+cases, it is sensible to store $A$ as the two matrices $X$ and $Y$ separately,
+rather than as a reified 2D array.
+
+Julia allows users to encapsulate $X$ and $Y$ within a specialized type:
+%
+\begin{lstlisting}
+type OuterProduct{T}
+    X :: Matrix{T}
+    Y :: Matrix{T}
+end
+\end{lstlisting}
+%
+Defining the new \lstinline|OuterProduct| type has the advantage of grouping
+together objects that belong together, but also enables dispatch based on the
+type itself. We can now write a new method for \lstinline|*|:
+%
+\begin{lstlisting}
+*(V, M::OuterProduct, W) = OuterProduct(V*M.X, W*M.Y)
+\end{lstlisting}
+%
+This method definition uses a convenient one-line syntax for short definitions
+instead of the \lstinline|function ... end| block. This method also does not
+annotate \lstinline|V| or \lstinline|W| with types, and so they are considered to
+be of $\top$ type (\lstinline|Any| in Julia). This method may be called with
+any $V$ and $W$ which support premultiplication: so long as \lstinline|V*M.X|
+and \lstinline|W*M.Y| are defined and produce matrices of the same type, then
+the code will run without errors. This flexibility is convenient since $V$ and
+$W$ can now be scalars or matrixlike objects which themselves have special
+structures, or are not even stored at all, but implicitly defined through their
+products by their actions on a \lstinline|Matrix|.
+
+Julia does not require everything to be type annotated explicitly. The missing types are determined dynamically based on the arguements at the call site. Any other misisgin types, such as the return type of the oyutput or any intermediate quantities, are inferred using forward data flow analysis. Julia gives us intropection commands to see wha tth erteusl to these static analyses arew. If the result of data flow type anlayis can yield a concrete (instantiable, nonabstract type), then there is the possibijlity for compiling a specialized methods whcich acan be cached for later reuse. This hoists the runtype type checks otu the the specialized methods, allowing for fast code. At the same time, a generic fallback is retained for flexibility. Becuase Julia has late binding semantics, a specialized method mady be generated at any time, even for types which are not yet defined. Forward data flow analaysis allows this to happen. Segue into LU example.
+
+Introspection tools like \lstinline|return_types|
+
+\begin{lstlisting}
+julia> Base.return_types(*, (Float64, OuterProduct{Complex128}, Matrix{Int}))
+1-element Array{Any,1}:
+ OuterProduct{Complex{Float64}}
+
+key points - automatic promotion.
+
+julia> Base.return_types(*, (Float64, OuterProduct{Number}, Matrix{Rational{Int}}))
+1-element Array{Any,1}:
+ OuterProduct{Number}
+
+key points - automatic promotion, parametric invariance.
+
+julia> Base.return_types(*, (Float64, OuterProduct{Matrix}, Matrix{Matrix})) #Don't know how to do Float64 * Matrix{T}
+1-element Array{Any,1}:
+ Any
+
+key point - sometimes dataflow doesn't succeed
+
+\end{lstlisting}
