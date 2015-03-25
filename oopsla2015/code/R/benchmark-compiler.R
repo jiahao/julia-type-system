@@ -3,12 +3,12 @@ library(compiler)
 source("lucompletepivot.R")
 
 lup <- cmpfun(lu_complete_pivot)
-timings <- matrix(0, 9, 9)
+timings <- matrix(0, 8, 9)
 mbargs <- list()
 mbargs$warmup <- 0
 
 j <- 1
-for (n in c(10, 20, 50, 100, 200, 500, 1000, 2000, 5000)) {
+for (n in c(10, 20, 50, 100, 200, 500, 1000, 2000)) {
 	A <- matrix(rnorm(n*n), n, n)
 	data <- microbenchmark(lup(A), times=5, control=mbargs)
 	t <- data$time / 10^9 #Nanoseconds to seconds
