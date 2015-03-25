@@ -1,3 +1,4 @@
+feature accel off;
 timings = [];
 for n = [10, 20, 50, 100, 200, 500, 1000, 2000]
     A = randn(n);
@@ -9,4 +10,4 @@ for n = [10, 20, 50, 100, 200, 500, 1000, 2000]
     end
     timings = [timings; [n t' min(t) mean(t) std(t)]]
 end
-dlmwrite('../../data/lu/octave-jit.csv', timings, 'precision', 15)
+dlmwrite('../../data/lu/octave-nojit.csv', timings, 'precision', 15)
