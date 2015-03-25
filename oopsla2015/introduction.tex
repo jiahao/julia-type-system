@@ -1,5 +1,7 @@
 \section{Introduction}
-Performance is important to scientific computing. Programs for applied math and the sciences often perform complex operations over large amounts of inputs. For this reason, languages supporting such programs need to be efficient.
+
+Programs for applied math and science applications often process large amounts of data, and
+therefore need to be efficient.
 
 It has become popular to use dynamic languages such as Python/NumPy, Matlab, R, Perl, and others.
 %[Numerical methods using MATLAB JH Mathews, KD Fink], R [R: a language for data analysis and graphics
@@ -12,7 +14,7 @@ It has become popular to use dynamic languages such as Python/NumPy, Matlab, R, 
 Dynamic languages features facilitate writing certain kinds of code, use cases
 for which occur in various technical computing applications.
 \cite{Holkner2009}'s analysis of Python programs revealed the use of dynamic
-frames across most applications, occurring mostly at startup for data I/O, but
+features across most applications, occurring mostly at startup for data I/O, but
 also throughout the entire program's lifetime, particularly in programs
 requiring user interactivity. Such use cases certainly appear in technical
 computing applications such as data visualization and data processing scripts.
@@ -20,30 +22,36 @@ computing applications such as data visualization and data processing scripts.
 features of JavaScript were commonly use to extend behaviors of existing types
 like arrays. Such use cases are also prevalent in technical computing
 applications, to imbue existing types with nonstandard behaviors that are
-nonetheless useful for specific domain areas. \cite{Callau2012}'s study of
-Smalltalk programs uncovered specific uses for dynamic dispatch, particularly
-in I/O heavy applications such as serialization/deserialization over a network
-socket, low level device driver interface, or such as method dispatch in a
-remote communication framework. Such use cases feature prominently in
-technical computing programs that have to interface with custom hardware for
-scientific instruments, and also in data parallel computations.
+nonetheless useful for domain areas.
+%\cite{Callau2012}'s study of
+%Smalltalk programs uncovered specific uses for dynamic dispatch, particularly
+%in I/O heavy applications such as serialization/deserialization over a network
+%socket, low level device driver interface, or such as method dispatch in a
+%remote communication framework. Such use cases feature prominently in
+%technical computing programs that have to interface with custom hardware for
+%scientific instruments, and also in data parallel computations.
 
-Unfortunately, popular implementations of these high level languages do not offer the performance necessary. Code written in these languages is difficult to execute efficiently; the dynamic nature of these languages poses challenges for
-implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
+%Unfortunately, popular implementations of these high level languages do not offer the necessary performance.
+Code written in these languages is difficult to execute efficiently~\cite{Joisha2001,Joisha2006,Seljebotn2009}.
+While it is possible
 to greatly accelerate dynamic languages with various techniques, for
 technical computing the problem does not stop there. These systems
 crucially depend on large libraries of low-level code that provide array
 computing kernels (e.g. matrix multiplication and other linear algebraic
 operations). Developing these libraries is a challenge, requiring a range of
 techniques including templates, code generation, and manual code
-specialization. To achieve performance users end up having to transcribe their prototyped codes into a lower level static language, resulting in duplicated effort and higher maintenance costs. This has sometimes been called the two language problem.
+specialization. To achieve performance users end up having to transcribe their prototyped codes into a lower level static language, resulting in duplicated effort and higher maintenance costs.
+%This has sometimes been called the two language problem.
 
-We have designed the Julia programming language~\footnote{Julia is free and open-source software available from
-\url{http://julialang.org} under the MIT license. In this paper, we describe
-the behavior of the v0.3.2 point release.} based on the hypothesis that dynamic method dispatch is a major bottleneck in scientific programs. Julia is a dynamically typed language designed to help users express and organize the diverse functionality required for technical computing problems, while maintaining the ease-of-use of popular high-level languages~\cite{Bezanson2012,Bezanson2014b}. To address this problem, Julia supports efficient multiple dispatch over dynamic parametric types. The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used for both performance and reasoning. [Say some high-level sentences about what type tags are.]
+%We have designed the Julia programming language~\footnote{Julia is free and open-source software available from
+%\url{http://julialang.org} under the MIT license. In this paper, we describe
+%the behavior of the v0.3.2 point release.} based on the hypothesis that dynamic method dispatch is a ma%jor bottleneck in scientific programs.
+Julia is a dynamically typed language designed to help users express and organize the diverse functionality required for technical computing problems, while maintaining the ease-of-use of popular high-level languages~\cite{Bezanson2012,Bezanson2014b}.
+To address this problem, Julia supports efficient multiple dispatch over structured type tags.
+%The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used for both performance and reasoning. [Say some high-level sentences about what type tags are.]
 Julia's compiler statically resolves type tags as much as possible to reduce the overhead of dynamic dispatch.
 
-In this paper, we describe the algorithm for taking advantage of these static annotations. We describe how the static type resolution provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse. When combined with an extensive base library for parallel execution and numerical analysis, Julia provides a convenient environment for rapid prototyping of new scientific computing code that can be deployed often within a factor of two of the speed of native, hand-written C code.
+%In this paper, we describe the algorithm for taking advantage of these static annotations. We describe how the static type resolution provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse. When combined with an extensive base library for parallel execution and numerical analysis, Julia provides a convenient environment for rapid prototyping of new scientific computing code that can be deployed often within a factor of two of the speed of native, hand-written C code.
 
 The main contributions of the paper are as follows:
 \begin{itemize}

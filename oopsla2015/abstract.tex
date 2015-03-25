@@ -6,19 +6,19 @@ supercomputers, and high performance, but also dominated by high-level tools nee
 for domain expert productivity.
 %Mediating these opposing requirements is a challenge.
 At the language level, this conflict manifests in two ways.
-First, there is a need for complex operators for arithmetic, linear algebra, and computing
-with multi-dimensional arrays.
+First, there is a need for behaviorally-rich operators for arithmetic, linear algebra, and
+multi-dimensional arrays.
 These operators tend to need many definitions and sometimes accept a large number of
 arguments.
 Second, technical programs freely combine operations with different binding times.
 In one context, there might be a type-level distinction between two objects that
-must be resolved statically, usually for performance.
+must be resolved statically for performance.
 In a different context, the same objects might need to participate in dynamic dispatch.
 
 Current solutions to this design problem often use two languages: a low-level
 statically-typed language for performance, and a different language for dynamic
 dispatch.
-NumPy (TODO CITE) is a popular example of this pattern.
+NumPy \cite{numpy} is a popular example of this pattern.
 We find this solution unsatisfactory, primarily due to its complexity and the need
 to manually separate static and dynamic components.
 Secondarily, the performance of such systems is limited by their inability to
@@ -27,7 +27,7 @@ low-level library code.
 
 Julia is a programming language designed to address this problem.
 In this paper we will show how it uses a combination of dynamic type-based
-dispatch and data-flow type inference to
+dispatch and data flow type inference to
 make it easier to obtain good performance from high-level technical programs.
 
 %We have found that dynamic type-based dispatch is an effective paradigm for these programs.

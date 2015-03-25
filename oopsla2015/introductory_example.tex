@@ -19,14 +19,14 @@ are vector--matrix--vector products of the form
 \gamma = v^\prime M w = \sum_{ij} v_i M_{ij} w_j
 \end{equation}
 %
-This bilinear form can be expressed in Julia code of the form
+This bilinear form can be expressed in Julia code as
 %
 \begin{lstlisting}
 function (*){T}(v::AbstractVector{T}, 
                 M::AbstractMatrix{T},
                 w::AbstractVector{T})
     if !(size(M,1) == length(v) && 
-         size(M, 2) == length(w))
+         size(M,2) == length(w))
         throw(BoundsError())
     end
     $\gamma$ = zero(T)
@@ -62,8 +62,13 @@ arguments. The type parameter \lstinline|T| can also used in the function body;
 here, it is used to initialize a zero value of the appropriate type for
 $\gamma$.
 
-The initialization statement \lstinline|$\gamma$ = zero(T)| allows Julia's compiler
-to generate \textbf{type stable} code. If \lstinline|T| is a concrete immutable
+The initialization statement \lstinline|$\gamma$ = zero(T)| requests a zero
+element of the appropriate type.
+In Julia this is important because using a zero value of a different type can
+cause a different method to be called.
+%allows Julia's compiler
+%to generate \textbf{type stable} code.
+If \lstinline|T| is any concrete %immutable
 type, e.g.\ \lstinline|Float64| (64-bit floating point real numbers), then
 Julia's just-in-time compiler can analyze the code statically to remove type
 checks.  For example, in the method with signature
@@ -80,15 +85,17 @@ Were we to replace the initialization with the similar-looking
 \lstinline|$\gamma$ = 0|, we would have instead a \textbf{type instability}
 when \lstinline|T = Float64|. Because $\gamma$ is initialized to an
 \lstinline|Int| (native machine integer) and it is incremented zero or more
-times by a \lstinline|Float64| in the \lstinline|for| loop, the compiler cannot
-determine a concrete type for $\gamma$ at compile time, since the actual
-concrete type depends on the size of the input array $M$, which can only be
-determined by the specific value bound to $M$. Instead, $\gamma$ is inferred to
-be the type union \lstinline|Union(Int,Float64)|, which is the least upper
-bound on the actual type of $\gamma$ at run time. As a result, not all the type
-checks and method dispatches can be hoisted out of the function body, resulting
-in slower run time code.
-
+times by a \lstinline|Float64| in the \lstinline|for| loop, the type of
+the varible can change at run time.
+In fact, the result type will depend on the size of the input array $M$,
+which is only known at run time.
+Julia allows this behavior, and our
+compiler infers the type of $\gamma$ to be \lstinline|Union(Int,Float64)|,
+which is the least upper bound on the actual type of $\gamma$ at run time.
+%However, in such cases it is not generally possible to generate optimal code.
+As a result, not all type
+checks and method dispatches can be hoisted out of the loop body, resulting
+in slower execution.
 
 
 \subsection{Matrix equivalences}
@@ -139,7 +146,8 @@ annotate \lstinline|V| or \lstinline|W| with types, and so they are considered t
 be of the top type $\top$ (\lstinline|Any| in Julia). This method may be called
 with any $V$ and $W$ which support premultiplication: so long as
 \lstinline|V*M.X| and \lstinline|W*M.Y| are defined and produce matrices of the
-same type, then the code will run without errors. This flexibility is
+same type, then the code will run without errors (``duck typing'').
+This flexibility is
 convenient since $V$ and $W$ can now be scalars or matrixlike objects which
 themselves have special structures, or even more generally could represent
 linear maps that are not stored explicitly, but rather defined implicitly
@@ -147,17 +155,14 @@ through their actions when multiplying a \lstinline|Matrix| on the left.
 
 The preceding method shows that Julia does not require all method arguments to
 have explicit type annotations. Instead, dynamic multiple dispatch allows the
-argument types to be determined from the arguments at run time. Nevertheless,
-Julia's just-in-time compiler can still be invoked when the method is first
-called, so that static analyses, such as type inference based on forward data
-flow, and optimizations like function inlining, can be performed. Late binding
-dynamic dispatch thus give us the ability to write highly generic code while
-still allowing for aggessive method specialization on methods that are actually
-dispatched upon at run time.
+argument types to be determined from the arguments at run time.
+Julia's just-in-time compiler will be invoked when the method is first
+called, so that static analyses can be performed.
+%Dynamic dispatch thus gives us the ability to write highly generic code while
+%still allowing method specialization on methods that are actually
+%dispatched upon at run time.
 
-Furthermore, late binding allows for methods to be defined even on types which
-have not yet been defined. For example, we can now proceed to define a new type
-and method
+We can now proceed to define a new type and method
 
 \begin{lstlisting}
 type RowPermutation
