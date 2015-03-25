@@ -22,15 +22,18 @@ are vector--matrix--vector products of the form
 This bilinear form can be expressed in Julia code of the form
 %
 \begin{lstlisting}
-function *{T}(v::AbstractVector{T}, M::AbstractMatrix{T}, w::AbstractVector{T})
-	if !(size(M, 1) == length(v) && size(M, 2) == length(w))
-		throw(BoundsError())
-	end
-	$\gamma$ = zero(T)
-	for i = 1:size(M, 1), j = 1:size(M, 2)
-		$\gamma$ += v[i] * M[i, j] * w[j]
-	end
-	return $\gamma$
+function (*){T}(v::AbstractVector{T}, 
+                M::AbstractMatrix{T},
+                w::AbstractVector{T})
+    if !(size(M,1) == length(v) && 
+         size(M, 2) == length(w))
+        throw(BoundsError())
+    end
+    $\gamma$ = zero(T)
+    for i = 1:size(M,1), j = 1:size(M,2)
+        $\gamma$ += v[i] * M[i,j] * w[j]
+    end
+    return $\gamma$
 end
 \end{lstlisting}
 %
