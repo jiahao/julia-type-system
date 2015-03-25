@@ -1,203 +1,37 @@
 \section{Introductory Example}
 
-Code for technical computing often sacrifices abstraction for performance,
-and is less expressive as a result. In contrast, mathematical ideas are
-inherently polymorphic and amenable to abstraction. Consider a simple example
-like multiplication, represented in Julia by the \lstinline|*| operator.
-\lstinline|*| is a generic function in Julia, and has specialized methods for
-many different multiplications, such as scalar--scalar products, scalar--vector
-products, and matrix--vector products. Expressing all these operations using
-the same generic function captures the common metaphor of multiplication.
+\subsection{Dynamic dispatch in matrix functions}
 
-\subsection{Bilinear forms}
+Dynamic, i.e.\ late binding, dispatch allows for high performance
+polyalgorithms with specialized code paths depending on matrix properties which
+can only be inferred at runtime based on the specific values of the inputs. For
+example, the matrix square root (\verb|sqrtm|) has two methods defined:
 
-Julia allows user code to extend the \lstinline|*| operator, which can be
-useful for more specialized products. One such example is bilinear forms, which
-are vector--matrix--vector products of the form
+\begin{itemize}
+	\item For symmetric (or Hermitian) matrices, where the answer can be
+		computed by diagonalization,
+	\item For general dense matrices, where the answer uses the more
+		expensive (but also more general) Schur
+		factorization~\cite{Higham2008}.
+\end{itemize}
 %
-\begin{equation}
-\gamma = v^\prime M w = \sum_{ij} v_i M_{ij} w_j
-\end{equation}
-%
-This bilinear form can be expressed in Julia code as
-%
-\begin{lstlisting}
-function (*){T}(v::AbstractVector{T}, 
-                M::AbstractMatrix{T},
-                w::AbstractVector{T})
-    if !(size(M,1) == length(v) && 
-         size(M,2) == length(w))
-        throw(BoundsError())
-    end
-    $\gamma$ = zero(T)
-    for i = 1:size(M,1), j = 1:size(M,2)
-        $\gamma$ += v[i] * M[i,j] * w[j]
-    end
-    return $\gamma$
-end
-\end{lstlisting}
-%
-The newly defined method can be called in an expression like
-\lstinline|v * M * w|, which is parsed and desugared into an ordinary function
-call \lstinline|*(v, M, w)|. This method takes advantage of the result being a
-scalar to avoid allocating intermediate vector quantities, which would be
-necessary if the products were evaluated pairwise like in $v^\prime(Mw)$ and
-$(v^\prime M) w$. Avoiding memory allocation reduces the number of
-heap-allocated objects and produces less garbage, both of which are important
-for performance considerations.
+The latter method contains a run time check for symmetry and dispatches upon
+the former if present. Thus as summarized in Figure~\ref{fig:sqrtm}, dynamic
+dispatch allows the same performant kernel to be called even in situations
+where the user does not know if a particular input matrix is symmetric, or even
+that specialized algorithms for symmetric matrices exist.
 
-The method signature above demonstrates two kinds of polymorphism in Julia.
-First, both \lstinline|AbstractVector| and \lstinline|AbstractMatrix| are
-abstract types, which are declared supertypes of concrete types. Examples of
-subtypes of \lstinline|AbstractMatrix| include \lstinline|Matrix| (dense
-two-dimensional arrays) and \lstinline|SparseMatrixCSC| (sparse matrices stored
-in so-called compressed sparse column format). Thus the method above is defined
-equally for arrays of the appropriate ranks, be they dense, sparse, or even
-distributed.  Second, \lstinline|T| defines a type parameter that is common to
-\lstinline|v|, \lstinline|M| and \lstinline|w|. In this instance, \lstinline|T|
-describes the type of element stored in the \lstinline|AbstractVector| or
-\lstinline|AbstractMatrix|, and the \lstinline|{T}(...{T}...{T})| syntax
-defines a family of methods where \lstinline|T| is the same for all three
-arguments. The type parameter \lstinline|T| can also used in the function body;
-here, it is used to initialize a zero value of the appropriate type for
-$\gamma$.
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{fig-sqrtm}
+	\caption{Dynamic dispatch and multimethods for the matrix square root
+		function \texttt{sqrtm}, showing that the specialized algorithm
+		can be run either from a static decision from the method
+		dispatcher based on the input type, or a dynamic decision from
+		a run-time check based on the value.}
+	\label{fig:sqrtm}
+\end{figure}
 
-The initialization statement \lstinline|$\gamma$ = zero(T)| requests a zero
-element of the appropriate type.
-In Julia this is important because using a zero value of a different type can
-cause a different method to be called.
-%allows Julia's compiler
-%to generate \textbf{type stable} code.
-If \lstinline|T| is any concrete %immutable
-type, e.g.\ \lstinline|Float64| (64-bit floating point real numbers), then
-Julia's just-in-time compiler can analyze the code statically to remove type
-checks.  For example, in the method with signature
-\lstinline|*{Float64}(v::AbstractVector{Float64}, M::AbstractMatrix{Float64}, w::AbstractVector{Float64})|,
-the indexing operations on $v$, $M$ and $w$ always return \lstinline|Float64|
-scalars. Furthermore, forward data flow analysis allows the type of $\gamma$
-to be inferred as \lstinline|Float64| also, since floating point numbers are
-closed under addition and multiplication. Hence, type checks and method
-dispatch for functions like \lstinline|+| and \lstinline|*| within the function
-body can be resolved statically and eliminated from run time code, allowing
-fast code to be generated.
-
-Were we to replace the initialization with the similar-looking
-\lstinline|$\gamma$ = 0|, we would have instead a \textbf{type instability}
-when \lstinline|T = Float64|. Because $\gamma$ is initialized to an
-\lstinline|Int| (native machine integer) and it is incremented zero or more
-times by a \lstinline|Float64| in the \lstinline|for| loop, the type of
-the varible can change at run time.
-In fact, the result type will depend on the size of the input array $M$,
-which is only known at run time.
-Julia allows this behavior, and our
-compiler infers the type of $\gamma$ to be \lstinline|Union(Int,Float64)|,
-which is the least upper bound on the actual type of $\gamma$ at run time.
-%However, in such cases it is not generally possible to generate optimal code.
-As a result, not all type
-checks and method dispatches can be hoisted out of the loop body, resulting
-in slower execution.
-
-
-\subsection{Matrix equivalences}
-
-Matrix equivalences are another example of specialized product that users may
-want. Two $n\times n$ matrices $A$ and $B$ are considered equivalent if there
-exist invertible matrices $V$ and $W$ such that $B = V * A * W^\prime$.
-Oftentimes, equivalence relations are considered between a given matrix $B$ and
-another matrix $A$ with special structure, and the transformation
-$(W^\prime)^{-1} \cdot V^{-1}$ can be thought of as changing the bases of the
-rows and columns of $B$ to uncover the special structure buried within as $A$.
-Matrices with special structure are ubiquitous in numerical linear algebra. One
-example is rank-$k$ matrices, which can be written in the outer product form $A
-= X Y^\prime$ where $X$ and $Y$ each have $k$ columns. Rank-$k$ matrices may be
-reified as dense two-dimensional arrays, but the matrix--matrix--matrix product
-$V * A * W^\prime$ would take $O(n^3)$ time to compute. Instead, when $k \ll
-n$, the product be computed more efficiently in $O(kn^2)$ time, since
-%
-\begin{equation}
-V A W^\prime = V (X Y^\prime) W^\prime = (V X) (W Y)^\prime
-\end{equation}
-%
-and the result is again a rank-$k$ matrix. Furthermore, we can avoid
-constructing $W^\prime$, the transpose of $W$, explicitly. Therefore in some
-cases, it is sensible to store $A$ as the two matrices $X$ and $Y$ separately,
-rather than as a reified 2D array.
-
-Julia allows users to encapsulate $X$ and $Y$ within a specialized type:
-%
-\begin{lstlisting}
-type OuterProduct{T}
-	X :: Matrix{T}
-	Y :: Matrix{T}
-end
-\end{lstlisting}
-%
-Defining the new \lstinline|OuterProduct| type has the advantage of grouping
-together objects that belong together, but also enables dispatch based on the
-new type itself. We can now write a new method for \lstinline|*|:
-%
-\begin{lstlisting}
-*(V, M::OuterProduct, W) = OuterProduct(V*M.X, W*M.Y)
-\end{lstlisting}
-%
-This method definition uses a convenient one-line syntax for short definitions
-instead of the \lstinline|function ... end| block. This method also does not
-annotate \lstinline|V| or \lstinline|W| with types, and so they are considered to
-be of the top type $\top$ (\lstinline|Any| in Julia). This method may be called
-with any $V$ and $W$ which support premultiplication: so long as
-\lstinline|V*M.X| and \lstinline|W*M.Y| are defined and produce matrices of the
-same type, then the code will run without errors (``duck typing'').
-This flexibility is
-convenient since $V$ and $W$ can now be scalars or matrixlike objects which
-themselves have special structures, or even more generally could represent
-linear maps that are not stored explicitly, but rather defined implicitly
-through their actions when multiplying a \lstinline|Matrix| on the left.
-
-The preceding method shows that Julia does not require all method arguments to
-have explicit type annotations. Instead, dynamic multiple dispatch allows the
-argument types to be determined from the arguments at run time.
-Julia's just-in-time compiler will be invoked when the method is first
-called, so that static analyses can be performed.
-%Dynamic dispatch thus gives us the ability to write highly generic code while
-%still allowing method specialization on methods that are actually
-%dispatched upon at run time.
-
-We can now proceed to define a new type and method
-
-\begin{lstlisting}
-type RowPermutation
-	p::Vector{Int}
-end
-
-*($\Pi$::RowPermutation, M::Matrix) = M[p, :]
-\end{lstlisting}
-%
-whose action can be thought of as multiplying by a permutation matrix on the
-left, resulting in a version of $M$ with the rows permuted. Now, the following
-user code
-%
-\begin{lstlisting}
-n = 10
-k = 2
-X = randn(n, k) #Random matrix of Float64s
-M = OuterProduct(X, X)
-p = randperm(n) #Random permutation of length n
-$\Pi$ = RowPermutation(p)
-M2 = $\Pi$ * M * $\Pi$
-\end{lstlisting}
-%
-will dispatch on the appropriate methods of \lstinline|*| to produce the same
-result \lstinline|M2| as
-\begin{lstlisting}
-M2 = OuterProduct(M.X[p, :], M.Y[p, :])
-\end{lstlisting}
-%
-In other words, the specialized method
-\lstinline|*(::RowPermutation, ::OuterProduct{Float64}, ::RowPermutation)|
-is compiled only when it is first invoked in the creation of
-\lstinline|M2|, since it follows from composing the method defined with
-signature \lstinline|*(::Any, ::OuterProduct, ::Any)| with the argument tuple
-of type \lstinline|(RowPermutation, OuterProduct{Float64}, RowPermutation)|.
 
 
 
