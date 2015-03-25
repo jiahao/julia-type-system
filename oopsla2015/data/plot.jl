@@ -42,11 +42,9 @@ end
 shortlangs = ["Julia", "Matlab", "Matlab\n(no JIT)", "Octave", "Octave\n(JIT)",
         "Python", "R", "R\n(compiled)"]
 p2 = plot(Geom.bar(position=:dodge), x=shortlangs, y=fixedn, color=langs,
-    Scale.color_discrete_manual(cm...),
+    Scale.color_discrete_manual(cm...), Theme(key_position = :none),
     Guide.title("Textbook algorithm (matrix size N=1000)"),
     Guide.xlabel("Language"), Guide.ylabel("Execution time (s)"))
 
 draw(PDF("fig-lang.pdf", 6inch,4inch), p2)
-
-
 
