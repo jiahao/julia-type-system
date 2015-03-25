@@ -13,6 +13,12 @@ lu/matlab-nojit.csv:
 lu/matlab.csv:
 	cd ../code/matlab; $(MATLABBIN) -singleCompThread -nosplash -nodesktop -nojvm -r 'benchmark; exit'
 
+lu/octave-nojit.csv:
+	cd ../code/octave; $(OCTAVEBIN) benchmark_nojit.m
+
+lu/octave.csv:
+	cd ../code/octave; $(OCTAVEBIN) --jit-compiler benchmark.m
+
 lu/julia.csv:
 	cd ../code/julia; $(JULIABIN) benchmark.jl
 
