@@ -5,6 +5,7 @@
 \usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{algorithmicx}
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
 \usepackage{hyperref}
 %\usepackage[colorlinks=true,allcolors=purple,breaklinks,draft=false]{hyperref}   % hyperlinks, including DOIs and URLs in bibliography
 % known bug: http://tex.stackexchange.com/questions/1522/pdfendlink-ended-up-in-different-nesting-level-than-pdfstartlink
@@ -17,7 +18,30 @@
 
 \begin{document}
 
-\lstset{basicstyle=\footnotesize\ttfamily,mathescape=true,basewidth=0.5em}
+\lstdefinelanguage{Julia}{
+   morekeywords={end,
+	begin,  while, if, for, try, return,
+        break, continue, function, stagedfunction,
+        macro, quote, let, local, global, const,
+        abstract, typealias, type, bitstype, immutable,
+        ccall, do, module, baremodule, using, import,
+        export, importall},
+   sensitive=true,
+   morecomment=[l]\#,
+   morecomment=[n]{\#=}{=\#},
+   morestring=[b]',
+   morestring=[b]",
+}
+\lstset{
+   basewidth=0.5em,
+   basicstyle=\footnotesize\ttfamily,
+   keywordstyle=\color{OliveGreen}\bfseries,
+   commentstyle=\color{gray}\itshape,
+   breaklines=true,
+   language=Julia,
+   mathescape=true,
+   tabsize=2,
+}
 
 %\conferenceinfo{PLDI '15}{June 12--20, 2015, Portland, OR, USA.}
 %\copyrightyear{2015}
