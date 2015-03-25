@@ -1,5 +1,8 @@
 import numpy as np
+import numba
+from numba import jit
 
+@jit(nopython=True)
 def lucompletepiv(A):
     assert np.size(A, 0) == np.size(A, 1)
     n = np.size(A, 1)
