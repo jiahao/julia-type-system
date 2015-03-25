@@ -75,121 +75,131 @@
 
 \section{Type system}
 
-Julia is a dynamic language, i.e.\ it has no static semantics. As such, Julia
-does not have types in the sense that programming language theorists
-have come to use the term.
-Rather, it has run-time type tags which describe and differentiate objects by
+Julia uses run-time type tags to describe and differentiate objects by
 their representation and behavior~\cite[Section 11.10, p. 142]{Pierce2002}.
-We tend to use the term ``type'' anyway, as most programmers seem comfortable
-with this usage of the term~\cite{Tratt2009,Kell2014}. We distinguish ``dynamic
-types'' from ``static types'' when context requires.
+We tend to use the term ``type'' instead of ``tag'', as most programmers seem comfortable
+with this usage~\cite{Tratt2009,Kell2014}.
+%We distinguish ``dynamic types'' from ``static types'' when context requires.
 
-All values in a dynamically typed language have two semantic components:
-a \emph{tag} and some \emph{data}. The tag classifies the data, which are the
-contents of some block of memory whose format is set by the programming
-language. Tags are useful for both users and compilers for deciding what to do
+%All values in a dynamically typed language have two semantic components:
+%a \emph{tag} and some \emph{data}. The tag classifies the data, which are the
+%contents of some block of memory whose format is set by the programming
+%language.
+Tags are useful for both users and compilers for deciding what to do
 to values, but incur overhead which increases the memory footprint of a data
 item. This overhead motivates most dynamically typed languages to simplify and
 minimize their tag systems.
 
 Julia is unusual in allowing type tags with nested structure, forming nearly
 arbitrary symbolic expressions. This has two immediate benefits: first,
-it expands the criteria programmers have available for dispatching, and second,
-provides much richer information to the compiler. Julia's type tags are designed
-to form a lattice, which facilitates data flow analysis.
-In general, Julia's types allow the following aspects of a program to be reasoned about:
+it expands the criteria programmers have available for dispatching methods,
+and second, provides richer information to the compiler.
+Julia's type tags are designed to serve as elements of a lattice,
+facilitating data flow analysis.
 
-\begin{itemize}
-\item when code is applicable (dispatch),
-\item what to specialize on,
-\item memory layout, and
-\item what can be statically known about a potential value.
-\end{itemize}
+%In general, Julia's types allow the following aspects of a program to be reasoned about:
+%\begin{itemize}
+%\item when code is applicable (dispatch),
+%\item what to specialize on,
+%\item memory layout, and
+%\item what can be statically known about a potential value.
+%\end{itemize}
 %
-Furthermore, types are first-class values, allowing programs that can compute
-on types and reason about all of the above.
+Julia types are first-class values, allowing programs to compute with them.
+In technical computing it is unusually common to perform a non-trivial
+computation to determine, for example, which data type to use for an operation.
+Julia allows this to be done using ordinary code.
 
 \subsection{Kinds of types}
 
-Julia has different kinds of types which can be formally summarized as:
+In addition to tags, Julia has three other kinds of types, which together form
+its full type lattice.
+There are \emph{abstract} types, which form a nominal subtyping hierarchy.
+Abstract types may serve as declared supertypes of tag types or of other abstract
+types.
+\emph{Union} types are used to form the least upper bound of any two types.
+Finally, \emph{existential} types can be used to quantify over a type.
 
-\begin{lstlisting}
-Type ::= Abstract | Data | Tuple | Union | UnionAll
-Tag ::= Data | Tuple
+Tag types can have associated memory representations, corresponding to struct,
+primitive, and array types familiar to the C language family.
 
-Data ::= Name (Type...) Abstract # invariant, nominative
-Abstract ::= Name (Type...) Abstract
-Tuple ::= (Type$_1$, Type$_2$...) |
-          (Type$_1$, Type$_2$, ..., Type$_n$) # covariant
-Union ::= Union(Type$_1$, Type$_2$, ...)
-UnionAll ::= UnionAll T<:Type . Type
-\end{lstlisting}
+%\begin{lstlisting}
+%Type ::= Abstract | Data | Tuple | Union | UnionAll
+%Tag ::= Data | Tuple
+%
+%Data ::= Name (Type...) Abstract # invariant, nominative
+%Abstract ::= Name (Type...) Abstract
+%Tuple ::= (Type$_1$, Type$_2$...) |
+%          (Type$_1$, Type$_2$, ..., Type$_n$) # covariant
+%Union ::= Union(Type$_1$, Type$_2$, ...)
+%UnionAll ::= UnionAll T<:Type . Type
+%\end{lstlisting}
 
-\begin{description}
+%% \begin{description}
 
-\item[Data types] are types with associated constructors. They
-	are further subdivided into:
-	\begin{description}
+%% \item[Data types] are types with associated constructors. They
+%% 	are further subdivided into:
+%% 	\begin{description}
 
-	\item[Bits types] like double precision floating point numbers
-	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which
-        are just bit strings and have no further structure,
+%% 	\item[Bits types] like double precision floating point numbers
+%% 	(\verb|Float64|) and 32-bit signed integers (\verb|Int32|), which
+%%         are just bit strings and have no further structure,
 
-	\item[Composite types] which have mutable named fields,
+%% 	\item[Composite types] which have mutable named fields,
 
-	\item[Immutable types] which are similar to composite types but
-          whose fields are immutable.
+%% 	\item[Immutable types] which are similar to composite types but
+%%           whose fields are immutable.
 
-	\end{description}
+%% 	\end{description}
 
-\item[Abstract types] define an uninstantiable type with no declared
-	representation. They are used as declared supertypes of leaf types
-	(which are concrete and instantiable).
+%% \item[Abstract types] define an uninstantiable type with no declared
+%% 	representation. They are used as declared supertypes of leaf types
+%% 	(which are concrete and instantiable).
 
-\item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
-	product of zero or more existing types \code{T1}, \code{T2},
-	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant. They may also
-        end with \code{...}, matching any number of trailing elements.
+%% \item[Tuple types] \code{(T1, T2,...)} which are constructed from the Cartesian
+%% 	product of zero or more existing types \code{T1}, \code{T2},
+%% 	etc.~\cite[Sec. 11.7]{Pierce2002} Tuples are covariant. They may also
+%%         end with \code{...}, matching any number of trailing elements.
 
-\item[Union types] written as \code{Union(T1, T2,...)} are the join of zero,
-	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
-	15.7]{Pierce2002}
-	%
-	\begin{equation}
-		\texttt{Union}(T_1, T_2, ..., T_N) = \bigvee_{i=1}^N T_i
-	\end{equation}
-	%
-	The union with zero types, \code{Union()}, is simply the bottom type.
-	%
-	%% Julia's \code{Union}s are untagged and disjoint, which allows for some
-	%% simplifications in their construction:
-	%% \begin{itemize}
-	%% 	\item If there are types \code{S} and \code{T} obeying the
-	%% 		subtyping relation \code{S <: T} in the union
-	%% 		constructor, then \code{S} is deleted ($\beta$-reduced)
-	%% 		from the final union type constructed. This
-	%% 		simplification includes the special case where \code{S}
-	%% 		and \code T are identical.
+%% \item[Union types] written as \code{Union(T1, T2,...)} are the join of zero,
+%% 	or two or more, types \code{T1}, \code{T2}, ...~\cite[Sec.
+%% 	15.7]{Pierce2002}
+%% 	%
+%% 	\begin{equation}
+%% 		\texttt{Union}(T_1, T_2, ..., T_N) = \bigvee_{i=1}^N T_i
+%% 	\end{equation}
+%% 	%
+%% 	The union with zero types, \code{Union()}, is simply the bottom type.
+%% 	%
+%% 	%% Julia's \code{Union}s are untagged and disjoint, which allows for some
+%% 	%% simplifications in their construction:
+%% 	%% \begin{itemize}
+%% 	%% 	\item If there are types \code{S} and \code{T} obeying the
+%% 	%% 		subtyping relation \code{S <: T} in the union
+%% 	%% 		constructor, then \code{S} is deleted ($\beta$-reduced)
+%% 	%% 		from the final union type constructed. This
+%% 	%% 		simplification includes the special case where \code{S}
+%% 	%% 		and \code T are identical.
 
-	%% 	\item A union type \code{Union(T)} with a single type parameter
-	%% 		\code{T} is identical (by $\eta$-reduction) to just
-	%% 		\code{T}.
-	%%\end{itemize}
+%% 	%% 	\item A union type \code{Union(T)} with a single type parameter
+%% 	%% 		\code{T} is identical (by $\eta$-reduction) to just
+%% 	%% 		\code{T}.
+%% 	%%\end{itemize}
 
-\item[UnionAll types] which are type unions that are implicitly quantified over
-	all types \verb|S| satisfying a subtype relation \verb|S <: T|.
+%% \item[UnionAll types] which are type unions that are implicitly quantified over
+%% 	all types \verb|S| satisfying a subtype relation \verb|S <: T|.
 
-\end{description}
+%% \end{description}
 
-\verb|Abstract| and \verb|Data| types have two additional features:
+%% \verb|Abstract| and \verb|Data| types have two additional features:
 
-\begin{enumerate}
-	\item They each have one declared supertype, allowing for subtype
-	relations to be defined as described in Section~\ref{sec:subtyping}.
+%% \begin{enumerate}
+%% 	\item They each have one declared supertype, allowing for subtype
+%% 	relations to be defined as described in Section~\ref{sec:subtyping}.
 
-	\item They can be defined with zero or more types as parameters as
-	described in Section~\ref{sec:typeparameters}.
-\end{enumerate}
+%% 	\item They can be defined with zero or more types as parameters as
+%% 	described in Section~\ref{sec:typeparameters}.
+%% \end{enumerate}
 
 %% Type parameters and subtyping, when combined with late binding semantics
 %% associated with dynamic dispatch, provides Julia with rich polymorphic
@@ -200,7 +210,7 @@ UnionAll ::= UnionAll T<:Type . Type
 \subsection{Subtyping}
 \label{sec:subtyping}
 
-Julia requires \verb|Abstract| and \verb|Data| types to have exactly one
+Julia requires abstract and tag types to have exactly one
 declared supertype, defaulting to \verb|Any| (i.e. $\top$) if not explicitly declared.
 We conjecture that the subtype relation \verb|<:| is well-defined and
 decidable, and that types are closed under meet ($\wedge$) and
@@ -234,24 +244,25 @@ join ($\vee$).
 \subsection{Type parameters}
 \label{sec:typeparameters}
 
-\verb|Abstract| and \verb|Data| types can take one or more parameters. These
+Abstract and tag types can have one or more parameters. These
 types are superficially similar to parametric types in existing
 languages, but are actually intended simply for expressing information, rather
 than implementing the formal theory of parametric polymorphism.
 
 The following example, from Julia's standard library, describes a \verb|SubArray|
 type that provides an indexed ``view'' into another array. Such array views
-enable different indexing semantics to be overlaid upon an existing array,
-which facilitates abstraction for applications with semantics that do not
-require explicit memory copies. The \verb|SubArray| type
+enable different indexing semantics to be overlaid on an existing array.
+%which facilitates abstraction for applications with semantics that do not
+%require explicit memory copies.
+The \verb|SubArray| type
 defines a \verb|Union| of what kinds of indexes may be used, then uses this
 definition to define indexed views:
 
 \begin{lstlisting}
-  typealias RangeIndex Union(Int,Range{Int},UnitRange{Int})
+  typealias RangeIndex Union(Int,Range{Int},
+                             UnitRange{Int})
 
-  type SubArray{T, N,
-		A<:AbstractArray,
+  type SubArray{T, N, A<:AbstractArray,
 		I<:(RangeIndex...,)} <: AbstractArray{T,N}
       # definition body omitted
   end
@@ -260,7 +271,10 @@ definition to define indexed views:
 \verb|SubArray| has parameters \verb|T| for an element type, \verb|N| for the
 number of dimensions, \verb|A| for the underlying array type, and \verb|I|
 for the tuple of indexes that describe which part of the underlying array
-is viewed. The \verb|<:| declares \verb|SubArray| to be a subtype of
+is viewed.
+\verb|(RangeIndex...,)| denotes a tuple (essentially an immutable vector) of
+any number of \verb|RangeIndex| objects.
+The final \verb|<:| declares \verb|SubArray| to be a subtype of
 \verb|AbstractArray|.
 
 Julia's type system tries to hide type kinds from
@@ -270,6 +284,8 @@ that serves as the supertype of all the \verb|SubArray| types. This allows
 convenient shorthand for method signatures that are agnostic about type parameters.
 It also makes it possible to add more type parameters in the future, without
 being forced to update all code that uses that type.
+This is achieved by making \verb|SubArray| an existential type with bounded
+type variables.
 
 When implementing \verb|SubArray| and client code using it, it is useful
 to be able to dispatch on all of these parameters. For example, when
@@ -285,9 +301,8 @@ i.e.\ the relation between subtype relations of the parametric types and
 subtype relations of the parameters. The conventional wisdom is that type
 safety allows covariance if components are read but not written, and
 contravariance if they are written but not read~\cite{Castagna1995}. As type
-parameters can represent the types of mutable fields in a \verb|type| which can
-be read or written, then the only safe choice is invariance. Thus Julia's
-parametric types are invariant.
+parameters can represent the types of mutable fields, the only safe choice is
+invariance. Thus Julia's parametric types are invariant.
 
 Parametric invariance has some subtle consequences for Julia's type system.
 First, parametric types introduce many short, finite length chains into the
@@ -305,7 +320,7 @@ of the types \verb|S{T}| is a subtype or supertype of any of \textbf{1},
 poset $\bot$ \verb|<: S{T} <: S <:| $\top$, and the new type lattice has the
 structure shown in Figure~\ref{fig:lattice}b. Note that \verb|S{|$\top$\verb|}|
 is a concrete type with type parameter $\top$ (\verb|Any|), while \verb|S{T}|
-is a synonym for the abstract type \verb|S| where \verb|T| is a \verb|TypeVar|
+is a synonym for the abstract type \verb|S| where \verb|T| is a type variable
 with lower bound $\bot$ and upper bound $\top$.
 
 \begin{figure}
@@ -324,28 +339,29 @@ with lower bound $\bot$ and upper bound $\top$.
 	\label{fig:lattice}
 \end{figure}
 
-Second, the example of Figure~\ref{fig:lattice} illustrates how invariance of
-type parameters requires parametric types to be instantiable with any type
-parameter, regardless of whether the parameter corresponds to an abstract or
-concrete type. The rationale for this behavior allows for the Julia compiler to
-reason about different representations, and is perhaps best explained in the
-context of arrays. For arrays, the type parameter describes the set of possible
-element types~\cite{Bezanson2014}. An \verb|Array{Float64}|
-can only contain concrete elements of type \verb|Float64|, whereas an
-\verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
-as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
-consists of concrete immutable elements and can be reified with a single
-pointer to a contiguous memory block. This representation allows the tags for each element to be elided,
-resulting in a memory layout which can interoperate with C or Fortran code.
-The latter array can store more diverse objects,
-but the element type provides no information about the mutability of each
-element. Consequently, the array must be represented in memory with pointers to
-boxed elements, so that checks from generated LLVM code can be inserted that
-call back into the Julia runtime to determine the actual type of the stored
-element at run-time. Thus describing arrays as parametric types allows
-different data structures to be used under the hood without any semantic
-changes imposed on users, thus allowing for more performance in one case and
-greater flexibility in the other.
+%% Second, the example of Figure~\ref{fig:lattice} illustrates how invariance of
+%% type parameters requires parametric types to be instantiable with any type
+%% parameter, regardless of whether the parameter corresponds to an abstract or
+%% concrete type. The rationale for this behavior allows for the Julia compiler to
+%% reason about different representations, and is perhaps best explained in the
+%% context of arrays. For arrays, the type parameter describes the set of possible
+%% element types~\cite{Bezanson2014}. An \verb|Array{Float64}|
+%% can only contain concrete elements of type \verb|Float64|, whereas an
+%% \verb|Array{Real}| can contain elements that are subtypes of \verb|Real| such
+%% as \verb|Int|, \verb|Float64| or even \verb|Rational|. The former array
+%% consists of concrete immutable elements and can be reified with a single
+%% pointer to a contiguous memory block. This representation allows the tags for each element to be elided,
+%% resulting in a memory layout which can interoperate with C or Fortran code.
+%% The latter array can store more diverse objects,
+%% but the element type provides no information about the mutability of each
+%% element. Consequently, the array must be represented in memory with pointers to
+%% boxed elements, so that checks from generated LLVM code can be inserted that
+%% call back into the Julia runtime to determine the actual type of the stored
+%% element at run-time. Thus describing arrays as parametric types allows
+%% different data structures to be used under the hood without any semantic
+%% changes imposed on users, thus allowing for more performance in one case and
+%% greater flexibility in the other.
+
 
 %%Subtyping and type parameters combine to provide powerful expressions of
 %%polymorphism, similar to those formalized by $\lambda$-calculi such as
@@ -416,7 +432,7 @@ understanding code performance issues. Julia provides the \verb|convert(T, x)|
 function which converts a value \verb|x| to its corresponding representation in
 the type \verb|T|. This is a generic function like any other, but since
 \verb|T| is typically a compile-time constant, \verb|convert| this can serve
-as a mechanism for limiting polymorphism in codes where performance
+as a mechanism for limiting polymorphism in code where performance
 considerations are important.
 
 The idea of converting a value of type \verb|A| to type \verb|B|
