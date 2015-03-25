@@ -171,5 +171,14 @@ with randomly sampled standard Gaussians.
 \end{figure}
 
 \subsection{Improving the performance of a na\"ive implementation}
+One of the reasons why high level languages are slow is that it allows the programmer to express algorithms in terms of array operations. These languages have a limited ability to optimize array expressions and consequently many temporary arrays are allocated during execution of a program.
 
+In languages such as Fortran an C, similar algorithms are usually written without allocating temporary arrays. Some workspace might be required by the algorithm, but memory is then typically allocated once. This makes it possible to compile the code into efficient machine code that is typically much faster than what is possible for higher level array oriented languages.
 
+In Julia, it is possible to express algorithms in terms of array operations, but it is also possible to avoid array allocations and thereby have the compiler optimizing the code to efficient machine code. Hence, a first step in optimizing Julia code is to find the lines during a loop that allocates temporary arrays.
+
+The first line in the loop body makes two unnecessary array copies. The lines that flip columns and rows also allocate temporary arrays which can be avoided and allocations are also made for the scaling and rank one update in the last two lines of the \texttt{if} statement. By writing small auxiliary functions and expanding the scaling and rank one update as loops, it is possible to reduce the number of temporary allocations significantly.
+
+For a square matrix of size 1000, a profiling of the na\"ive implementation reveals that it  allocates more than 12 GB of memory and runs in 4.15 seconds. With the changes mentioned in last paragraph the memory allocation is only 7 MB and the running time reduces to 0.75 seconds. Typically, the avoidance of array allocation amounts to the largest share of speedup when optimizing Julia code, but it is possible to achieve a further speed improvement by annotating the code with two macros that turn off bounds checking on array indexing and allows the compiler to use SIMD registers when possible. This final optimization reduces the running time to 0.4 seconds.
+
+In many cases it is not desired to write out array operations as loops, but it is convenient that this optimization is possible without reimplementing parts of or whole algorithms in C or Fortran first and then compile, link, and call these from the high level language. In Julia, the programmer can optimize incrementally and immediately see eventual speed improvements within a single language.

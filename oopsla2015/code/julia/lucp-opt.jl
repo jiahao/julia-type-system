@@ -64,6 +64,30 @@ function lucompletepiv1!(A)
     return (A, rowpiv, colpiv)
 end
 
+function lucompletepiv1a!(A)
+    n = size(A, 1)
+    rowpiv = zeros(Int, n - 1)
+    colpiv = zeros(Int, n - 1)
+    for k = 1:n - 1
+        μ, λ = idxmaxabs1(A, k:n, k:n)
+        rowpiv[k] = μ
+        swaprows!(A, k, μ)
+        colpiv[k] = λ
+        swapcols!(A, k, λ)
+        if A[k,k] ≠ 0
+            ρ = k + 1:n
+            scale!(1/A[k,k], sub(A, ρ, k))
+            for j in ρ
+                Akj = A[k, j]
+                for i in ρ
+                    A[i, j] -= A[i, k] * Akj
+                end
+            end
+        end
+    end
+    return (A, rowpiv, colpiv)
+end
+
 function lucompletepiv2!(A)
     n = size(A, 1)
     rowpiv = zeros(Int, n - 1)
