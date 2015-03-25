@@ -151,22 +151,24 @@ with randomly sampled standard Gaussians.
 
 
 
-\begin{figure*}
-	\includegraphics[width=\textwidth]{data/fig-scaling}
-	\caption{Scaling behavior of na\"ive implementation of the completely
+\begin{figure}
+	\includegraphics[width=\columnwidth]{data/fig-scaling}
+	\caption{Scaling behavior of na\"ive implementations of the completely
 	pivoted $LU$ algorithm on $N\times N$ random matrices in Julia, MATLAB,
-	Octave, Python/NumPy and R. Julia code is listed in
+	Octave, Python/NumPy, and R. By default, MATLAB's JIT compiler is on,
+	whereas Octave's and R's are off. Julia code is listed in
 	Algorithm~\ref{alg:lucompletepiv}, and the others are available in the
 	Appendix.} \label{fig:scaling}
-\end{figure*}
+\end{figure}
 
-\begin{figure*}
-	\includegraphics[width=\textwidth]{data/fig-lang}
-	\caption{Comparison of execution times }
+\begin{figure}
+	\includegraphics[width=\columnwidth]{data/fig-lang}
+	\caption{Execution times of na\"ive implementations of the
+	completely pivoted $LU$ algorithm on a $1000\times1000$ random matrix
+	in Julia, MATLAB, Octave, Python/NumPy, and R. See Figure~\ref{fig:scaling}
+	for further details.}
 	\label{fig:naivelangs}
-\end{figure*}
-
-
+\end{figure}
 
 \subsection{Improving the performance of a na\"ive implementation}
 
