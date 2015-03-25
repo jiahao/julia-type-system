@@ -1,13 +1,16 @@
 JULIABIN = julia
+PYPYBIN = pypy3
 PYTHONBIN = python3.4
 MATLABBIN = /Applications/MATLAB_R2014b.app/bin/matlab
 RBIN = R
 
+all: lu/matlab-nojit.csv lu/matlab.csv lu/julia.csv lu/R.csv lu/pypy.csv lu/python.csv
+
 lu/matlab-nojit.csv:
-	$(MATLABBIN) -nosplash -nodesktop -nojvm -r 'cd ../code/matlab; feature accel off; benchmark; exit'
+	cd ../code/matlab; $(MATLABBIN) -nosplash -nodesktop -nojvm -r 'feature accel off; benchmark; exit'
 
 lu/matlab.csv:
-	$(MATLABBIN) -nosplash -nodesktop -nojvm -r 'cd ../code/matlab; benchmark; exit'
+	cd ../code/matlab; $(MATLABBIN) -nosplash -nodesktop -nojvm -r 'benchmark; exit'
 
 lu/julia.csv:
 	cd ../code/julia; $(JULIABIN) benchmark.jl
@@ -15,6 +18,10 @@ lu/julia.csv:
 lu/R.csv:
 	cd ../code/R; $(RBIN) --vanilla --file=benchmark.R
 
+lu/pypy.csv:
+	cd ../code/python; $(PYPYBIN) benchmark.py
+
 lu/python.csv:
 	cd ../code/python; $(PYTHONBIN) benchmark.py
+
 
