@@ -1114,15 +1114,14 @@ which is but one of the several factorizations computed in \verb|factorize|:
 
 bkfact{T<:BlasFloat}(A::StridedMatrix{T},
                      uplo::Symbol=:U,
-		     sym::Bool=issym(A)) =
+                     sym::Bool=issym(A)) =
     bkfact!(copy(A), uplo, sym)
 
 function bkfact{T}(A::StridedMatrix{T},
                    uplo::Symbol=:U,
                    sym::Bool=issym(A))
-
     Typ = promote_type(Float32,
-		       typeof(sqrt(one(T))))
+                       typeof(sqrt(one(T))))
     bkfact!(convert(Matrix{Typ}, A),
             uplo, symmetric)
 end
