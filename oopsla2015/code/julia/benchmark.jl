@@ -9,4 +9,4 @@ for n = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000]
     timings = [timings, [n, t..., minimum(t), mean(t), std(t)]']
     println(timings)
 end
-writecsv("../../data/lu/julia.csv")
+writecsv("../../data/lu/julia.csv", timings)
