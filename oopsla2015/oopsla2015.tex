@@ -1034,16 +1034,6 @@ for improving the speed of Julia code, speeding up code by an average factor
 out to have almost no effect on execution speed, with an average contribution
 of 0.99.
 
-\begin{figure*}
-	\includegraphics[width=\textwidth]{fig-timings}
-	\caption{Relative contributions of various optimization passes to
-	performance of Julia code implementing a representative collection
-	of benchmarks. Bars from top to bottom represent: LLVM
-	optimizations, tuple elision, function inlining, and type inference.}
-	\label{fig:timings}
-\end{figure*}
-
-
 \subsection{Method ambiguities}
 
 Julia uses symmetric multiple dispatch where all arguments have equal priority
