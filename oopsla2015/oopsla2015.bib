@@ -945,3 +945,13 @@ publisher = {ACM Press},
 	note      = {{ISBN} 1441413006},
 	url       = {http://www.gnu.org/software/octave/doc/interpreter},
 }
+@inproceedings{Bolz2009,
+abstract = {We attempt to apply the technique of Tracing JIT Compilers in the context of the PyPy project, i.e., to programs that are interpreters for some dynamic languages, including Python. Tracing JIT compilers can greatly speed up programs that spend most of their time in loops in which they take similar code paths. However, applying an unmodified tracing JIT to a program that is itself a bytecode interpreter results in very limited or no speedup. In this paper we show how to guide tracing JIT compilers to greatly improve the speed of bytecode interpreters. One crucial point is to unroll the bytecode dispatch loop, based on two kinds of hints provided by the implementer of the bytecode interpreter. We evaluate our technique by applying it to two PyPy interpreters: one is a small example, and the other one is the full Python interpreter.},
+author = {Bolz, Carl Friedrich and Cuni, Antonio and Fijalkowski, Maciej and Rigo, Armin},
+booktitle = {Proceedings of the 4th workshop on the Implementation, Compilation, Optimization of Object-Oriented Languages and Programming Systems - ICOOOLPS '09},
+doi = {10.1145/1565824.1565827},
+isbn = {9781605585413},
+pages = {18--25},
+title = {Tracing the meta-level: {PyPy}'s tracing {JIT} compiler},
+year = {2009}
+}
