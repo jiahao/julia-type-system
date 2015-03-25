@@ -16,6 +16,9 @@ lu/matlab.csv:
 lu/julia.csv:
 	cd ../code/julia; $(JULIABIN) benchmark.jl
 
+lu/julia-opt.csv:
+	cd ../code/julia; $(JULIABIN) benchmark-opt.jl
+
 lu/R.csv:
 	cd ../code/R; $(RBIN) --vanilla --file=benchmark.R
 
