@@ -3,6 +3,9 @@ PYTHONBIN = python3.4
 MATLABBIN = /Applications/MATLAB_R2014b.app/bin/matlab
 RBIN = R
 
+lu/matlab-nojit.csv:
+	$(MATLABBIN) -nosplash -nodesktop -nojvm -r 'cd ../code/matlab; feature accel off; benchmark; exit'
+
 lu/matlab.csv:
 	$(MATLABBIN) -nosplash -nodesktop -nojvm -r 'cd ../code/matlab; benchmark; exit'
 
