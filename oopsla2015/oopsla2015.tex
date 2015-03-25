@@ -1039,8 +1039,8 @@ function factorize{T}(A::Matrix{T})
     # Can the result of a QR factorization be represented
     # using a floating point type supported by BLAS?
     BlasFloat = Union(Float32,Float64,Complex64,Complex128)
-    can_use_BlasFloat =
-       typeof(zero(T)/sqrt(zero(T) + zero(T)))<:BlasFloat)
+    rt = zero(T) / sqrt(zero(T) + zero(T))
+    can_use_BlasFloat = typeof(rt) <: BlasFloat
     # Factorize into pivoted QR form where possible,
     # otherwise compute (unpivoted) QR form
     return qrfact(A, pivot=can_use_BlasFloat)
@@ -1115,15 +1115,14 @@ which is but one of the several factorizations computed in \verb|factorize|:
 bkfact{T<:BlasFloat}(A::StridedMatrix{T},
                      uplo::Symbol=:U,
                      sym::Bool=issym(A)) =
-    bkfact!(copy(A), uplo, sym)
+    bkfact!(copy(A),uplo,sym)
 
 function bkfact{T}(A::StridedMatrix{T},
                    uplo::Symbol=:U,
                    sym::Bool=issym(A))
     Typ = promote_type(Float32,
                        typeof(sqrt(one(T))))
-    bkfact!(convert(Matrix{Typ}, A),
-            uplo, symmetric)
+    bkfact!(Matrix{Typ}(A),uplo,symmetric)
 end
 
 # Compute Bunch-Kaufman factorization in-place
@@ -1139,8 +1138,8 @@ function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
         error("The Bunch-Kaufman decomposition ",
 	      "is only valid for symmetric matrices")
     end
-    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo), A)
-    BunchKaufman(LD, ipiv, char_uplo(uplo), symmetric)
+    LD, ipiv = LAPACK.sytrf!(char_uplo(uplo),A)
+    BunchKaufman(LD,ipiv,char_uplo(uplo),symmetric)
 end
 
 # For complex symmetric matrices,
@@ -1154,7 +1153,7 @@ function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
 	    			 uplo::Symbol=:U,
 				 sym::Bool=issym(A))
     if sym
-	LD,ipiv = LAPACK.sytrf!(char_uplo(uplo),A)
+        LD,ipiv = LAPACK.sytrf!(char_uplo(uplo),A)
     else
         LD,ipiv = LAPACK.hetrf!(char_uplo(uplo),A)
     end
