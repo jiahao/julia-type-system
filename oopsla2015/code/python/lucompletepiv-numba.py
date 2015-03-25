@@ -9,7 +9,7 @@ def lucompletepiv(A):
     rowpiv = np.zeros(n-1, dtype=int)
     colpiv = np.zeros(n-1, dtype=int)
     for k in range(n-1):
-        Asub = A[k:n, k:n]
+        Asub = abs(A[k:n, k:n])
         mu, lam = np.unravel_index(np.argmax(Asub), np.shape(Asub))
         mu, lam = mu + k, lam + k
         rowpiv[k] = mu

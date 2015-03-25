@@ -3,7 +3,7 @@ lu_complete_pivot <- function(A) {
   rowpiv <- rep(0, n - 1)
   colpiv <- rep(0, n - 1)
   for (k in 1:(n - 1)) {
-    ind <- which.max(A[k:n,k:n])
+    ind <- which.max(abs(A[k:n,k:n]))
     i <- ((ind - 1) %% (n - k + 1)) + k
     j <- ((ind - 1) %/% (n - k + 1)) + k
     rowpiv[k] <- i

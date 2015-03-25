@@ -3,7 +3,7 @@ function [A, rowpiv, colpiv] = lucompletepiv(A)
   rowpiv = zeros(n-1,1);
   colpiv = zeros(n-1,1);
   for k=1:n-1
-    Asub = A(k:n, k:n);
+    Asub = abs(A(k:n, k:n));
     [mu, lambda] = find(Asub == max(Asub(:)));
     mu = mu + k-1; lambda = lambda + k-1;
     rowpiv(k) = mu;

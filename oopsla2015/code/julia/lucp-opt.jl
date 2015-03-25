@@ -2,10 +2,10 @@ x ↔ y = for i=1:length(x) #Define swap function
   x[i], y[i] = y[i], x[i]
 end
 
-function idxmax(A, r, s)
-    μ = λ = r[1]; themax = A[r[1], r[1]]
+function idxmaxabs(A, r, s)
+    μ = λ = r[1]; themax = abs(A[r[1], r[1]])
     for i in r, j in s
-        if A[i, j] > themax
+        if abs(A[i, j]) > themax
             μ, λ, themax = i, j, A[i, j]
         end
     end
@@ -17,7 +17,7 @@ function lucompletepiv!(A)
   rowpiv=zeros(Int, n-1)
   colpiv=zeros(Int, n-1)
   for k=1:n-1
-    μ, λ = idxmax(A, k:n, k:n)
+    μ, λ = idxmaxabs(A, k:n, k:n)
     rowpiv[k] = μ
     A[k, 1:n] ↔ A[μ, 1:n]
     colpiv[k] = λ

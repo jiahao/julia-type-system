@@ -44,26 +44,27 @@ close notational correspondence with the textbook description of the algorithm.}
 
 \begin{lstlisting}
 function lucompletepiv!(A)
-  n=size(A, 1)
-  rowpiv=zeros(Int, n-1)
-  colpiv=zeros(Int, n-1)
-  x $\leftrightarrow$ y = for i=1:length(x) #Define swap function
-    x[i], y[i] = y[i], x[i]
-  end
-  for k=1:n-1
-    $\mu$, $\lambda$ = ind2sub(size(A[k:n, k:n]), indmax(A[k:n, k:n]))
-    $\mu$ += k-1; $\lambda$ += k-1
-    rowpiv[k] = $\mu$
-    A[k, 1:n] $\leftrightarrow$ A[$\mu$, 1:n]
-    colpiv[k] = $\lambda$
-    A[1:n, k] $\leftrightarrow$ A[1:n, $\lambda$]
-    if A[k,k] $\ne$ 0
-      $\rho$ = k+1:n
-      A[$\rho$, k] = A[$\rho$, k]/A[k, k]
-      A[$\rho$, $\rho$] = A[$\rho$, $\rho$] - A[$\rho$, k] * A[k, $\rho$]
-    end
-  end
-  return (A, rowpiv, colpiv)
+	n=size(A, 1)
+	rowpiv=zeros(Int, n-1)
+	colpiv=zeros(Int, n-1)
+	x $\leftrightarrow$ y = for i=1:length(x) #Define swap function
+		x[i], y[i] = y[i], x[i]
+	end
+	for k=1:n-1
+		Asub = abs(A[k:n, k:n])
+		$\mu$, $\lambda$ = ind2sub(size(Asub), indmax(Asub))
+		$\mu$ += k-1; $\lambda$ += k-1
+		rowpiv[k] = $\mu$
+		A[k, 1:n] $\leftrightarrow$ A[$\mu$, 1:n]
+		colpiv[k] = $\lambda$
+		A[1:n, k] $\leftrightarrow$ A[1:n, $\lambda$]
+		if A[k,k] $\ne$ 0
+			$\rho$ = k+1:n
+			A[$\rho$, k] = A[$\rho$, k]/A[k, k]
+			A[$\rho$, $\rho$] = A[$\rho$, $\rho$] - A[$\rho$, k] * A[k, $\rho$]
+		end
+	end
+	return (A, rowpiv, colpiv)
 end
 \end{lstlisting}
 
