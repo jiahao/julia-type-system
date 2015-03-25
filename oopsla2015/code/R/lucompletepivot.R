@@ -1,4 +1,4 @@
-lu_complete_pivoting <- function(A) {
+lu_complete_pivot <- function(A) {
   n <- nrow(A)
   rowpiv <- rep(0, n - 1)
   colpiv <- rep(0, n - 1)
