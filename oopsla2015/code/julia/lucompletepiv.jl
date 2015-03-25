@@ -7,7 +7,8 @@ function lucompletepiv!(A)
   rowpiv=zeros(Int, n-1)
   colpiv=zeros(Int, n-1)
   for k=1:n-1
-    μ, λ = ind2sub(size(A[k:n, k:n]), indmax(A[k:n, k:n]))
+    As = A[k:n, k:n]
+    μ, λ = ind2sub(size(As), indmax(As))
     μ += k-1; λ += k-1
     rowpiv[k] = μ
     A[k, 1:n] ↔ A[μ, 1:n]
