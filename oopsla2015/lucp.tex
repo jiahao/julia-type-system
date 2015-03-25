@@ -6,13 +6,14 @@ difficult problem best left to the experts. A popular reference book for
 numerical methods famously wrote, for example, that ``the solution of
 eigensystems... is one of the few subjects covered in this book for which we do
 \textit{not} recommend that you avoid canned routines''~\cite[Section 11.0, p.
-461]{NumericalRecipesInC2e}. While much effort has been invested in making
-numerical linear algebra libraries fast~\cite{LAPACK,FLAME,BLIS}, one
-nevertheless will occasionally need an algorithm that is not implemented in a
-standard linear algebra librasy.
+461]{Press1992}. While much effort has been invested in making
+numerical linear algebra libraries
+fast~\cite{LAPACK,Gunnels2001,OpenBLAS,VanZee2013}, one nevertheless will
+occasionally need an algorithm that is not implemented in a
+standard linear algebra library.
 
 One such nonstandard algorithm is the completely pivoted LU factorization. This
-algorithm is not implemented in standard linear alagebra libraries in
+algorithm is not implemented in standard linear algebra libraries in
 LAPACK~\cite{LAPACK}, as the conventional wisdom is the gains in numerical
 stability in complete pivoting is no generally worth the extra effort over
 other variants such as partial pivoting~\cite{Golub2013}.  Nevertheless, users
@@ -20,7 +21,7 @@ may want complete pivoting for comparison with other algorithms for a
 particular use case. For example, one may be interested in comparing the
 results of an infinite dimensional LU factorization to its finite-dimensional
 approximation, in which case only the completely pivoted LU is defined in both
-cases~\cite{Townsend2015}.
+cases~\cite{Townsend2014}.
 
 In this section, we consider various implementation of completely pivoted LU in
 pure Julia. First, we implement the algorithm na\"ively as a direct translation
@@ -47,7 +48,7 @@ the input matrix $A$. Additionally, there is a description for the subproblem
 of finding the next pivot at the start of the loop. Furthermore, the pseudocode
 uses the $\leftrightarrow$ operation, denoting swaps of various rows and
 columns of $A$. To translate the pivot finding subproblem into Julia, we used
-the builtin \lstinline|indmax| function to find the linear index of the value
+the built-in \lstinline|indmax| function to find the linear index of the value
 of the subarray \lstinline|A[k:n, k:n]| which has the largest magnitude, then
 used the \lstinline|ind2sub| function to convert the linear index to a tuple
 index.
@@ -135,9 +136,9 @@ and off by default, but can be enable with a command line switch. R provides a
 JIT compiler in the \lstinline|compiler| library package. We do not have
 JIT-compiled results for Python, as at this time of writing, neither PyPy 2.5.0
 nor Numba 0.17.0 was able to compile the code.\footnote{
-PyPy 2.5.0 was available but the specialized version of NumPy required did
-build successfully on neither Python 2.7.9 nor 3.4.3 on OSX. Numba 0.17.0, with
-the \lstinline|@jit(nopython=True)| decorator, threw a
+The specialized fork of NumPy required to run on PyPy 2.5.0 did not build
+successfully on neither Python 2.7.9 nor 3.4.3 on OSX. Numba 0.17.0, with the
+\lstinline|@jit(nopython=True)| decorator, threw a
 \lstinline|NotImplementedError| exception.}
 The results are summarized in Figure~\ref{fig:scaling}, which shows the
 near-perfect $O(n^3)$ scaling of the algorithm in each implementation, as well
