@@ -6,6 +6,9 @@ OCTAVEBIN = octave
 MATLABBIN = /Applications/MATLAB_R2014b.app/bin/matlab
 RBIN = R
 
+figures: all
+	julia plot.jl
+
 all: lu/julia-opt.csv lu/julia.csv lu/python.csv lu/matlab.csv lu/matlab-nojit.csv lu/octave-jit.csv lu/octave-nojit.csv lu/R-compiler.csv lu/R.csv
 
 lu/matlab-nojit.csv:
