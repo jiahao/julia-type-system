@@ -1,7 +1,3 @@
-x ↔ y = for i=1:length(x) #Define swap function
-  x[i], y[i] = y[i], x[i]
-end
-
 function lucompletepiv!(A)
   n=size(A, 1)
   rowpiv=zeros(Int, n-1)
@@ -11,9 +7,9 @@ function lucompletepiv!(A)
     μ, λ = ind2sub(size(As), indmax(As))
     μ += k-1; λ += k-1
     rowpiv[k] = μ
-    A[k, 1:n] ↔ A[μ, 1:n]
+    A[[k,μ], 1:n] = A[[μ,k], 1:n]
     colpiv[k] = λ
-    A[1:n, k] ↔ A[1:n, λ]
+    A[1:n, [k,λ]] = A[1:n, [λ,k]]
     if A[k,k] ≠ 0
       ρ = k+1:n
       A[ρ, k] = A[ρ, k]/A[k, k]
@@ -22,4 +18,3 @@ function lucompletepiv!(A)
   end
   return (A, rowpiv, colpiv)
 end
-

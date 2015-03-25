@@ -98,17 +98,14 @@ function lucompletepiv!(A)
 	n=size(A, 1)
 	rowpiv=zeros(Int, n-1)
 	colpiv=zeros(Int, n-1)
-	x $\leftrightarrow$ y = for i=1:length(x) #Define swap operator
-		x[i], y[i] = y[i], x[i]
-	end
 	for k=1:n-1
 		Asub = abs(A[k:n, k:n]) #Search for next pivot
 		$\mu$, $\lambda$ = ind2sub(size(Asub), indmax(Asub))
 		$\mu$ += k-1; $\lambda$ += k-1
 		rowpiv[k] = $\mu$
-		A[k, 1:n] $\leftrightarrow$ A[$\mu$, 1:n]
+		A[[k, $\mu$], 1:n] = A[[$\mu$, k], 1:n]
 		colpiv[k] = $\lambda$
-		A[1:n, k] $\leftrightarrow$ A[1:n, $\lambda$]
+		A[1:n, [k, $\lambda$]] = A[1:n, [$\lambda$, k]]
 		if A[k,k] $\ne$ 0
 			$\rho$ = k+1:n
 			A[$\rho$, k] = A[$\rho$, k]/A[k, k]
