@@ -1,53 +1,14 @@
 \section{Introduction}
-Performance is important to scientific computing. Programs for applied math and the sciences are very compute-heavy. [Say another sentence about how these programs need to be fast. Everyone in the world should believe this sentence.]
+Performance is important to scientific computing. Programs for applied math and the sciences often perform complex operations over large amounts of inputs. For this reason, languages supporting such programs need to be efficient.
 
-In recent years it has become popular to use high level dynamic languages such as Python/NumPy [Python for scientific computing, TE Oliphant - Computing in Science & Engineering, 2007], Matlab [Numerical methods using MATLAB
-JH Mathews, KD Fink], R [R: a language for data analysis and graphics
-R Ihaka, R Gentleman - Journal of computational and graphical …, 1996 - Taylor & Francis
-], Perl [The Bioperl toolkit: Perl modules for the life sciences
-JE Stajich, D Block, K Boulez, SE Brenner… - Genome …, 2002] and many others[A Comparison of Programming Languages in Economics, S. Boragan Aruoba and Jes˙s Fern·ndez-Villaverde]. Users like rapid prototyping of numerical codes for reasons of increased productivity. [CITE Lutz Prechelt. Two Comparisons of Programming Languages. In: Making Software: What Really Works and Why We Believe It, pp. 239--258, O'Reilly Media, 2011. CITE Wilson G, Aruliah DA, Brown CT, Chue Hong NP, Davis M, et al. (2014) Best Practices for Scientific Computing. PLoS Biol 12(1): e1001745. doi:10.1371/journal.pbio.1001745]. Unfortunately, popular implementations of these high level languages do not offer the performance necessary. To achieve performance users end up having to transcribe their prototyped codes into a lower level static language, resulting in duplicated effort and higher maintenance costs. This has sometimes been called the two language problem.
-
-We have designed the Julia programming language based on the hypothesis that dynamic method dispatch is a major bottleneck in scientific programs. To address this problem, Julia supports efficient multiple dispatch over dynamic parametric types. The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used for both performance and reasoning. [Say some high-level sentences about what type tags are.] \TODO{Have some sort of static reasoning argument too. It's okay if it's not implemented.} Julia’s compiler statically resolves type tags as much as possible to reduce the overhead of dynamic dispatch.
-
-In this paper, we describe the algorithm for taking advantage of these static annotations. We describe how the static type resolution provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse.
-
-The main contributions of the paper are as follows:
-We describe a dynamic type system for multiple dispatch.
-We describe an algorithm that statically resolves dispatch as much as possible.
-We demonstrate that our algorithm provides [X] speedup over unoptimized code.
-We demonstrate that Julia programs perform [X] better than [ABC] other languages on [X] benchmarks.
-[Say something about the results we found from analyzing the code.]
-
-
-\section{Dynamic languages are useful for technical computing}
-
-Engineers, mathematicians and scientists routinely write software for
-computational simulations and data analysis to discover new insights.
-Users writing such exploratory code do not typically
-know what computations they need to perform at the outset of their work.
-Rather, they discover what they want by iterating through several different
-prototypes---often dozens or even hundreds of them. Consequently, technical
-computing code tends to be the product of an organic process of continuous
-experimentation.
-
-Statically-typed languages focus on proving properties of programs, and constrain
-the set of allowed programs in order to do so~\cite{Pierce2002}.
-These restrictions may run counter to how users want to reason about a problem,
-particularly when an answer can be justified by specialized domain knowledge that
-cannot readily be expressed in the type system.
-In contrast, dynamic languages embody a realist philosophy:
-the representation and behavior of values flowing through programs at runtime
-take precedence over what can be proved about them in advance.
-Programs are not checked for provable correctness;
-rather they are executed until the program terminates or a run-time error occurs.
-The focus is to make sense out of whatever program a user may write.
-
-In other words, a scientist will often run a program in order to find out what
-it does---\emph{proving} anything about what it does would be premature, and an
-unwelcome distraction. As a result, dynamic languages like
-MATLAB~\cite{matlab}, Python~\cite{pythonlib,pythonref} and R~\cite{rlang} have
-become popular among technical computing users.
-
+It has become popular to use dynamic languages such as Python/NumPy, Matlab, R, Perl, and others.
+%[Numerical methods using MATLAB JH Mathews, KD Fink], R [R: a language for data analysis and graphics
+%R Ihaka, R Gentleman - Journal of computational and graphical …, 1996 - Taylor & Francis
+%], Perl [The Bioperl toolkit: Perl modules for the life sciences
+%JE Stajich, D Block, K Boulez, SE Brenner… - Genome …, 2002] and many others.
+% [A Comparison of Programming Languages in Economics, S. Boragan Aruoba and Jes˙s Fern·ndez-Villaverde].
+%Users like rapid prototyping of numerical codes for reasons of increased productivity.
+%[CITE Lutz Prechelt. Two Comparisons of Programming Languages. In: Making Software: What Really Works and Why We Believe It, pp. 239--258, O'Reilly Media, 2011. CITE Wilson G, Aruliah DA, Brown CT, Chue Hong NP, Davis M, et al. (2014) Best Practices for Scientific Computing. PLoS Biol 12(1): e1001745. doi:10.1371/journal.pbio.1001745].
 Dynamic languages features facilitate writing certain kinds of code, use cases
 for which occur in various technical computing applications.
 \cite{Holkner2009}'s analysis of Python programs revealed the use of dynamic
@@ -67,8 +28,7 @@ remote communication framework. Such use cases feature prominently in
 technical computing programs that have to interface with custom hardware for
 scientific instruments, and also in data parallel computations.
 
-Code written in these languages is difficult to execute efficiently;
-the dynamic nature of these languages poses challenges for
+Unfortunately, popular implementations of these high level languages do not offer the performance necessary. Code written in these languages is difficult to execute efficiently; the dynamic nature of these languages poses challenges for
 implementers~\cite{Joisha2001,Joisha2006,Seljebotn2009}. While it is possible
 to greatly accelerate dynamic languages with various techniques, for
 technical computing the problem does not stop there. These systems
@@ -76,20 +36,22 @@ crucially depend on large libraries of low-level code that provide array
 computing kernels (e.g. matrix multiplication and other linear algebraic
 operations). Developing these libraries is a challenge, requiring a range of
 techniques including templates, code generation, and manual code
-specialization.
+specialization. To achieve performance users end up having to transcribe their prototyped codes into a lower level static language, resulting in duplicated effort and higher maintenance costs. This has sometimes been called the two language problem.
 
-Julia\footnote{Julia is free and open-source software available from
+We have designed the Julia programming language~\footnote{Julia is free and open-source software available from
 \url{http://julialang.org} under the MIT license. In this paper, we describe
-the behavior of the v0.3.2 point release.} is a dynamic language designed to
-help users express and organize the diverse functionality required for technical computing problems, while
-attempting to maintain the ease-of-use of existing high-level
-languages~\cite{Bezanson2012,Bezanson2014b}.
+the behavior of the v0.3.2 point release.} based on the hypothesis that dynamic method dispatch is a major bottleneck in scientific programs. Julia is a dynamically typed language designed to help users express and organize the diverse functionality required for technical computing problems, while maintaining the ease-of-use of popular high-level languages~\cite{Bezanson2012,Bezanson2014b}. To address this problem, Julia supports efficient multiple dispatch over dynamic parametric types. The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used for both performance and reasoning. [Say some high-level sentences about what type tags are.]
+Julia's compiler statically resolves type tags as much as possible to reduce the overhead of dynamic dispatch.
 
-The language is built on polymorphic data and code:
+In this paper, we describe the algorithm for taking advantage of these static annotations. We describe how the static type resolution provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse. When combined with an extensive base library for parallel execution and numerical analysis, Julia provides a convenient environment for rapid prototyping of new scientific computing code that can be deployed often within a factor of two of the speed of native, hand-written C code.
 
+The main contributions of the paper are as follows:
 \begin{itemize}
-  \item A type system featuring subtyping and parametric types, and
-  \item A generic function system with dynamic multiple dispatch
+\item We describe a dynamic type system that supports multiple dispatch.
+\item We describe an algorithm that statically resolves dispatch as much as possible.
+\item We demonstrate that our algorithm provides [X] speedup over unoptimized code.
+\item We demonstrate that Julia programs perform [X] better than [ABC] other languages on [X] benchmarks.
+\item [Say something about the results we found from analyzing the code.]
 \end{itemize}
 
 %
@@ -115,12 +77,11 @@ The language is built on polymorphic data and code:
 %% rapid prototyping of new analytics which can also be deployed performantly,
 %% often within a factor of two of the speed of native, hand-written C code.
 
-While multiple dispatch has been extensively studied as an object-oriented
-paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
-With Julia, a growing number of scientific programmers are using multiple dispatch
-extensively. The key property of multiple
-dispatch for this domain seems to be that it allows programs (particularly libraries)
-to be written incrementally, in small pieces, where each piece has a method signature
-specifying \emph{declaratively} how it fits into the whole.
-More sophisticated types ease this process, since they allow new
-definitions to be added smoothly in more situations.
+%While multiple dispatch has been extensively studied as an object-oriented
+%paradigm in the past, it has not been widely adopted in practice~\cite{Muschevici:2008}.
+%With Julia, a growing number of scientific programmers are using multiple dispatch
+%extensively. The key property of multiple
+%dispatch for this domain seems to be that it allows programs (particularly libraries)
+%to be written incrementally, in small pieces, where each piece has a method signature
+%specifying \emph{declaratively} how it fits into the whole.
+%More sophisticated types ease this process, since they allow new definitions to be added smoothly in more situations.
