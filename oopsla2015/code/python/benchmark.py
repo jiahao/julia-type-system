@@ -1,5 +1,5 @@
 import csv
-import timeit
+import time
 import numpy as np
 
 exec(open("./lucompletepiv.py").read())

@@ -5,10 +5,10 @@ PYTHONBIN = python3.4
 MATLABBIN = /Applications/MATLAB_R2014b.app/bin/matlab
 RBIN = R
 
-all: lu/julia-opt.csv lu/julia.csv lu/python-numba.csv lu/python.csv lu/matlab.csv lu/matlab-nojit.csv lu/R-compiler.csv lu/R.csv
+all: lu/julia-opt.csv lu/julia.csv lu/python.csv lu/matlab.csv lu/matlab-nojit.csv lu/R-compiler.csv lu/R.csv
 
 lu/matlab-nojit.csv:
-	cd ../code/matlab; $(MATLABBIN) -singleCompThread -nosplash -nodesktop -nojvm -r 'feature accel off; benchmark; exit'
+	cd ../code/matlab; $(MATLABBIN) -singleCompThread -nosplash -nodesktop -nojvm -r 'benchmark_nojit; exit'
 
 lu/matlab.csv:
 	cd ../code/matlab; $(MATLABBIN) -singleCompThread -nosplash -nodesktop -nojvm -r 'benchmark; exit'
