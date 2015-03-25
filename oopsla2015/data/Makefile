@@ -1,4 +1,5 @@
 JULIABIN = julia
+PYTHONBIN = python3.4
 MATLABBIN = /Applications/MATLAB_R2014b.app/bin/matlab
 
 lu/matlab.csv:
@@ -11,5 +12,5 @@ lu/r.csv:
 	echo Run ../code/R/benchmark manually
 
 lu/python.csv:
-	echo Run ../code/python/benchmark manually
+	cd ../code/python; $(PYTHONBIN) benchmark.py
 
