@@ -51,7 +51,9 @@ columns of $A$. To translate the pivot finding subproblem into Julia, we used
 the built-in \lstinline|indmax| function to find the linear index of the value
 of the subarray \lstinline|A[k:n, k:n]| which has the largest magnitude, then
 used the \lstinline|ind2sub| function to convert the linear index to a tuple
-index.
+index. The $\leftrightarrow$ operator was implemented using vectorized indexing
+operations, as is standard practice in high level languages like MATLAB.
+
 
 
 \begin{algorithm}
@@ -63,11 +65,10 @@ $LU$ factors, with $rowpiv$ and $colpiv$ containing the row and column pivots
 respectively.
 Bottom: An implementation of $LU$ factorization with complete pivoting in Julia,
 which returns the result as a tuple. The ! at the end of the function name is
-convention for a function with side effects (in this case, mutating $A$). The
-implementation defines a custom function $\leftrightarrow$ which is allowed to
-be used as an operator in infix position. Other Unicode characters such as
-Greek letters and the $\ne$ operator are allowed in Julia code, allowing for
-close notational correspondence with the textbook description of the algorithm.}
+convention for a function with side effects (in this case, mutating $A$).
+Unicode characters such as Greek letters and the $\ne$ operator are allowed in
+Julia code, allowing for close notational correspondence with the textbook
+description of the algorithm.}
 \label{alg:lucompletepiv}
 
 \begin{algorithmic}
