@@ -126,8 +126,10 @@ end
 
 For comparison purposes, we also wrote na\"ive implementations in other high
 level dynamics languages which are popular for technical computing. Here, we
-considered MATLAB, Octave, Python/NumPy, and R (whose codes are available in the
-Appendix). The codes were executed on a late 2013 MacBook Pro running OS X
+considered MATLAB~\cite{matlab}, Octave~\cite{octave},
+Python~\cite{python}/NumPy~\cite{numpy}, and R~\cite{rlang} (whose codes are
+available in the Appendix). The codes were executed on a late 2013 MacBook Pro
+running OS X
 Yosemite 10.10.2, with Julia 0.4-dev+3970, MATLAB R2014b, Octave 3.8.1, Python
 3.4.3 with NumPy 1.9.2 from the Anaconda 2.1.0 distribution, and R 3.1.3. Where
 possible, we also tried to run variants with and without JIT compilation. In
@@ -135,8 +137,8 @@ MATLAB, the JIT compiler is on by default, but can be turned off with the
 command \lstinline|feature accel off|. Octave's JIT compiler is experimental
 and off by default, but can be enable with a command line switch. R provides a
 JIT compiler in the \lstinline|compiler| library package. We do not have
-JIT-compiled results for Python, as at this time of writing, neither PyPy 2.5.0
-nor Numba 0.17.0 was able to compile the code.\footnote{
+JIT-compiled results for Python, as at this time of writing, neither PyPy
+2.5.0~\cite{Bolz2009} nor Numba 0.17.0 was able to compile the code.\footnote{
 The specialized fork of NumPy required to run on PyPy 2.5.0 did not build
 successfully on neither Python 2.7.9 nor 3.4.3 on OSX. Numba 0.17.0, with the
 \lstinline|@jit(nopython=True)| decorator, threw a
