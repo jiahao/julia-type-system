@@ -5,15 +5,15 @@ def lucompletepiv(A):
     colpiv = np.zeros(n-1, dtype=int)
     for k in range(n-1):
         Asub = A[k:n, k:n]
-        mu, lam = np.unravel_index(np.argmax(Asub), np.shape(Asub)) 
-        mu += k
+        mu, lam = np.unravel_index(np.argmax(Asub), np.shape(Asub))
+        mu, lam = mu + k, lam + k
         rowpiv[k] = mu
-        A[[k, mu], :] = A[[mu, k], :]
-        lam += k
+        A[[k, mu], :n] = A[[mu, k], :n]
         colpiv[k] = lam
-        A[:, [k, lam]] = A[:, [lam, k]]
+        A[:n, [k, lam]] = A[:n, [lam, k]]
         if A[k, k] != 0:
             rho = slice(k+1, n)
-            A[rho, k] = A[rho, k] / A[k, k]
-            A[rho, rho] = A[rho, rho] - A[rho, k] * A[k, rho]
+            A[rho, k] /= A[k, k]
+            A[rho, rho] -= np.dot(np.reshape(A[rho, k], (n - (k + 1), 1)),
+                                  np.reshape(A[k, rho], (1, n - (k + 1))))
     return (A, rowpiv, colpiv)
