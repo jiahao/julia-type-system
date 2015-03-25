@@ -1,3 +1,37 @@
 \begin{abstract}
-Programmers in the sciences and applied math often prefer dynamically typed languages. These domains often benefit from good performance, as many of these programs need to process large amounts of data. Unfortunately, dynamic languages often suffer from poor performance. We have designed the Julia programming language based on the hypothesis that dynamic method dispatch is a major bottleneck in scientific programs. To address this problem, Julia supports efficient multiple dispatch over dynamic parametric types. The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used to determine function dispatch. We describe the algorithm for taking advantage of these static annotations provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse.
+%Programmers in the sciences and applied math often prefer dynamically typed languages. These domains often benefit from good performance, as many of these programs need to process large amounts of data. Unfortunately, dynamic languages often suffer from poor performance. We have designed the Julia programming language based on the hypothesis that dynamic method dispatch is a major bottleneck in scientific programs. To address this problem, Julia supports efficient multiple dispatch over dynamic parametric types. The key insight in the design of the type system is that it supports \emph{type tags}, optional static annotations that can be used to determine function dispatch. We describe the algorithm for taking advantage of these static annotations provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse.
+
+Technical computing has a split personality: it is associated with big computations,
+supercomputers, and high performance, but also dominated by high-level tools needed
+for domain expert productivity.
+%Mediating these opposing requirements is a challenge.
+At the language level, this conflict manifests in two ways.
+First, there is a need for complex operators for arithmetic, linear algebra, and computing
+with multi-dimensional arrays.
+These operators tend to need many definitions and sometimes accept a large number of
+arguments.
+Second, technical programs freely combine operations with different binding times.
+In one context, there might be a type-level distinction between two objects that
+must be resolved statically, usually for performance.
+In a different context, the same objects might need to participate in dynamic dispatch.
+
+Current solutions to this design problem often use two languages: a low-level
+statically-typed language for performance, and a different language for dynamic
+dispatch.
+NumPy (TODO CITE) is a popular example of this pattern.
+We find this solution unsatisfactory, primarily due to its complexity and the need
+to manually separate static and dynamic components.
+Secondarily, the performance of such systems is limited by their inability to
+optimize between layers; for example, high-level user code cannot be inlined into
+low-level library code.
+
+Julia is a programming language designed to address this problem.
+In this paper we will show how it uses a combination of dynamic type-based
+dispatch and data-flow type inference to
+make it easier to obtain good performance from high-level technical programs.
+
+%We have found that dynamic type-based dispatch is an effective paradigm for these programs.
+%Where existing systems require manually separating dynamically resolved operations
+%from statically resolved ones, Julia achieves similar results automatically.
+
 \end{abstract}
