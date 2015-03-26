@@ -1520,37 +1520,38 @@ as well as some shortcomings and challenges we have observed.
 \input{related_work}
 
 \section{Conclusion}
+We have describe the design and implementation of Julia's dynamic dispatch mechanism to supporting high-level technical computing programs that also have good performance. In Julia, the combination of dynamic multiple dispatch and on-demand method specialization allows users to write generic code. By providing a uniform language for technical computing programs, Julia provides flexibility and ease of reasoning without requiring the programmer to give up performance.
 
-The examples provided in this paper illustrate the expressive power afforded by
-the composition of extensible generic functions, polymorphic types,
-dynamic multiple dispatch, and aggressive method specialization allowed by
-just-in-time static analyses. Users are allowed to extend both the collection
-of generic functions and the base type hierarchy in Julia, which further erodes
-the distinction between user code and library code that is itself written in
-Julia. We believe that such expressiveness is useful for technical computing
-applications, where it is not generally possible to predict the variety of
-specialized computations that domain scientists, engineers and mathematicians
-require.
+%The examples provided in this paper illustrate the expressive power afforded by
+%the composition of extensible generic functions, polymorphic types,
+%dynamic multiple dispatch, and aggressive method specialization allowed by
+%just-in-time static analyses. Users are allowed to extend both the collection
+%of generic functions and the base type hierarchy in Julia, which further erodes
+%the distinction between user code and library code that is itself written in
+%Julia. We believe that such expressiveness is useful for technical computing
+%applications, where it is not generally possible to predict the variety of
+%specialized computations that domain scientists, engineers and mathematicians
+%require.
 
-Some other languages also offer constructs for type polymorphism, like C++'s
-expression templates and Fortress's generic functions, but these constructs are
-only available at compile time, which restrict their expressiveness.
-Furthermore, these languages usually require that all possible specialized
-methods be generated at compile time, resulting in long compilation times which
-are curtailed in practice with further restrictions on the generality of user
-defined code. In contrast, the combination of dynamic multiple dispatch
-semantics and on-demand method specialization in Julia allows users to write
-highly generic code.
+%Some other languages also offer constructs for type polymorphism, like C++'s
+%expression templates and Fortress's generic functions, but these constructs are
+%only available at compile time, which restrict their expressiveness.
+%Furthermore, these languages usually require that all possible specialized
+%methods be generated at compile time, resulting in long compilation times which
+%are curtailed in practice with further restrictions on the generality of user
+%defined code. In contrast, the combination of dynamic multiple dispatch
+%semantics and on-demand method specialization in Julia allows users to write
+%highly generic code.
 
-Julia as a language is still evolving, and there is room for further
-improvements to the compiler, such as additional static analyses for peephole
-optimizations, constant propagation, and backward data flow type inference.
-Nevertheless, the current type system, generic function system with
-multimethods and type inference with aggressive method specialization afford
-rich semantics which are useful for technical computing applications.
-Furthermore, the design and interaction between these language components allow
-users to design their own Pareto-optimal tradeoffs between performant
-specialization and flexible generality within a single programming language.
+%Julia as a language is still evolving, and there is room for further
+%improvements to the compiler, such as additional static analyses for peephole
+%optimizations, constant propagation, and backward data flow type inference.
+%Nevertheless, the current type system, generic function system with
+%multimethods and type inference with aggressive method specialization afford
+%rich semantics which are useful for technical computing applications.
+%Furthermore, the design and interaction between these language components allow
+%users to design their own Pareto-optimal tradeoffs between performant
+%specialization and flexible generality within a single programming language.
 
 
 %\acks{We thank the many Julia users and developers for their contributions to
