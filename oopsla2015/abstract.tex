@@ -1,20 +1,7 @@
 \begin{abstract}
-Technical computing has a split personality: it is associated with big
-computations, supercomputers, and high performance, but also with high-level
-tools for domain expert productivity that contain rich, polymorphic
-mathematical operations and multidimensional arrays. In this context,
-type-level distinctions are introduced for performance. However users often
-want to reuse the same code and data types in ways that are not statically
-analyzable. One popular solution is to have a two language environment: a
-low-level statically-typed language like C, C++ or Fortran for performance, and
-a high-level language such as MATLAB, Python/NumPy or R, for dynamic dispatch.
-However, two-language approaches are unwieldy, requiring static and dynamic
-components to be separated by hand. The language barrier also inhibits
-optimization between user and library code.
+Scientific computing has a split personality. On one extreme, it is associated with big computations, supercomputers, and high performance. On the other, it is associated with high-level tools for domain expert productivity that contain rich, polymorphic mathematical operations.
+%For performance reasons, scientific languages often have type-level distinctions. However, users often want to reuse the code and data types in ways that are not statically analyzable. 
+A popular solution to reconciling these extremes is to have two-language environment: a low-level statically-typed language like C, C++ or Fortran for performance, and a high-level language such as MATLAB, Python/NumPy or R, for dynamic dispatch. Two-language approaches are unwieldy, requiring static and dynamic components to be separated by hand. The language barrier is also inflexible, inhibiting optimization between user and library code.
 
-Julia is a programming language designed to address the two-language problem.
-We show here the combination of dynamic type-based dispatch and data flow type
-inference allows good performance to be obtained from high-level technical
-programs. We provides examples demonstrating how key language features aid in
-the implementation of various real-world linear algebra codes.
+As a solution to the two-language problem, we have designed the Julia programming language to be a high-level technical language with good performance. The key innovation is the design of a type system that supports a combination of dynamic type-based dispatch and static data flow type inference. We describe the type system and type inference algorithm and provide examples demonstrating how key language features aid in the implementation of real-world linear algebra codes. We describe how Julia yields good performance on standard benchmarks, as well as how Julia users take advantage of the flexibility of the dynamic dispatch mechanism.
 \end{abstract}
