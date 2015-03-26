@@ -2,9 +2,9 @@
 
 \paragraph{Special matrix types}
 As befits a language for technical computing, the Julia base library defines
-many specializes matrix types which capture information about matrix properties
+many specialized matrix types which capture information about matrix properties
 such as triangularity, Hermitianness or bandedness. Knowing these matrix
-properties allows for many efficient computations on them, as many specialized
+properties allows for efficient computations on them, as many specialized
 linear algebra algorithms exist that take advantage of such information.
 Furthermore some matrix properties lend themselves to multiple representations.
 For example, symmetric matrices may be stored as ordinary matrices, but only
@@ -25,7 +25,7 @@ write code that annotates if a matrix is symmetric. Sometimes, users
 will use only symmetric matrices, for example, in code that
 works only on adjacency matrices of undirected graphs. In such situations,
 it is sensible to construct \lstinline|Symmetric| matrices explictly, as then
-Julia can dispatch directly onto specialized methods for \lstinline|Symmetric|
+Julia can dispatch directly to specialized methods for \lstinline|Symmetric|
 types. An example of such a function is \lstinline|sqrtm|, which computes the
 principal square root of a matrix. In general, the square root can be computed
 via the Schur factorization of a matrix~\cite{Golub2013}. However, the square
@@ -44,20 +44,27 @@ println(norm(B^2 - A))
 %
 $A$ is the adjacency matrix of a graph with 3 vertices and 2 edges, 1--1 and
 2--3. \lstinline|Symmetric(...)| constructs a \lstinline|Symmetric| matrix
-which wraps the underlying ordinary two-dimensional matrix (of
+wrapping the underlying ordinary two-dimensional matrix (of
 \lstinline|Matrix| type in Julia). The last line computes the matrix 2-norm
-between the square of $B$ and the original matrix $A$ and prints the result to
-the standard output stream. In exact arithmetic, the answer would be 0 exactly,
-but the actual norm will in general be nonzero due to floating point roundoff.
+between the square of $B$ and the original matrix $A$ and prints the result.
+%the standard output stream. In exact arithmetic, the answer would be 0,
+%but the actual norm will in general be nonzero due to floating point roundoff.
+
+This kind of code would be easy to statically type, and could be implemented
+in languages that support static overloading like C++.
+In such a language it is likely that many operations on \lstinline|Symmetric|
+would be implemented via static overloading, in order to take full advantage
+of the performance of a specialized representation.
 
 \paragraph{Dynamic dispatch}
-Of course, \lstinline|sqrtm| can be used in more general situations where the
-input matrix may not have any known symmetries and may simply be an ordinary
-\lstinline|Matrix|. Without any further information, the only choice is the
+
+In practice, technical computing users would expect to be able to call
+\lstinline|sqrtm| on any kind of matrix.
+Without any further information, the only choice is the
 more expensive algorithm that uses the Schur factorization. However, the speed
-and stability of the specialized method suggests an advantage from checking if
+and stability of the specialized method suggests an advantage from checking whether
 the input \lstinline|Matrix| is symmetric at run time, and if so, dispatching
-onto the method defined for \lstinline|Symmetric| inputs instead. This is
+to the method defined for \lstinline|Symmetric| inputs instead. This is
 exactly what Julia's implementation of \lstinline|sqrtm| does:\footnote{
 The code listing is taken directly from the Julia base library, with minor
 changes for clarity.}
@@ -81,11 +88,14 @@ Figure~\ref{fig:sqrtm} summarizes the high level behavior of \lstinline|sqrtm|.
 The general method first checks if the input matrix is symmetric, which is fast
 compared to the actual computation of the square root. If the matrix is found to
 be symmetric, it is wrapped in a \lstinline|Symmetric| constructor, which allows
-Julia to dispatch onto the specialized method. Otherwise, the next few lines
-computes the square root. Thus dynamic dispatch allows the same performant
-kernel to be called even in situations where the user does not know if a
-particular input matrix is symmetric, or even that specialized algorithms for
-symmetric matrices exist.
+Julia to dispatch to the specialized method. Otherwise, the next few lines
+compute the square root using the slower method.
+Thus a user-level \lstinline|sqrtm(A)| call will in
+general be dynamically dispatched, but can ultimately call the same
+performant kernel if the argument happens to be symmetric.
+
+Also notice that the type of result returned by \lstinline|sqrtm| depends
+on run-time checks for symmetry and real-valuedness.
 
 \begin{figure}
 	\centering
@@ -98,20 +108,37 @@ symmetric matrices exist.
 	\label{fig:sqrtm}
 \end{figure}
 
-The first code snippet illustrates a situation that can be addressed by either
-static dispatch or dynamic dispatch. However, the second snippet makes use of
-dynamic dispatch semantics to reuse code for the special case, if at run time
-the input was determined to satisfy the conditions of the special case. If we
-only had static dispatch semantics, then we either have to forgo the
-specialized algorithm, or otherwise repeat that code in the general method.
-Therefore, dynamic dispatch allows for greater code reuse, allowing for greater
-overall performance without redundant code.
+This modest example illustrates a pattern characteristic of technical
+computing environments: dynamic dispatch on top of statically-typed
+performance kernels.
+However the difference here is that both components can be expressed
+in the same language, and with the same notation.
 
+In general, this is the kind of programming experience provided by
+optimized implementations of dynamic languages, which can generate
+code based on run time information.
+However, code specialization is only half of the story.
+The other half is extensibility --- adding new data types and
+method definitions.
+Julia's approach to extensibility is designed to take advantage of
+specialization, by allowing methods to be defined for combinations
+of structured types.
+
+
+%The first code snippet illustrates a situation that can be addressed by either
+%static dispatch or dynamic dispatch. However, the second snippet makes use of
+%dynamic dispatch semantics to reuse code for the special case, if at run time
+%the input was determined to satisfy the conditions of the special case.
+%If we
+%only had static dispatch, we would either have to forgo the
+%specialized algorithm, or otherwise repeat that code in the general method.
+%Therefore, dynamic dispatch allows for greater code reuse, allowing for greater
+%overall performance without redundant code.
 
 
 \subsection{Polymorphic types in Julia}
 
-The method shown above also demonstrates two kinds of polymorphism supported in
+The method shown above demonstrates two kinds of polymorphism supported in
 Julia. First, the input \lstinline|A| is annotated (\lstinline|::|) with the
 type \lstinline|StridedMatrix|, which is an abstract type, not a concrete type.
 A strided matrix is one that has a Fortran-compatible storage format, i.e.\ it
