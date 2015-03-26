@@ -1150,7 +1150,6 @@ which is but one of the several factorizations computed in \verb|factorize|:
 
 \begin{lstlisting}
 # Compute Bunch-Kaufman factorization,
-
 bkfact{T<:BlasFloat}(A::StridedMatrix{T},
                      uplo::Symbol=:U,
                      sym::Bool=issym(A)) =
@@ -1165,11 +1164,7 @@ function bkfact{T}(A::StridedMatrix{T},
 end
 
 # Compute Bunch-Kaufman factorization in-place
-
-# For real symmetric matrices,
-# if T is Float32 or Float64
-# call LAPACK SSYTRF/DSYTRF routine
-
+# call LAPACK SSYTRF/DSYTRF where possible
 function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
 		              uplo::Symbol=:U,
 			      sym::Bool=issym(A))
@@ -1180,13 +1175,6 @@ function bkfact!{T<:BlasReal}(A::StridedMatrix{T},
     LD, ipiv = LAPACK.sytrf!(char_uplo(uplo),A)
     BunchKaufman(LD,ipiv,char_uplo(uplo),symmetric)
 end
-
-# For complex symmetric matrices,
-# call LAPACK CSYTRF/ZSYTRF
-
-# If T is Complex64 or Complex128,
-# and the matrix is complex Hermitian
-# call the CHETRF/ZHETRF routines
 
 function bkfact!{T<:BlasComplex}(A::StridedMatrix{T},
 	    			 uplo::Symbol=:U,
