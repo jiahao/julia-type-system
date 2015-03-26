@@ -171,6 +171,53 @@ with randomly sampled standard Gaussians.
 	\label{fig:naivelangs}
 \end{figure}
 
+
+
+\subsection{LU decomposition on arbitrary numeric types}
+
+One major advantage to writing the $LU$ factorization code in pure Julia is
+that \lstinline|lucompletepiv!| can run on any \lstinline|Matrix{T}|. So long
+as the underlying element type \lstinline|T| is closed under the basic
+arithmetic operations \lstinline|+|, \lstinline|-|, \lstinline|*|,
+\lstinline|/|, \lstinline|abs|, and \lstinline|max|, the algorithm will run
+just as it did on \lstinline|Float64| numbers. For example, one could compute
+the completely pivoted $LU$ factorization on matrices of fixed point numbers
+(provided by the \package{FixedPointNumbers.jl} package), or matrices of
+rational numbers (built in \lstinline|Rational| types).
+
+\begin{lstlisting}
+using FixedPointNumbers
+
+#Initialize 1000x1000 matrix of 32-bit fixed point 1s with 14 fractional bits
+B = ones(Fixed32{14}, 1000, 1000)
+lucompletepiv!(B)
+
+#Initialize 1000x1000 matrix of unit rational numbers with 64-bit integer numerators and denominators fixed point 1s with 14 fractional bits
+C = ones(Rational{Int64}, 1000, 1000)
+lucompletepiv!(C)
+\end{lstlisting}
+
+Other interesting examples include the dual and hyperdual numbers provided by
+the \package{DualNumbers.jl} and \package{HyperDualNumbers.jl} packages
+respectively. Both types of numbers are used for forward mode automatic
+differentiation, and can be used with \lstinline|lucompletepiv!| to take
+derivatives of the $LU$ factorization itself. Computations over such arbitrary
+numeric types would be difficult, if not impossible, in the other languages,
+without reimplementing the basic algorithm \lstinline|lucompletepiv!| over and
+over again.
+
+While of course it is possible to build in more numeric types to the base
+library of any programming language, the approach shown here is more general
+by virtue of being extensible by users. Other such numberlike quantities
+include colors (in \package{Color.jl}), unitful quantities (in
+\package{SIUnits.jl}), interval arithmetic (in \package{ValidatedNumerics.jl}),
+finite fields, dates and times (in \lstinline|Base.Dates|), quaternions and
+octonions (in \package{Quaternions.jl}, extended precision floating point (in
+\lstinline|DoubleDouble|), DNA nucleotides (in \package{BioSeq.jl}), and many
+more.
+
+
+
 \subsection{Improving the performance of a na\"ive implementation}
 One of the reasons why high level languages are slow is that it allows the programmer to express algorithms in terms of array operations. These languages have a limited ability to optimize array expressions and consequently many temporary arrays are allocated during execution of a program.
 

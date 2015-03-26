@@ -1,16 +1,33 @@
 \section{Related Work}
 
-The more common programming languages that support dynamic multiple dispatch
-are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp with
-CLOS~\cite{Bobrow1988}, Clojure~\cite{Hickey2008} and Dylan~\cite{dylanman}.
-These languages also differ in the dispatch rules: Cecil, like Julia, employs
-symmetric multiple dispatch; CLOS and Dylan resolve ambiguities by matching
-arguments from left to right, and Clojure's dispatch rules are
-customizable based on user-specifiable rules. The method dispatchers are also
-limited in their expressiveness by the type system of their host languages.
-Clojure's multimethods are not a core language construct and hence interact
-only weakly with built-in types. Dispatch in CLOS is class-based and excludes
-parametric types. Cecil's type system supports subtype polymorphism but not
-type parameters. Dylan supports CLOS-style class-based dispatch, and also
-let-polymorphism in limited types, which is a restricted form of parametric
-polymorphism. However, Dylan does allows for multiple inheritance.
+There has been a rich history in using JIT compiler techniques to improve the performance of dynamic languages used for technical computing. 
+Matlab has had a production JIT compiler since 2002~\cite{matlab2002matlab}.
+More recently LuaJIT~\cite{pall2008luajit} and PyPy~\cite{Bolz2009} have shown that sophisticated tracing JIT's can significantly improve the runtime performance of dynamic languages.
+Julia's compiler takes advantage of LLVM's JIT for performance, but effort has been directed toward language design and not on improving existing JIT compiler techniques or implementations.
+Multimethods, polymorphic types, and multiple dispatch are exemplar language features that allow for greater opportunity for dynamic code optimization.
+
+Multiple dispatch using through multimethods has been explored in a variety of programming languages, either as a built in construct or as a library extension.
+A limited sampling of programming languages that support dynamic multiple dispatch are Cecil~\cite{Chambers1992,Chambers1994}, Common Lisp's CLOS~\cite{Bobrow1988}, Dylan~\cite{dylanman}, Clojure~\cite{Hickey2008}, and Fortress~\cite{Allen2011}.
+These languages differ in their dispatch rules.  
+Cecil, and Fortress employ symmetric multiple dispatch similar to Julia's dispatch semantics.
+Common lisp's CLOS and Dylan generic functions rely on asymmetric multiple dispatch, resovling ambiguities in method selection my matching arguments from left to right.
+Multimethods not part of the core method system or as a user level library can have user defined method selection semantics.
+Such a system is implemented in Clojure~\cite{Hickey2008}, which can reflect on the runtime values of a method's arguments, not just its types, when doing method selection.
+
+Method dispatch in these languages is limited by the expressiveness of the their type systems.
+Clojure's multimethods are not a core language construct and only weakly interact with built-in types.
+Dispatch in CLOS is class-based and excludes parametric types and cannot dispatch off of Common lisp's primitive value types, limiting its applicability as a mechanism for optimized method selection.  
+Cecil's type system supports subtype polymorphism but not type parameters.
+Dylan supports CLOS-style class-based dispatch, and also let-polymorphism in limited types, which is a restricted form of parametric polymorphism.
+However, Dylan does allows for multiple inheritance. 
+
+Julia is most similar to Fortress in exploring the design space of multiple dispatch with polymorphic types as a mechanism for supporting static analysis. Fortress has additional complexity in its type system, allowing for multiple inheritance, traits, and method selection forcing mechanisms.  This is in contrast to Julia's simpler polymorphic type hierarchy which enforces single inheritance. Static analysis in Fortress is mostly limited to checking method applicability for type correctness.  Julia's use of static analysis is to resolve instances where static dispatch method dispatch is possible and the overhead of full dynamic dipatch can be removed.
+
+%% Different than other multiple dipatch languages where we focus on using multiple dispatch as a mechnaism for static analysis,
+%% Fortress also does static analysis but the focus on the static analysis was for checking method applicibility for type correctness.
+
+%% Common lisp has a notion of primitve types in the where you can write that an array is arary{int} but you cannot dispatch based on that fact
+
+%% C# the dynamic keyword allows for method selection based on the runtime argument types but the method selection rules are complex
+%% Groovy allows for dynamic dispatch but but I'm unsure whether it allows for true multiple dispatch,
+%% All the given examples show mostly method overloading and runtime method selection based on argument class reflection
