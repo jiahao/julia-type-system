@@ -27,9 +27,10 @@
         ccall, do, module, baremodule, using, import, elseif,
         else, export, importall},
    sensitive=true,
+   showspaces=false,
+   showstringspaces=false,
    morecomment=[l]\#,
    morecomment=[n]{\#=}{=\#},
-   morestring=[b]',
    morestring=[b]",
 }
 \lstset{
@@ -433,6 +434,23 @@ with lower bound $\bot$ and upper bound $\top$.
 %% In this way, Julia allows for a meaningful compromise being flexibility and
 %% performance.
 
+\subsection{Function types}
+
+Julia is higher-order; functions can be passed to and returned from other
+functions.
+However, the language currently does not have function (arrow) types.
+The reason for this is that a Julia function need not have a useful canonical
+return type.
+We could consider every function to have return type \verb|Any|, but this is
+not terribly revealing.
+Return types based on Julia's type inference would not be predictable, as
+inference is heuristic and best-effort.
+Future compiler improvements can make inferred types more specific,
+and this should not effect program behavior (only performance).
+
+Julia does support \emph{nominal} function types --- a data type may implement
+the \verb|call| generic function, allowing it to be used anywhere a function
+can be used.
 
 \subsection{Type conversion}
 
@@ -452,24 +470,6 @@ mathematical objects often have embeddings in multiple domains, not all of
 which might be known or desired by the original author of some code. For
 example, numbers can be embedded in matrices with diagonal matrices, but not
 all users are likely to find this correspondence helpful.
-
-\subsection{Function types}
-
-Julia is higher-order; functions can be passed to and returned from other
-functions.
-However, the language currently does not have function (arrow) types.
-The reason for this is that a Julia function need not have a useful canonical
-return type.
-We could consider every function to have return type \verb|Any|, but this is
-not terribly revealing.
-Return types based on Julia's type inference would not be predictable, as
-inference is heuristic and best-effort.
-Future compiler improvements can make inferred types more specific,
-and this should not effect program behavior (only performance).
-
-Julia does support \emph{nominal} function types --- a data type may implement
-the \verb|call| generic function, allowing it to be used anywhere a function
-can be used.
 
 
 \section{Generic functions and multimethods}
@@ -965,7 +965,7 @@ type RowPermutation
 	p::Vector{Int}
 end
 
-*($\Pi$::RowPermutation, M::Matrix) = M[p, :]
+*($\Pi$::RowPermutation, M::Matrix) = M[$\Pi$.p, :]
 \end{lstlisting}
 %
 whose action can be thought of as multiplying by a permutation matrix on the
