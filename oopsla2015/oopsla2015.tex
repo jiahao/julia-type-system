@@ -294,6 +294,16 @@ is contiguous in the leading dimension, and more efficient algorithms can
 generally be used. Or, linear algebra code might want to restrict the
 number of dimensions \verb|N| to 1 or 2.
 
+%Abstract subtypes of \verb|SubArray| are also used to describe the applicability
+%of compiler-generated method specializations.
+%Code specialization has long been an important performance technique, especially
+%for dynamic languages.
+%However, specialization is limited by the amount of information available at
+%code generation time.
+%The \verb|SubArray| type illustrates a case where knowing only the ``class''
+%of a value is not enough; we need more details about what is inside the object.
+
+
 \subsubsection{Variance}
 
 The subtyping rules for parametric types require reasoning about variance,
@@ -442,6 +452,24 @@ mathematical objects often have embeddings in multiple domains, not all of
 which might be known or desired by the original author of some code. For
 example, numbers can be embedded in matrices with diagonal matrices, but not
 all users are likely to find this correspondence helpful.
+
+\subsection{Function types}
+
+Julia is higher-order; functions can be passed to and returned from other
+functions.
+However, the language currently does not have function (arrow) types.
+The reason for this is that a Julia function need not have a useful canonical
+return type.
+We could consider every function to have return type \verb|Any|, but this is
+not terribly revealing.
+Return types based on Julia's type inference would not be predictable, as
+inference is heuristic and best-effort.
+Future compiler improvements can make inferred types more specific,
+and this should not effect program behavior (only performance).
+
+Julia does support \emph{nominal} function types --- a data type may implement
+the \verb|call| generic function, allowing it to be used anywhere a function
+can be used.
 
 
 \section{Generic functions and multimethods}
