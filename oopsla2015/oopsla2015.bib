@@ -998,3 +998,21 @@ year = {2009}
 	 journal={Web site: http://luajit. org},
 	 year={2008}
 }
+@article{Gustavson2010,
+abstract = {We describe a new data format for storing triangular, symmetric, and Hermitian matrices called RFPF (Rectangular Full Packed Format). The standard two dimensional arrays of Fortran and C (also known as full format) that are used to represent triangular and symmetric matrices waste nearly half of the storage space but provide high performance via the use of Level 3 BLAS. Standard packed format arrays fully utilize storage (array space) but provide low performance as there is no Level 3 packed BLAS. We combine the good features of packed and full storage using RFPF to obtain high performance via using Level 3 BLAS as RFPF is a standard full format representation. Also, RFPF requires exactly the same minimal storage as packed format. Each LAPACK full and/or packed triangular, symmetric, and Hermitian routine becomes a single new RFPF routine based on eight possible data layouts of RFPF. This new RFPF routine usually consists of two calls to the corresponding LAPACK full format routine and two calls to Level 3 BLAS routines. This means \{$\backslash$it no\} new software is required. As examples, we present LAPACK routines for Cholesky factorization, Cholesky solution and Cholesky inverse computation in RFPF to illustrate this new work and to describe its performance on several commonly used computer platforms. Performance of LAPACK full routines using RFPF versus LAPACK full routines using standard format for both serial and SMP parallel processing is about the same while using half the storage. Performance gains are roughly one to a factor of 43 for serial and one to a factor of 97 for SMP parallel times faster using vendor LAPACK full routines with RFPF than with using vendor and/or reference packed routines.},
+archivePrefix = {arXiv},
+arxivId = {0901.1696},
+author = {Gustavson, Fred G. and Wasniewski, Jerzy and Dongarra, Jack J. and Langou, Julien},
+doi = {10.1145/1731022.1731028},
+eprint = {0901.1696},
+file = {:Users/jiahao/Documents/Mendeley Desktop/Gustavson et al/ACM Transactions on Mathematical Software/Gustavson et al. - 2010 - Rectangular Full Packed Format for Cholesky's Algorithm Factorization, Solution and Inversion.pdf:pdf},
+isbn = {0098-3500},
+issn = {00983500},
+journal = {ACM Transactions on Mathematical Software},
+number = {2},
+pages = {18},
+title = {{Rectangular Full Packed Format for Cholesky's Algorithm: Factorization, Solution and Inversion}},
+url = {http://arxiv.org/abs/0901.1696},
+volume = {37},
+year = {2010}
+}

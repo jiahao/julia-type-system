@@ -721,7 +721,7 @@ can be built entirely from other language constructs.
 
 Designing a general-purpose linear algebra library involves several different
 layers of complexity, and has been described as implementing the following
-meta=-program~\cite{Demmel2007}:
+meta-program~\cite{Demmel2007}:
 
 {\small
 \begin{verbatim}
@@ -748,8 +748,8 @@ machine details (4), which are then used to decide which specific algorithms
 
 Many systems provide optimized implementations of standard libraries for
 numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
-LAPACK (Linear Algebra PACKage). Computational routines can be customized
-for individual microarchitectures and can reach a large fraction of
+LAPACK (Linear Algebra PACKage)~\cite{lapack}. Computational routines can be
+customized for individual microarchitectures and can reach a large fraction of
 theoretical peak FLOPS. However, these libraries inherit archaic Fortran 77
 interfaces and hence tend to restrict routine names to six letters or shorter.
 When combined with the lack of polymorphism in Fortran, the names are terse and
@@ -818,10 +818,10 @@ are vector--matrix--vector products of the form
 This bilinear form can be expressed in Julia code as
 %
 \begin{lstlisting}
-function (*){T}(v::AbstractVector{T}, 
+function (*){T}(v::AbstractVector{T},
                 M::AbstractMatrix{T},
                 w::AbstractVector{T})
-    if !(size(M,1) == length(v) && 
+    if !(size(M,1) == length(v) &&
          size(M,2) == length(w))
         throw(BoundsError())
     end
@@ -882,7 +882,7 @@ Were we to replace the initialization with the similar-looking
 when \lstinline|T = Float64|. Because $\gamma$ is initialized to an
 \lstinline|Int| (native machine integer) and it is incremented zero or more
 times by a \lstinline|Float64| in the \lstinline|for| loop, the type of
-the varible can change at run time.
+the variable can change at run time.
 In fact, the result type will depend on the size of the input array $M$,
 which is only known at run time.
 Julia allows this behavior, and our
@@ -1520,6 +1520,27 @@ constructs described in Section~\ref{sec:inference}.
 \input{related_work}
 
 \section{Conclusion}
+
+The examples provided in this paper illustrate the expressive power afforded by
+the composition of extensible generic functions, polymorphic types,
+dynamic multiple dispatch, and aggressive method specialization allowed by
+just-in-time static analyses. Users are allowed to extend both the collection
+of generic functions and the base type hierarchy in Julia, which further erodes
+the distinction between user code and library code that is itself written in
+Julia. We believe that such expressiveness is useful for technical computing
+applications, where it is not generally possible to predict the variety of
+specialized computations that domain scientists, engineers and mathematicians
+require.
+
+Some other languages also offer constructs for type polymorphism, like C++'s
+expression templates and Fortress's generic functions, but these constructs are
+only available at compile time, which restrict their expressiveness.
+Furthermore, these languages usually require that all possible specialized
+methods be generated at compile time, resulting in long compilation times which
+are curtailed in practice with further restrictions on the generality of user
+defined code. In contrast, the combination of dynamic multiple dispatch
+semantics and on-demand method specialization in Julia allows users to write
+highly generic code.
 
 Julia as a language is still evolving, and there is room for further
 improvements to the compiler, such as additional static analyses for peephole
