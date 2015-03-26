@@ -1,6 +1,6 @@
 \documentclass[10pt, preprint]{sigplanconf}
 
-\usepackage{url}                  % format URLs
+\usepackage{url}               % format URLs
 \usepackage{listings}          % format code
 \usepackage{algorithm}
 \usepackage{algpseudocode}
@@ -1287,69 +1287,69 @@ as well as some shortcomings and challenges we have observed.
 %%so that the responsibility of not running nonsensical method calls is moved to
 %%user code.
 
-\subsection{Type stability}
+%%\subsection{Type stability}
 
-New users migrating from other dynamic languages like MATLAB, Python and R are
-sometimes surprised when direct, line-for-line translations to Julia do not
-achieve claimed C-like performance.
+%%New users migrating from other dynamic languages like MATLAB, Python and R are
+%%sometimes surprised when direct, line-for-line translations to Julia do not
+%%achieve claimed C-like performance.
 %Empirical reports~\cite{julia-users}
 %indicate that such users are unfamiliar with reasoning about types.
-One common pitfall is \textbf{type instability}, which is exemplified in the following
-code:
-
-\begin{lstlisting}
-function f()
-   x = 0
-   for y=1.0:1000000.0
-      x += y
-   end
-end
-\end{lstlisting}
+%%One common pitfall is \textbf{type instability}, which is exemplified in the following
+%%code:
+%%
+%%\begin{lstlisting}
+%function f()
+%   x = 0
+%   for y=1.0:1000000.0
+%      x += y
+%   end
+%end
+%\end{lstlisting}
+%%
+%This seemingly innocuous routine runs slowly because \verb|x| is initialized to
+%\verb|0| which is of type \verb|Int|, but accumulates floating point values
+%\verb|y| of type \verb|Float64| and so within the inner loop undergoes type
+%promotion to \verb|promote_type(Int,Float64)| \verb|== Float64|. The data flow
+%analysis thus cannot deduce that \verb|x| is a concrete type, but only that it
+%is of type \verb|Union(Int,| \verb|Float64)|. Thus the value's tag must be
+%stored and examined at run time.
 %
-This seemingly innocuous routine runs slowly because \verb|x| is initialized to
-\verb|0| which is of type \verb|Int|, but accumulates floating point values
-\verb|y| of type \verb|Float64| and so within the inner loop undergoes type
-promotion to \verb|promote_type(Int,Float64)| \verb|== Float64|. The data flow
-analysis thus cannot deduce that \verb|x| is a concrete type, but only that it
-is of type \verb|Union(Int,| \verb|Float64)|. Thus the value's tag must be
-stored and examined at run time.
-
-This behavior results in part from a refusal to special-case type promotions
-within the language. Instead Julia pedantically tracks the tags of values to
-ensure that the correct method (based on run-time types) is always called.
-Of course, it is possible to improve the performance of such code using
-speculative optimizations, but this has not been implemented yet.
-
-Another class of type instabilities results from the subtle interaction of
-parametric invariance, the use of non-leaf type parameters and type promotion.
-For example, the parametric type \verb|Complex{FloatingPoint}| is
-type-unstable under addition (\verb|+|):
-
-\begin{lstlisting}
-function g()
-    x = Complex{FloatingPoint}(1.0, 2.0f0) #(Float64, Float32)
-    x + x  #inferred type is Complex
-end
-\end{lstlisting}
+%This behavior results in part from a refusal to special-case type promotions
+%within the language. Instead Julia pedantically tracks the tags of values to
+%ensure that the correct method (based on run-time types) is always called.
+%Of course, it is possible to improve the performance of such code using
+%speculative optimizations, but this has not been implemented yet.
 %
-The return type changes because the \verb|+| method called uses the external
-constructor
-
-\begin{lstlisting}
-Complex(x::Real, y::Real) = Complex(promote(x,y)...)
-\end{lstlisting}
+%Another class of type instabilities results from the subtle interaction of
+%parametric invariance, the use of non-leaf type parameters and type promotion.
+%For example, the parametric type \verb|Complex{FloatingPoint}| is
+%type-unstable under addition (\verb|+|):
 %
-which promotes the real and imaginary components to a common supertype (in this
-case, \verb|Float64|). Since type parameters are invariant, the resulting type
-is neither a subtype nor a supertype of the original type.
-
-Most static languages require users to explicitly reason about type
-instabilities (e.g.\ by requiring type casts); most dynamic languages allow
-type-unstable code, but at the price of degraded performance. Julia allows
-users to inspect the results of type inference and modify their codes to
-improve performance by sharpening type annotations on variables, using language
-constructs described in Section~\ref{sec:inference}.
-
+%\begin{lstlisting}
+%function g()
+%    x = Complex{FloatingPoint}(1.0, 2.0f0) #(Float64, Float32)
+%    x + x  #inferred type is Complex
+%end
+%\end{lstlisting}
+%%
+%The return type changes because the \verb|+| method called uses the external
+%constructor
+%
+%\begin{lstlisting}
+%Complex(x::Real, y::Real) = Complex(promote(x,y)...)
+%\end{lstlisting}
+%%
+%which promotes the real and imaginary components to a common supertype (in this
+%case, \verb|Float64|). Since type parameters are invariant, the resulting type
+%is neither a subtype nor a supertype of the original type.
+%
+%Most static languages require users to explicitly reason about type
+%instabilities (e.g.\ by requiring type casts); most dynamic languages allow
+%type-unstable code, but at the price of degraded performance. Julia allows
+%users to inspect the results of type inference and modify their codes to
+%improve performance by sharpening type annotations on variables, using language
+%constructs described in Section~\ref{sec:inference}.
+%
 %% \section{Implementation challenges}
 
 %% Julia allows technical computing users to write expressive, performant code
