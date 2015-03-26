@@ -15,24 +15,24 @@ standard linear algebra library.
 One such nonstandard algorithm is the completely pivoted LU factorization. This
 algorithm is not implemented in standard linear algebra libraries in
 LAPACK~\cite{lapack}, as the conventional wisdom is the gains in numerical
-stability in complete pivoting is no generally worth the extra effort over
+stability in complete pivoting is not generally worth the extra effort over
 other variants such as partial pivoting~\cite{Golub2013}.  Nevertheless, users
 may want complete pivoting for comparison with other algorithms for a
-particular use case. For example, one may be interested in comparing the
-results of an infinite dimensional LU factorization to its finite-dimensional
-approximation, in which case only the completely pivoted LU is defined in both
-cases~\cite{Townsend2014}.
+particular use case.
+%For example, one may be interested in comparing the
+%results of an infinite dimensional LU factorization to its finite-dimensional
+%approximation, in which case only the completely pivoted LU is defined in both
+%cases~\cite{Townsend2014}.
 
-In this section, we consider various implementation of completely pivoted LU in
-pure Julia. First, we implement the algorithm na\"ively as a direct translation
-from the textbook description, and compare the performance with na\"ive
-implementations in other high level languages that are commonly used for
-technical computing, such as MATLAB, Octave, Python/NumPy, and R. Second, we
-rewrite the na\"ive Julia implementation for better performance, and
-demonstrate the effects of each transformation on execution time. We believe
-that this work flow reflects typical use cases of high level dynamic languages,
-where users first write na\"ive but verifiably correct implementations, then
-rewrite the implementation until sufficient performance can be achieved.
+In this section, we compare implementations and performance of this
+algorithm in Julia with other high level languages that are commonly used for
+technical computing: MATLAB, Octave, Python/NumPy, and R.
+%Second, we
+%rewrite the na\"ive Julia implementation for better performance, and
+%demonstrate the effects of each transformation on execution time. We believe
+%that this work flow reflects typical use cases of high level dynamic languages,
+%where users first write na\"ive but verifiably correct implementations, then
+%rewrite the implementation until sufficient performance can be achieved.
 
 
 
