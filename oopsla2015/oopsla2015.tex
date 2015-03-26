@@ -1029,11 +1029,21 @@ complexity associated with numerical codes:
 
 \begin{lstlisting}
 function factorize{T}(A::Matrix{T})
-    m, n = size(A)
-    # Is matrix square?
-    if m == n
-        # The factorization of a 1x1 matrix is just itself
-        m == 1 && return A[1]
+	m, n = size(A)
+	if m != n
+		# A is rectangular
+		# Can the result of a QR factorization be represented
+		# using a floating point type supported by BLAS?
+		BlasFloat = Union(Float32,Float64,Complex64,Complex128)
+		rt = zero(T) / sqrt(zero(T) + zero(T))
+		can_use_BlasFloat = isa(rt, BlasFloat)
+		# Factorize into pivoted QR form where possible,
+		# otherwise compute (unpivoted) QR form
+		return qrfact(A, pivot=can_use_BlasFloat)
+	end
+	# A is square
+	# The factorization of a 1x1 matrix is just itself
+	m == 1 && return A[1]
 	utri = istriu(A)          # upper triangular?
 	utri1 = ishessenbergu(A)  # upper Hessenberg?
 	sym = issym(A)
@@ -1041,53 +1051,43 @@ function factorize{T}(A::Matrix{T})
 	ltri = istril(A)          # lower triangular?
 	ltri1 = ishessenbergl(A)  # lower Hessenberg?
 	if ltri && utri
-	    return Diagonal(A)
+		return Diagonal(A)
 	elseif ltri && utri1
-	    return Bidiagonal(diag(A), diag(A, -1), false)
+		return Bidiagonal(diag(A), diag(A, -1), false)
 	elseif ltri
-	    return Triangular(A, :L)
+		return Triangular(A, :L)
 	elseif ltri1 && utri
-	    return Bidiagonal(diag(A), diag(A, 1), true)
+		return Bidiagonal(diag(A), diag(A, 1), true)
 	elseif ltri1 && utri1
-	    if (herm && (T <: Complex)) || sym
-		M = SymTridiagonal(diag(A), diag(A, -1))
-		# _may_ be factorizable into
-		# LDL' Cholesky form
-		try
-		    return ldltfact!(M)
-                end
-	    end
-	    # A is tridiagonal
-            M = Tridiagonal(diag(A,-1), diag(A), diag(A,1))
-	    # Factorize into tridiagonal LU form
-	    return lufact!(M)
+		if (herm && (T <: Complex)) || sym
+			M = SymTridiagonal(diag(A), diag(A, -1))
+			# _may_ be factorizable into
+			# LDL' Cholesky form
+			try
+				return ldltfact!(M)
+			end
+		end
+		# A is tridiagonal
+		M = Tridiagonal(diag(A,-1), diag(A), diag(A,1))
+		# Factorize into tridiagonal LU form
+		return lufact!(M)
 	elseif utri
-	    return Triangular(A, :U)
+		return Triangular(A, :U)
 	elseif herm
-	    # _may_ be factorizable into Cholesky form
-	    try
-	        return cholfact(A)
-            end
-	    # else use general Hermitian factorization
-	    return factorize(Hermitian(A))
+		# _may_ be factorizable into Cholesky form
+		try
+			return cholfact(A)
+		end
+		# else use general Hermitian factorization
+		return factorize(Hermitian(A))
 	elseif sym
-	    # use general Symmetric factorization
-	    return factorize(Symmetric(A))
+		# use general Symmetric factorization
+		return factorize(Symmetric(A))
 	else
-	    # A is square but has no other symmetries
-	    # Factorize into LU form
-	    return lufact(A)
-        end
-    end
-    # A is rectangular
-    # Can the result of a QR factorization be represented
-    # using a floating point type supported by BLAS?
-    BlasFloat = Union(Float32,Float64,Complex64,Complex128)
-    rt = zero(T) / sqrt(zero(T) + zero(T))
-    can_use_BlasFloat = typeof(rt) <: BlasFloat
-    # Factorize into pivoted QR form where possible,
-    # otherwise compute (unpivoted) QR form
-    return qrfact(A, pivot=can_use_BlasFloat)
+		# A is square but has no other symmetries
+		# Factorize into LU form
+		return lufact(A)
+	end
 end
 
 # Factorize a Hermitian or Symmetric matrix into
