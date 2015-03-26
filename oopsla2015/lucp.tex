@@ -8,13 +8,13 @@ eigensystems... is one of the few subjects covered in this book for which we do
 \textit{not} recommend that you avoid canned routines''~\cite[Section 11.0, p.
 461]{Press1992}. While much effort has been invested in making
 numerical linear algebra libraries
-fast~\cite{LAPACK,Gunnels2001,OpenBLAS,VanZee2013}, one nevertheless will
+fast~\cite{lapack,Gunnels2001,OpenBLAS,VanZee2013}, one nevertheless will
 occasionally need an algorithm that is not implemented in a
 standard linear algebra library.
 
 One such nonstandard algorithm is the completely pivoted LU factorization. This
 algorithm is not implemented in standard linear algebra libraries in
-LAPACK~\cite{LAPACK}, as the conventional wisdom is the gains in numerical
+LAPACK~\cite{lapack}, as the conventional wisdom is the gains in numerical
 stability in complete pivoting is no generally worth the extra effort over
 other variants such as partial pivoting~\cite{Golub2013}.  Nevertheless, users
 may want complete pivoting for comparison with other algorithms for a
