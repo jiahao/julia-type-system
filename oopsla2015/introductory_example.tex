@@ -1,10 +1,12 @@
 \section{Introductory example: dispatch on special matrix types}
 
+We begin with a brief example of how technical programs might combine static
+and dynamic dispatch.
+
 \paragraph{Special matrix types}
-As befits a language for technical computing, the Julia base library defines
-many specialized matrix types which capture information about matrix properties
-such as triangularity, Hermitianness or bandedness. Knowing these matrix
-properties allows for efficient computations on them, as many specialized
+The Julia base library defines
+many specialized matrix types to capture properties
+such as triangularity, Hermitianness or bandedness. Many specialized
 linear algebra algorithms exist that take advantage of such information.
 Furthermore some matrix properties lend themselves to multiple representations.
 For example, symmetric matrices may be stored as ordinary matrices, but only
