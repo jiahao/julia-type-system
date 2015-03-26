@@ -49,12 +49,10 @@ Julia's compiler statically resolves type tags as much as possible to reduce the
 
 %In this paper, we describe the algorithm for taking advantage of these static annotations. We describe how the static type resolution provides \TODO{how many x} speedup over code without annotations in a set of representative benchmarks. In addition, we describe how the Julia standard library, used by \TODO{how many} users, takes advantage of Julia's flexible dispatch mechanism for extension and reuse. When combined with an extensive base library for parallel execution and numerical analysis, Julia provides a convenient environment for rapid prototyping of new scientific computing code that can be deployed often within a factor of two of the speed of native, hand-written C code.
 
-The main contributions of the paper are as follows:
 \begin{itemize}
-\item We describe a dynamic type system that supports multiple dispatch.
-\item We describe an algorithm that statically resolves dispatch as much as possible.
-\item We demonstrate that our algorithm provides [X] speedup over unoptimized code.
-\item We demonstrate that Julia programs perform [X] better than [ABC] other languages on [X] benchmarks.
+\item We describe Julia's language design that yields to our knowledge the first technical computing system that is written in a unified language.
+\item We describe key language features and how they are used to express core library functions that are used in practice.
+\item We show that Julia's design allows these core functions to be highly polymorphic and performant.
 \end{itemize}
 
 %
