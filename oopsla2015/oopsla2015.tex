@@ -472,15 +472,7 @@ all users are likely to find this correspondence helpful.
 Mathematical thought is
 naturally polymorphic. Multimethods are a natural mechanism for capturing such
 polymorphism~\cite{Bezanson2014b,Chen2014}. Consider an operation as
-fundamental as multiplication: an expression like \verb|a*b| can mean:
-
-\begin{itemize}
-	\item a matrix-matrix product,
-	\item a matrix-vector product, or
-	\item a scalar-vector product,
-\end{itemize}
-%
-to name just a few possibilities. A generic function system supporting
+fundamental as multiplication: an expression like \verb|a*b| can mean a matrix-matrix product, a matrix-vector product, or a scalar-vector product, to name just a few possibilities. A generic function system supporting
 multimethods allows for the \verb|*| function to be polymorphic, expressing a
 common metaphor for different kinds of multiplication which can be
 disambiguated by the types of \verb|a| and \verb|b|. In contrast, languages
