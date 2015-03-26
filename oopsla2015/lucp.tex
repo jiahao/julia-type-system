@@ -149,7 +149,12 @@ as in Figure~\ref{fig:naivelangs}, which shows the execution times across the
 different languages for a $1000 \times 1000$ matrix of \lstinline|Float64|s
 with randomly sampled standard Gaussians.
 
-
+The results show that the na\"ive Julia implementation performs favorably with
+the implementations in Matlab and Octave, all of which are significantly faster
+than R's implementation. Python's implementation is somewhat faster, owing to
+the rank-1 update step (of \lstinline|A[$\rho$, $\rho$]|)
+being done in place. Turning on or off the JIT did not significantly change the
+execution times for Matlab, Octave and R.
 
 \begin{figure}
 	\includegraphics[width=\columnwidth]{data/fig-scaling}
