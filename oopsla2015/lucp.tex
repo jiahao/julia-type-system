@@ -193,13 +193,14 @@ the completely pivoted $LU$ factorization on matrices of fixed point numbers
 rational numbers (built in \lstinline|Rational| types).
 
 \begin{lstlisting}
+#Initialize 1000x1000 matrix of 32-bit fixed point 1s
+#with 14 fractional bits
 using FixedPointNumbers
-
-#Initialize 1000x1000 matrix of 32-bit fixed point 1s with 14 fractional bits
 B = ones(Fixed32{14}, 1000, 1000)
 lucompletepiv!(B)
 
-#Initialize 1000x1000 matrix of unit rational numbers with 64-bit integer numerators and denominators fixed point 1s with 14 fractional bits
+#Initialize 1000x1000 matrix of unit rational numbers
+#with 64-bit integer numerators and denominators
 C = ones(Rational{Int64}, 1000, 1000)
 lucompletepiv!(C)
 \end{lstlisting}
