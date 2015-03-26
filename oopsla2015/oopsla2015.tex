@@ -721,7 +721,7 @@ can be built entirely from other language constructs.
 
 Designing a general-purpose linear algebra library involves several different
 layers of complexity, and has been described as implementing the following
-meta=-program~\cite{Demmel2007}:
+meta-program~\cite{Demmel2007}:
 
 {\small
 \begin{verbatim}
@@ -748,8 +748,8 @@ machine details (4), which are then used to decide which specific algorithms
 
 Many systems provide optimized implementations of standard libraries for
 numerical linear algebra like BLAS (Basic Linear Algebra Subprograms) and
-LAPACK (Linear Algebra PACKage). Computational routines can be customized
-for individual microarchitectures and can reach a large fraction of
+LAPACK (Linear Algebra PACKage)~\cite{lapack}. Computational routines can be
+customized for individual microarchitectures and can reach a large fraction of
 theoretical peak FLOPS. However, these libraries inherit archaic Fortran 77
 interfaces and hence tend to restrict routine names to six letters or shorter.
 When combined with the lack of polymorphism in Fortran, the names are terse and
@@ -882,7 +882,7 @@ Were we to replace the initialization with the similar-looking
 when \lstinline|T = Float64|. Because $\gamma$ is initialized to an
 \lstinline|Int| (native machine integer) and it is incremented zero or more
 times by a \lstinline|Float64| in the \lstinline|for| loop, the type of
-the varible can change at run time.
+the variable can change at run time.
 In fact, the result type will depend on the size of the input array $M$,
 which is only known at run time.
 Julia allows this behavior, and our
