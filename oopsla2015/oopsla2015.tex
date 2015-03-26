@@ -345,7 +345,7 @@ with lower bound $\bot$ and upper bound $\top$.
 		\texttt{S\{T\}} with no restriction on the type parameter
 		\texttt{T}, showing that for each \texttt{T}, invariance
 		requires that the corresponding type \texttt{S\{T\}} be a leaf
-		type (i.e.\ instantiable), even if \texttt{T} itself is not a
+		type (i.e.\instantiable), even if \texttt{T} itself is not a
 		leaf type.}
 	\label{fig:lattice}
 \end{figure}
@@ -436,17 +436,12 @@ with lower bound $\bot$ and upper bound $\top$.
 
 \subsection{Function types}
 
-Julia is higher-order; functions can be passed to and returned from other
-functions.
+Julia is higher-order; functions can be passed to and returned from other functions.
 However, the language currently does not have function (arrow) types.
-The reason for this is that a Julia function need not have a useful canonical
-return type.
-We could consider every function to have return type \verb|Any|, but this is
-not terribly revealing.
-Return types based on Julia's type inference would not be predictable, as
-inference is heuristic and best-effort.
-Future compiler improvements can make inferred types more specific,
-and this should not effect program behavior (only performance).
+The reason for this is that a Julia function need not have a useful canonical return type.
+We could consider every function to have return type \verb|Any|, but this is not terribly revealing.
+Return types based on Julia's type inference would not be predictable, as inference is heuristic and best-effort.
+Future compiler improvements can make inferred types more specific, and this should not effect program behavior (only performance).
 
 Julia does support \emph{nominal} function types --- a data type may implement
 the \verb|call| generic function, allowing it to be used anywhere a function
