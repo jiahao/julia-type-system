@@ -1249,43 +1249,43 @@ for improving the speed of Julia code, speeding up code by an average factor
 out to have almost no effect on execution speed, with an average contribution
 of 0.99.
 
-\subsection{Method ambiguities}
+%% \subsection{Method ambiguities}
 
-Julia uses symmetric multiple dispatch where all arguments have equal priority
-for dispatch. This contrasts with some other languages like
-Dylan~\cite{dylanman}, which
-prioritize the arguments from left to right~\cite{Agrawal1991}. Julia instead
-sorts methods by specificity~\cite{Bezanson2012}. For example, the function
-\verb|f| defined by
+%% Julia uses symmetric multiple dispatch where all arguments have equal priority
+%% for dispatch. This contrasts with some other languages like
+%% Dylan~\cite{dylanman}, which
+%% prioritize the arguments from left to right~\cite{Agrawal1991}. Julia instead
+%% sorts methods by specificity~\cite{Bezanson2012}. For example, the function
+%% \verb|f| defined by
+%%
+%%\begin{lstlisting}
+%%f(x::Real, y::Int)  = 1
+%%f(x::Int,  y::Real) = 2
+%%\end{lstlisting}
+%%
+%%results in a method ambiguity: because of subtype polymorphism, it is not clear
+%%which method gets dispatched for inputs of type \verb|(Int, Int)|. To solve
+%%this problem, Julia
+%%requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
+%%these two methods.
+%%
+%%Method ambiguity warnings were intended to reveal problems in multimethod
+%%definitions. However, at other times it is a nuisance for library
+%%writers. The canonical example is trying to use \package{Images.jl} and
+%%\package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
+%%type with additional subclasses in mutually incompatible ways. Adding an image
+%%and a data frame is nonsensical and should return an error in client code that
+%%attempts to do so. However, the method ambiguities are detected when a package
+%%is loaded and compiled, printing ambiguity warnings which pertain to method
+%%definitions that are likely never used.
+%%Library writers are therefore faced with the unpleasant task of defining
+%%disambiguating methods solely to suppress warnings, or otherwise
+%%avoid the issue entirely by not using subtyping features of Julia, which could
+%%reduce code reuse.
 
-\begin{lstlisting}
-f(x::Real, y::Int)  = 1
-f(x::Int,  y::Real) = 2
-\end{lstlisting}
-%
-results in a method ambiguity: because of subtype polymorphism, it is not clear
-which method gets dispatched for inputs of type \verb|(Int, Int)|. To solve
-this problem, Julia
-requires a specialized method \verb|f(x::Int, y::Int)| to be defined before
-these two methods.
-
-Method ambiguity warnings were intended to reveal problems in multimethod
-definitions. However, at other times it is a nuisance for library
-writers. The canonical example is trying to use \package{Images.jl} and
-\package{DataFrames.jl} at the same time, which extend the \verb|AbstractArray|
-type with additional subclasses in mutually incompatible ways. Adding an image
-and a data frame is nonsensical and should return an error in client code that
-attempts to do so. However, the method ambiguities are detected when a package
-is loaded and compiled, printing ambiguity warnings which pertain to method
-definitions that are likely never used.
-Library writers are therefore faced with the unpleasant task of defining
-disambiguating methods solely to suppress warnings, or otherwise
-avoid the issue entirely by not using subtyping features of Julia, which could
-reduce code reuse.
-
-Work is underway to turn such method ambiguity warnings into run-time errors,
-so that the responsibility of not running nonsensical method calls is moved to
-user code.
+%%Work is underway to turn such method ambiguity warnings into run-time errors,
+%%so that the responsibility of not running nonsensical method calls is moved to
+%%user code.
 
 \subsection{Type stability}
 
