@@ -64,16 +64,16 @@ changes for clarity.}
 %
 \begin{lstlisting}
 function sqrtm{T<:Real}(A::StridedMatrix{T})
-    #If symmetric, use specialized method
-    issym(A) && return sqrtm(Symmetric(A))
+	#If symmetric, use specialized method
+	issym(A) && return sqrtm(Symmetric(A))
 
-    #Otherwise, use general method
-    SchurF = schurfact(complex(A))
-    R = full(sqrtm(Triangular(SchurF[:T], :U, false)))
-    retmat = SchurF[:vectors]*R*SchurF[:vectors]'
+	#Otherwise, use general method
+	SchurF = schurfact(complex(A))
+	R = full(sqrtm(Triangular(SchurF[:T], :U, false)))
+	retmat = SchurF[:vectors]*R*SchurF[:vectors]'
 
-    #If result has no imaginary component, return a matrix of real numbers
-    all(imag(retmat) .== 0) ? real(retmat) : retmat
+	#If result has no imaginary component, return a matrix of real numbers
+	all(imag(retmat) .== 0) ? real(retmat) : retmat
 end
 \end{lstlisting}
 
@@ -86,6 +86,17 @@ computes the square root. Thus dynamic dispatch allows the same performant
 kernel to be called even in situations where the user does not know if a
 particular input matrix is symmetric, or even that specialized algorithms for
 symmetric matrices exist.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=\columnwidth]{fig-sqrtm}
+	\caption{Dynamic dispatch and multimethods for the matrix square root
+		function \texttt{sqrtm}, showing that the specialized algorithm
+		can be run either from a static decision from the method
+		dispatcher based on the input type, or a dynamic decision from
+		a run-time check based on the value.}
+	\label{fig:sqrtm}
+\end{figure}
 
 The first code snippet illustrates a situation that can be addressed by either
 static dispatch or dynamic dispatch. However, the second snippet makes use of
@@ -127,81 +138,8 @@ integers). Matrices containing other types, such as
 The two kinds of polymorphism allow families of related methods to be defined
 concisely, which allow highly generic code to be written. Additionally, code for
 multiple algorithms can coexist within the same generic function, with the actual
-choice of which code to run being determined by method dispatch.
-
-
-
-\subsection{Dynamic dispatch in matrix functions}
-
-Dynamic, i.e.\ late bound, dispatch allows for high performance
-polyalgorithms with specialized code paths depending on matrix properties which
-can only be inferred at runtime based on the specific values of the inputs. For
-example, the matrix square root (\verb|sqrtm|) has two methods defined:
-
-\begin{itemize}
-	\item For symmetric (or Hermitian) matrices, where the answer can be
-		computed by diagonalization,
-	\item For general dense matrices, where the answer uses the more
-		expensive (but also more general) Schur
-		factorization~\cite{Higham2008}.
-\end{itemize}
-%
-The latter method contains a run time check for symmetry and dispatches upon
-the former if present. Thus as summarized in Figure~\ref{fig:sqrtm}, dynamic
-dispatch allows the same performant kernel to be called even in situations
-where the user does not know if a particular input matrix is symmetric, or even
-that specialized algorithms for symmetric matrices exist.
-
-
-\begin{lstlisting}
-function sqrtm{T<:Real}(A::StridedMatrix{T})
-    issym(A) && return sqrtm(Symmetric(A))
-    n = chksquare(A)
-    SchurF = schurfact(complex(A))
-    R = full(sqrtm(Triangular(SchurF[:T], :U, false)))
-    retmat = SchurF[:vectors]*R*SchurF[:vectors]'
-    all(imag(retmat) .== 0) ? real(retmat) : retmat
-end
-\end{lstlisting}
-
-
-\begin{figure}
-	\centering
-	\includegraphics[width=\columnwidth]{fig-sqrtm}
-	\caption{Dynamic dispatch and multimethods for the matrix square root
-		function \texttt{sqrtm}, showing that the specialized algorithm
-		can be run either from a static decision from the method
-		dispatcher based on the input type, or a dynamic decision from
-		a run-time check based on the value.}
-	\label{fig:sqrtm}
-\end{figure}
-
-
-
-
-\subsection{Late binding increases expressiveness}
-
-The examples in this section, while simple, illustrate the expressive power
-afforded by the composition of extensible generic functions, polymorphic types,
-dynamic multiple dispatch, and aggressive method specialization allowed by
-just-in-time static analyses. Users are allowed to extend both the collection
-of generic functions and the base type hierarchy in Julia, which further erodes
-the distinction between user code and library code that is itself written in
-Julia. We believe that such expressivity is useful for technical computing
-applications, where it is not generally possible to predict the variety of
-specialized computations that domain scientists, engineeers and mathematicians
-require.
-
-Some other languages also offer constructs for type polymorphism, like C++'s
-expression templates and Fortress's generic functions, but these constructs are
-only available at compile time, which restrict their expressiveness.
-Furthermore, these languages usually require that all possible specialized
-methods be generated at compile time, resulting in long compilation times which
-are curtailed in practice with further restrictions on the generality of user
-defined code. In contrast, the combination of dynamic multiple dispatch
-semantics and on-demand method specialization in Julia allows users to write
-highly generic code. Consider that the method definitions above each represent
-an infinite family of methods. While user code in practice only uses a small,
-finite subset of the possible methods, users have the luxury of choosing from
-the entire universe encompassed by the generic function system.
+choice of which code to run being determined by method dispatch. Furthermore,
+the same performant kernel can be called even in situations where the user does
+not know that a particular input matrix is symmetric, or even that specialized
+algorithms for symmetric matrices exist.
 
