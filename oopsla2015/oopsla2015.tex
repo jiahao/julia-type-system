@@ -1017,8 +1017,7 @@ complexity associated with numerical codes:
 \begin{lstlisting}
 function factorize{T}(A::Matrix{T})
 	m, n = size(A)
-	if m != n
-		# A is rectangular
+	if m != n # A is rectangular
 		# Can the result of a QR factorization be represented
 		# using a floating point type supported by BLAS?
 		BlasFloat = Union(Float32,Float64,Complex64,Complex128)
